@@ -1,4 +1,4 @@
-import LottieView from 'lottie-react-native';
+import MotionLottie from '../../../../functions/CustomElements/MotionLottie';
 import {
   GlobalThemeView,
   ThemeText,
@@ -30,7 +30,7 @@ export default function ConfirmPaymentRequset(props) {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <View style={styles.content}>
-          <LottieView
+          <MotionLottie
             autoPlay={true}
             source={confirmAnimation}
             renderMode="SOFTWARE"

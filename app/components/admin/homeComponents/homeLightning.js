@@ -34,6 +34,7 @@ import Animated, {
   FadeIn,
   LayoutAnimationConfig,
 } from 'react-native-reanimated';
+import { useReducedMotion, enterAnim } from '../../../constants/motion';
 import { TAB_ITEM_HEIGHT } from '../../../../navigation/tabs';
 import { useTabScrollToTop } from '../../../../navigation/tabs/useTabScrollToTop';
 import { useUserBalanceContext } from '../../../../context-store/userBalanceContext';
@@ -89,6 +90,7 @@ const MemoizedStickyNavbarContainer = memo(
 );
 
 export default function HomeLightning() {
+  const reduced = useReducedMotion();
   const { fiatStats } = useNodeContext();
   const {
     sparkInformation,
@@ -252,7 +254,7 @@ export default function HomeLightning() {
               {isTotalLoaded ? (
                 <Animated.View
                   key={isHidden ? 'hidden' : 'shown'}
-                  entering={FadeIn.duration(isHidden ? 150 : 250)}
+                  entering={enterAnim(FadeIn.duration(isHidden ? 150 : 250), reduced)}
                 >
                   <TouchableOpacity
                     testID="home-total-balance"

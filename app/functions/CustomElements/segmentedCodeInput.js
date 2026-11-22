@@ -10,6 +10,7 @@ import Animated, {
 import { FONT, SIZES } from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
 import ThemeText from './textTheme';
+import { useReducedMotion } from '../../constants/motion';
 
 // Uppercases and truncates the raw input to `length`. Kept pure so the segmented
 // rendering stays a straight map over the sanitized value.
@@ -39,16 +40,17 @@ export default function SegmentedCodeInput({
   const { backgroundOffset, tokens } = GetThemeColors();
   const isFocused = useIsFocused();
   const caret = useSharedValue(1);
+  const reducedMotion = useReducedMotion();
 
   // The caret loop runs on the UI thread; start it only once the screen has
   // finished navigating in so it doesn't fight the native-stack transition.
   useEffect(() => {
-    if (!isFocused) return;
+    if (!isFocused || reducedMotion) return;
     caret.value = withRepeat(withTiming(0, { duration: 500 }), -1, true);
     return () => {
       caret.value = 1;
     };
-  }, [caret, isFocused]);
+  }, [caret, isFocused, reducedMotion]);
 
   const caretStyle = useAnimatedStyle(() => ({ opacity: caret.value }));
 

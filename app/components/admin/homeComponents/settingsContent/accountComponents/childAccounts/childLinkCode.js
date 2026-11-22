@@ -6,6 +6,7 @@ import {
   View,
 } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { useReducedMotion, enterAnim, exitAnim } from '../../../../../../constants/motion';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import {
@@ -34,6 +35,7 @@ import TopHeader from '../../../../../../functions/CustomElements/redesign/TopHe
 import { FADE_TOP } from '../../../../../../functions/CustomElements/redesign/TopFade';
 
 export default function ChildLinkCode(props) {
+  const reduced = useReducedMotion();
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { tokens } = useTheme();
@@ -249,8 +251,8 @@ export default function ChildLinkCode(props) {
           {isQrTab ? (
             <Animated.View
               key="qr"
-              entering={FadeIn.duration(200)}
-              exiting={FadeOut.duration(200)}
+              entering={enterAnim(FadeIn.duration(200), reduced)}
+              exiting={exitAnim(FadeOut.duration(200), reduced)}
               style={StyleSheet.absoluteFill}
             >
               {qrContent}
@@ -258,8 +260,8 @@ export default function ChildLinkCode(props) {
           ) : (
             <Animated.View
               key="code"
-              entering={FadeIn.duration(200)}
-              exiting={FadeOut.duration(200)}
+              entering={enterAnim(FadeIn.duration(200), reduced)}
+              exiting={exitAnim(FadeOut.duration(200), reduced)}
               style={StyleSheet.absoluteFill}
             >
               {codeContent}

@@ -17,6 +17,7 @@ import displayCorrectDenomination from '../../../../functions/displayCorrectDeno
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
 import truncateToTwoDecimals from '../../../../functions/truncateNumber';
+import { useReducedMotion } from '../../../../constants/motion';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -51,6 +52,7 @@ export default function BalancePieChart({ isBalanceHidden }) {
     [total, masterInfoObject, fiatStats],
   );
 
+  const reduced = useReducedMotion();
   const animatedPct = useSharedValue(0);
   const isInitialRef = useRef(true);
 
@@ -58,10 +60,12 @@ export default function BalancePieChart({ isBalanceHidden }) {
     const delay = isInitialRef.current ? 150 : 0;
     isInitialRef.current = false;
     const timer = setTimeout(() => {
-      animatedPct.value = withTiming(btcPct, {
-        duration: 600,
-        easing: Easing.out(Easing.cubic),
-      });
+      animatedPct.value = reduced
+        ? btcPct
+        : withTiming(btcPct, {
+            duration: 600,
+            easing: Easing.out(Easing.cubic),
+          });
     }, delay);
     return () => {
       clearTimeout(timer);

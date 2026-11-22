@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useEffect, useRef, useState } from 'react';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
-import LottieView from 'lottie-react-native';
+import MotionLottie from '../../functions/CustomElements/MotionLottie';
 import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
 import AmountHero from '../../functions/CustomElements/redesign/AmountHero';
 import useContentWidth from '../../functions/CustomElements/redesign/useContentWidth';
@@ -170,7 +170,7 @@ export default function ConfirmTxPage(props) {
           style={styles.scroll}
           contentContainerStyle={styles.contentContainer}
         >
-          <LottieView
+          <MotionLottie
             ref={animationRef}
             source={errorAnimation}
             renderMode="SOFTWARE"
@@ -209,7 +209,7 @@ export default function ConfirmTxPage(props) {
           style={styles.scroll}
           contentContainerStyle={styles.contentContainer}
         >
-          <LottieView
+          <MotionLottie
             ref={animationRef}
             source={didSucceed ? confirmAnimation : errorAnimation}
             renderMode="SOFTWARE"
@@ -247,7 +247,7 @@ export default function ConfirmTxPage(props) {
         style={styles.scroll}
         contentContainerStyle={styles.contentContainer}
       >
-        <LottieView
+        <MotionLottie
           ref={animationRef}
           source={didSucceed ? confirmAnimation : errorAnimation}
           renderMode="SOFTWARE"

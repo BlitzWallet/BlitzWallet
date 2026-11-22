@@ -12,7 +12,7 @@ import initializeUserSettingsFromHistory from '../../functions/initializeUserSet
 import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { useGlobalAppData } from '../../../context-store/appData';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
-import LottieView from 'lottie-react-native';
+import MotionLottie from '../../functions/CustomElements/MotionLottie';
 import {
   StackActions,
   useNavigation,
@@ -47,10 +47,11 @@ import IconButton from '../../functions/CustomElements/redesign/IconButton';
 import ResultAnimation from '../../functions/CustomElements/redesign/ResultAnimation';
 import CustomButton from '../../functions/CustomElements/button';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { useReducedMotion } from '../../constants/motion';
+import { useReducedMotion, enterAnim, exitAnim } from '../../constants/motion';
 import { startExitEngine } from '../../functions/unilateralExit/exitEngine';
 
 export default function ConnectingToNodeLoadingScreen() {
+  const reduced = useReducedMotion();
   const navigate = useNavigation();
   const route = useRoute();
   // Hash of the exact seed the caller intends this account to load. Threaded in
@@ -74,7 +75,6 @@ export default function ConnectingToNodeLoadingScreen() {
   const { toggleFiatStats } = useNodeContext();
   const [hasError, setHasError] = useState(null);
   const { t } = useTranslation();
-  const reducedMotion = useReducedMotion();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const didRunConnectionRef = useRef(null);
@@ -336,7 +336,7 @@ export default function ConnectingToNodeLoadingScreen() {
         {hasError ? (
           <Animated.View
             key="error"
-            entering={FadeIn.duration(200)}
+            entering={enterAnim(FadeIn.duration(200), reduced)}
             style={styles.innerContainer}
           >
             <View style={styles.settingsButton}>
@@ -383,19 +383,20 @@ export default function ConnectingToNodeLoadingScreen() {
         ) : (
           <Animated.View
             key="loading"
-            exiting={FadeOut.duration(200)}
+            exiting={exitAnim(FadeOut.duration(200), reduced)}
             style={styles.loadingContainer}
             accessible
             accessibilityLabel={t(
               'screens.inAccount.loadingScreen.loadingMessage2',
             )}
           >
-            <LottieView
+            <MotionLottie
               source={transformedAnimation}
               colorFilters={[
                 { keypath: '**', color: theme ? tokens.ink : tokens.accent },
               ]}
-              autoPlay={!reducedMotion}
+              autoPlay
+              keepPlaying
               loop={true}
               style={{
                 width: Math.min(screenDimensions.width * 0.4, 400),

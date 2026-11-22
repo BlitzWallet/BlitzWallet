@@ -95,8 +95,8 @@ export function SocialLinksSheet({
   return (
     <View
       onLayout={e =>
-        // Sheet chrome: grab area (10 + 5) + 34 bottom padding.
-        setContentHeight(Math.round(e.nativeEvent.layout.height) + 49)
+        // Sheet chrome: grab area (10 + 5 + 5) + 34 bottom padding.
+        setContentHeight(Math.round(e.nativeEvent.layout.height) + 54)
       }
     >
       <SheetHeader first title={t('settings.index.social')} />

@@ -58,10 +58,6 @@ export default function ClosePoolConfirmation({
   const cancelButton = t('constants.cancel');
 
   useEffect(() => {
-    if (isLoading) setContentHeight(500);
-  }, [isLoading]);
-
-  useEffect(() => {
     return () => {
       isMounted.current = false;
       // Never leave the pool wallet open if the sheet closes mid-flow.
@@ -76,6 +72,9 @@ export default function ClosePoolConfirmation({
     let poolMnemonic = null;
 
     try {
+      // Same render as the progress view, so the sheet never shows it at
+      // the confirm view's size.
+      setContentHeight(500);
       setIsLoading(true);
       setStep('preparing');
 
@@ -320,8 +319,8 @@ export default function ClosePoolConfirmation({
     <View
       style={styles.confirmContainer}
       onLayout={e =>
-        // Sheet chrome: grab area (10 + 5) + 34 bottom padding.
-        setContentHeight(Math.round(e.nativeEvent.layout.height) + 49)
+        // Sheet chrome: grab area (10 + 5 + 5) + 34 bottom padding.
+        setContentHeight(Math.round(e.nativeEvent.layout.height) + 54)
       }
     >
       <Disc icon={'ArchiveX'} iconSize={24} size={56} />

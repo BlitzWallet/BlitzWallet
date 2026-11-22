@@ -1,5 +1,6 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { useReducedMotion, enterAnim } from '../../../../constants/motion';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { ThemeText } from '../../../../functions/CustomElements';
@@ -49,6 +50,7 @@ export default function BalanceCard({
   isHidden = false,
   isLoading = false,
 }) {
+  const reduced = useReducedMotion();
   const { tokens } = GetThemeColors();
   const unitMatch = splitAmountUnit(amount);
 
@@ -86,7 +88,7 @@ export default function BalanceCard({
         ) : (
           <Animated.View
             key={isHidden ? 'hidden' : 'shown'}
-            entering={FadeIn.duration(150).delay(40)}
+            entering={enterAnim(FadeIn.duration(150).delay(40), reduced)}
           >
             <ThemeText
               CustomNumberOfLines={1}

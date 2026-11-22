@@ -1,6 +1,6 @@
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
-import LottieView from 'lottie-react-native';
+import MotionLottie from '../../../../../functions/CustomElements/MotionLottie';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {
   GlobalThemeView,
@@ -33,7 +33,7 @@ export default function ErrorWithPayment({ reason, onContinue }) {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <View style={styles.contentContainer}>
-          <LottieView
+          <MotionLottie
             ref={animationRef}
             source={errorAnimation}
             renderMode="SOFTWARE"

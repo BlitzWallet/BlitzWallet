@@ -12,6 +12,7 @@ import KeyForKeyboard from '../../../../../functions/CustomElements/key';
 import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
 import { LoginPinDot } from '../../../loginComponents/pinPage';
 import { useTheme } from '../../../../../../context-store/theme';
+import { useReducedMotion } from '../../../../../constants/motion';
 
 const KEYBOARD_LAYOUT = [
   [1, 2, 3],
@@ -44,6 +45,7 @@ export default function ConfirmPinForLoginMode({
   const navigate = useNavigation();
   const { tokens } = useTheme();
   const { t } = useTranslation();
+  const reduced = useReducedMotion();
   const [pinSettings, setPinSettings] = useState({
     enteredPin: EMPTY_PIN,
     savedPin: EMPTY_PIN,
@@ -81,9 +83,11 @@ export default function ConfirmPinForLoginMode({
       isErrorRef.current = true;
       setErrorMessage(t('settings.loginSecurity.invalidPinconfirmation'));
       setPinSettings({ savedPin: EMPTY_PIN, enteredPin: EMPTY_PIN });
-      dotsShake.value = withSequence(
-        ...SHAKE_SEQUENCE.map(x => withTiming(x, { duration: 40 })),
-      );
+      if (!reduced) {
+        dotsShake.value = withSequence(
+          ...SHAKE_SEQUENCE.map(x => withTiming(x, { duration: 40 })),
+        );
+      }
       errorTimerRef.current = setTimeout(() => {
         isErrorRef.current = false;
         setErrorMessage('');

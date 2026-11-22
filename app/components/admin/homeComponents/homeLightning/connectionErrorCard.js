@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { useReducedMotion, enterAnim, exitAnim } from '../../../../constants/motion';
 import { openComposer } from 'react-native-email-link';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -28,6 +29,7 @@ function formatLastConnected(timestamp) {
 // two steps as SparkErrorScreen). The last connected time lives on the wallet's
 // balance snapshot, so a failure right at launch can say how old the balance is.
 export default function ConnectionErrorCard({ visible }) {
+  const reduced = useReducedMotion();
   const { t } = useTranslation();
   const navigate = useNavigation();
   const { tokens } = useTheme();
@@ -96,8 +98,8 @@ export default function ConnectionErrorCard({ visible }) {
 
   return (
     <Animated.View
-      entering={FadeIn.duration(200)}
-      exiting={FadeOut.duration(200)}
+      entering={enterAnim(FadeIn.duration(200), reduced)}
+      exiting={exitAnim(FadeOut.duration(200), reduced)}
     >
       <HomeCard
         lead={<Disc icon={'WifiOff'} size={44} iconSize={20} tone="warm" />}

@@ -7,6 +7,7 @@
 
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useReducedMotion, screenAnimation } from './app/constants/motion';
 import React, {
   JSX,
   useCallback,
@@ -838,6 +839,7 @@ function ResetStack(): JSX.Element | null {
     setNavigationBar();
   }, [backgroundColor, theme, appState]);
 
+  const reduced = useReducedMotion();
   const screenOptions = useMemo(() => {
     return {
       headerShown: false,
@@ -881,7 +883,10 @@ function ResetStack(): JSX.Element | null {
         <Stack.Screen
           name="Splash"
           component={SplashScreen}
-          options={{ animation: 'fade', gestureEnabled: false }}
+          options={{
+            animation: screenAnimation('fade', reduced),
+            gestureEnabled: false,
+          }}
         />
         <Stack.Screen
           name="SplashReload"
@@ -893,7 +898,7 @@ function ResetStack(): JSX.Element | null {
           component={HomeComponent}
           initialParams={securitySettings}
           options={{
-            animation: 'fade',
+            animation: screenAnimation('fade', reduced),
             gestureEnabled: false,
             contentStyle: {
               backgroundColor: backgroundColor,
@@ -904,19 +909,22 @@ function ResetStack(): JSX.Element | null {
         <Stack.Screen
           name="TabInUse"
           component={TabInUse}
-          options={{ animation: 'fade', gestureEnabled: false }}
+          options={{
+            animation: screenAnimation('fade', reduced),
+            gestureEnabled: false,
+          }}
         />
         <Stack.Screen
           name="WebUpdate"
           component={WebUpdate}
-          options={{ animation: 'slide_from_bottom' }}
+          options={{ animation: screenAnimation('slide_from_bottom', reduced) }}
         />
         <Stack.Screen
           name="ConnectingToNodeLoadingScreen"
           component={ConnectingToNodeLoadingScreen}
           options={{
             gestureEnabled: false,
-            animation: 'fade',
+            animation: screenAnimation('fade', reduced),
             contentStyle: {
               backgroundColor: backgroundColor,
               backfaceVisibility: 'hidden',
@@ -927,7 +935,7 @@ function ResetStack(): JSX.Element | null {
         <Stack.Group
           screenOptions={{
             presentation: 'containedTransparentModal',
-            animation: 'slide_from_bottom',
+            animation: screenAnimation('slide_from_bottom', reduced),
           }}
         >
           {SLIDE_FROM_BOTTOM_SCREENS.map(({ name, component: Component }) => (
@@ -940,7 +948,7 @@ function ResetStack(): JSX.Element | null {
         </Stack.Group>
         <Stack.Group
           screenOptions={{
-            animation: 'slide_from_right',
+            animation: screenAnimation('slide_from_right', reduced),
             presentation: 'card',
           }}
         >
@@ -957,7 +965,7 @@ function ResetStack(): JSX.Element | null {
         </Stack.Group>
         <Stack.Group
           screenOptions={{
-            animation: 'fade',
+            animation: screenAnimation('fade', reduced),
             presentation: 'containedTransparentModal',
           }}
         >

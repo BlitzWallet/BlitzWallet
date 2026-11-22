@@ -7,6 +7,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
+import { useReducedMotion, ReduceMotion, fadeMs } from '../constants/motion';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { ThemeText } from '../functions/CustomElements';
 import { COLORS, FONT } from '../constants';
@@ -33,8 +34,9 @@ export function Toast({
   // Toast card is always white; Lights out's accent is white too, so use dark ink.
   const iconColor = mode === 'lightsOut' ? COLORS.lightModeText : tokens.accent;
 
+  const reduced = useReducedMotion();
   // shared values
-  const slideY = useSharedValue(50);
+  const slideY = useSharedValue(reduced ? 0 : 50);
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(0);
   const isAnimatingOut = useRef(false);
@@ -45,6 +47,18 @@ export function Toast({
       if (isAnimatingOut.current) return;
       isAnimatingOut.current = true;
 
+      if (reduced) {
+        opacity.value = withTiming(
+          0,
+          { duration: fadeMs, reduceMotion: ReduceMotion.Never },
+          finished => {
+            if (finished && callback) {
+              scheduleOnRN(callback);
+            }
+          },
+        );
+        return;
+      }
       slideY.value = withTiming(-100, { duration: 300 });
       opacity.value = withTiming(0, { duration: 200 }, finished => {
         if (finished && callback) {
@@ -52,11 +66,18 @@ export function Toast({
         }
       });
     },
-    [opacity, slideY],
+    [opacity, slideY, reduced],
   );
 
   // Animate in
   useEffect(() => {
+    if (reduced) {
+      opacity.value = withTiming(1, {
+        duration: fadeMs,
+        reduceMotion: ReduceMotion.Never,
+      });
+      return;
+    }
     slideY.value = withTiming(0, { duration: 200 });
     opacity.value = withTiming(1, { duration: 300 });
   }, [slideY, opacity]);
@@ -72,7 +93,7 @@ export function Toast({
       if (event.translationY < -20) {
         scheduleOnRN(animateOut, onHide);
       } else {
-        translateY.value = withSpring(0);
+        translateY.value = reduced ? 0 : withSpring(0);
       }
     });
 

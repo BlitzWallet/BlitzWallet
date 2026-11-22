@@ -51,6 +51,7 @@ import Animated, {
   withSpring,
   cancelAnimation,
 } from 'react-native-reanimated';
+import { useReducedMotion, ReduceMotion, fadeMs } from '../../constants/motion';
 import { scheduleOnRN } from 'react-native-worklets';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { useAppStatus } from '../../../context-store/appStatus';
@@ -116,7 +117,17 @@ export default function CustomHalfModal(props) {
   const contentType = props?.route?.params?.wantedContent;
   const slideHeight = props?.route?.params?.sliderHight || 0.5;
   const { transparentOveraly, tokens } = GetThemeColors();
-  const [contentHeight, setContentHeight] = useState(0);
+  const [contentHeight, setContentHeightState] = useState(0);
+  // Ignore sub-2px changes: resizing a bottom-anchored sheet moves its top,
+  // which re-snaps the content to the pixel grid and flips onLayout's
+  // rounded height by 1px — a resize loop that jitters the sheet forever.
+  const setContentHeight = useCallback(
+    height =>
+      setContentHeightState(prev =>
+        Math.abs(height - prev) < 2 ? prev : height,
+      ),
+    [],
+  );
 
   // Content sets this while it must not be swiped or tapped away (a payment
   // in flight). Its own buttons can still close the sheet.
@@ -132,22 +143,40 @@ export default function CustomHalfModal(props) {
   const shouldDismissKeyboardOnMount =
     !CONTENT_TYPES_WITH_MOUNT_FOCUS.has(contentType);
 
-  const translateY = useSharedValue(screenDimensions.height);
+  const reduced = useReducedMotion();
+  const translateY = useSharedValue(reduced ? 0 : screenDimensions.height);
+  const opacity = useSharedValue(reduced ? 0 : 1);
   const maxHeight = screenDimensions.height * 0.95;
   const animatedHeight = useSharedValue(
     Math.min(maxHeight, screenDimensions.height * slideHeight),
   );
 
   const slideIn = useCallback(() => {
+    if (reduced) {
+      translateY.value = 0;
+      opacity.value = withTiming(1, {
+        duration: fadeMs,
+        reduceMotion: ReduceMotion.Never,
+      });
+      return;
+    }
     translateY.value = withTiming(0, { duration: 200 });
-  }, [translateY]);
+  }, [translateY, opacity, reduced]);
 
   const slideOut = useCallback(() => {
+    if (reduced) {
+      opacity.value = withTiming(0, {
+        duration: fadeMs,
+        reduceMotion: ReduceMotion.Never,
+      });
+      return;
+    }
     translateY.value = withTiming(screenDimensions.height, { duration: 200 });
-  }, [screenDimensions.height, translateY]);
+  }, [screenDimensions.height, translateY, opacity, reduced]);
 
   useEffect(() => {
-    if (contentHeight) {
+    // Reduced motion sizes the sheet with a plain style (below) instead.
+    if (contentHeight && !reduced) {
       animatedHeight.value = withTiming(Math.min(contentHeight, maxHeight), {
         duration: 200,
       });
@@ -209,6 +238,7 @@ export default function CustomHalfModal(props) {
         closeTimerRef.current = null;
       }
       cancelAnimation(translateY);
+      cancelAnimation(opacity);
       cancelAnimation(animatedHeight);
     };
   }, [shouldDismissKeyboardOnMount, slideIn]);
@@ -821,23 +851,39 @@ export default function CustomHalfModal(props) {
           if (translateY.value > 100) {
             scheduleOnRN(handleBackPressFunction);
           } else {
-            translateY.value = withSpring(0);
+            translateY.value = reduced ? 0 : withSpring(0);
           }
         })
         .onFinalize(() => {
           dragStart.value = null;
         }),
-    [dismissLocked, handleBackPressFunction],
+    [dismissLocked, handleBackPressFunction, reduced],
   );
   const sheetDrag = useMemo(
     () => ({ panGesture, scrollBlocksDrag }),
     [panGesture],
   );
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-    height: animatedHeight.value,
-  }));
+  const animatedStyle = useAnimatedStyle(() =>
+    reduced
+      ? {
+          transform: [{ translateY: translateY.value }],
+          opacity: opacity.value,
+        }
+      : {
+          transform: [{ translateY: translateY.value }],
+          height: animatedHeight.value,
+          opacity: opacity.value,
+        },
+  );
+  // A React-state height lands in the same commit as the content that set
+  // it, so the sheet never shows a frame at the old size.
+  const reducedHeightStyle = reduced && {
+    height: Math.min(
+      contentHeight || screenDimensions.height * slideHeight,
+      maxHeight,
+    ),
+  };
 
   return (
     <KeyboardAvoidingView
@@ -854,6 +900,7 @@ export default function CustomHalfModal(props) {
         <Animated.View
           style={[
             styles.contentContainer,
+            reducedHeightStyle,
             animatedStyle,
             {
               backgroundColor: 'black',

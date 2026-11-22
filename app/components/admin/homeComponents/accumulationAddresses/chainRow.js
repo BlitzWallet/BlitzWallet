@@ -15,6 +15,7 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useEffect } from 'react';
 import { useTheme } from '../../../../../context-store/theme';
+import { useReducedMotion } from '../../../../constants/motion';
 
 // Flush chain row (52, 32 logo, chevron-down) that opens its coins in place.
 export default function ChainRow({
@@ -26,12 +27,14 @@ export default function ChainRow({
   isAssetTaken,
   onDisabledAssetPress,
 }) {
+  const reduced = useReducedMotion();
   const expandHeight = useSharedValue(0);
   const chevronRotation = useSharedValue(0);
 
   useEffect(() => {
-    expandHeight.value = withTiming(expanded ? 1 : 0, { duration: 200 });
-    chevronRotation.value = withTiming(expanded ? 1 : 0, { duration: 200 });
+    const end = expanded ? 1 : 0;
+    expandHeight.value = reduced ? end : withTiming(end, { duration: 200 });
+    chevronRotation.value = reduced ? end : withTiming(end, { duration: 200 });
   }, [expanded]);
 
   const expandedStyle = useAnimatedStyle(() => ({

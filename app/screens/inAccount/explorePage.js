@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { useReducedMotion, enterAnim } from '../../constants/motion';
 import { Stop } from 'react-native-svg';
 import CustomScrollView from '../../functions/CustomElements/scrollView';
 import { BLITZ_GOAL_USER_COUNT, MAX_WEB_CONTENT_WIDTH } from '../../constants';
@@ -37,6 +38,7 @@ import formatDate from '../../functions/formatDate';
 import { FADE_TOP } from '../../functions/CustomElements/redesign/TopFade';
 
 export default function ExploreUsers() {
+  const reduced = useReducedMotion();
   const navigate = useNavigation();
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const [timeFrame, setTimeFrame] = useState('day');
@@ -310,7 +312,7 @@ export default function ExploreUsers() {
               })}
             >
               {chartWidth > 0 && (
-                <Animated.View key={timeFrame} entering={FadeIn.duration(200)}>
+                <Animated.View key={timeFrame} entering={enterAnim(FadeIn.duration(200), reduced)}>
                   <LineChart.Provider
                     yGutter={0}
                     data={chartData}

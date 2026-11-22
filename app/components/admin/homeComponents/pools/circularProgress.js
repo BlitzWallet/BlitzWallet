@@ -13,6 +13,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { useTranslation } from 'react-i18next';
+import { useReducedMotion } from '../../../../constants/motion';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -45,6 +46,7 @@ export default function CircularProgress({
 }) {
   const { t } = useTranslation();
   const { backgroundOffset, backgroundColor, tokens } = GetThemeColors();
+  const reduced = useReducedMotion();
   const animatedPercentage = useSharedValue(0);
   const isInitialLoadRef = useRef(true);
 
@@ -76,10 +78,12 @@ export default function CircularProgress({
     if (useFillAnimation) {
       timer = setTimeout(
         () => {
-          animatedPercentage.value = withTiming(percentage, {
-            duration: 600,
-            easing: Easing.out(Easing.cubic),
-          });
+          animatedPercentage.value = reduced
+            ? percentage
+            : withTiming(percentage, {
+                duration: 600,
+                easing: Easing.out(Easing.cubic),
+              });
         },
         isInitialLoadRef.current ? 150 : 0,
       );

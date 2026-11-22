@@ -13,6 +13,11 @@ import Animated, {
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';
 import { SHADOWS } from '../../../../constants';
+import {
+  useReducedMotion,
+  ReduceMotion,
+  fadeMs,
+} from '../../../../constants/motion';
 import { useTheme } from '../../../../../context-store/theme';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
@@ -44,7 +49,9 @@ export default function ReceiveModal({ contentWidth }) {
   const [asset, setAsset] = useState(null);
   const [dockedHeight, setDockedHeight] = useState(0);
   const [contentHeight, setContentHeight] = useState(0);
+  const reduced = useReducedMotion();
   const progress = useSharedValue(0);
+  const fade = useSharedValue(1);
   const openHeight = useSharedValue(0);
   const isClosing = useRef(false);
   const assetRef = useRef(null);
@@ -53,6 +60,15 @@ export default function ReceiveModal({ contentWidth }) {
   useEffect(() => {
     if (!asset || !contentHeight) return;
     openHeight.value = Math.max(contentHeight, dockedHeight);
+    if (reduced) {
+      if (progress.value < 1) fade.value = 0;
+      progress.value = 1;
+      fade.value = withTiming(1, {
+        duration: fadeMs,
+        reduceMotion: ReduceMotion.Never,
+      });
+      return;
+    }
     progress.value = withTiming(1, { duration: DURATION });
   }, [asset, contentHeight]);
 
@@ -74,13 +90,26 @@ export default function ReceiveModal({ contentWidth }) {
     next => {
       if (!assetRef.current || isClosing.current) return true;
       isClosing.current = true;
+      if (reduced) {
+        fade.value = withTiming(
+          0,
+          { duration: fadeMs, reduceMotion: ReduceMotion.Never },
+          finished => {
+            if (finished) progress.value = 0;
+            fade.value = 1;
+            scheduleOnRN(finished ? finishClose : cancelClose);
+          },
+        );
+        if (typeof next === 'function') next();
+        return true;
+      }
       progress.value = withTiming(0, { duration: DURATION }, finished => {
         scheduleOnRN(finished ? finishClose : cancelClose);
       });
       if (typeof next === 'function') next();
       return true;
     },
-    [finishClose, cancelClose],
+    [finishClose, cancelClose, reduced],
   );
 
   // Stable identity keeps this under the sheet's own "networks → options"
@@ -100,7 +129,7 @@ export default function ReceiveModal({ contentWidth }) {
       if (e.translationY > 100) {
         scheduleOnRN(close);
       } else {
-        progress.value = withSpring(1);
+        progress.value = reduced ? 1 : withSpring(1);
       }
     });
 
@@ -110,8 +139,11 @@ export default function ReceiveModal({ contentWidth }) {
       [0, 1],
       [dockedHeight, openHeight.value],
     ),
+    opacity: fade.value,
   }));
-  const scrimStyle = useAnimatedStyle(() => ({ opacity: progress.value }));
+  const scrimStyle = useAnimatedStyle(() => ({
+    opacity: progress.value * fade.value,
+  }));
   const dockStyle = useAnimatedStyle(() => ({
     opacity: interpolate(progress.value, [0, 0.4], [1, 0], Extrapolation.CLAMP),
   }));
@@ -130,6 +162,7 @@ export default function ReceiveModal({ contentWidth }) {
           <Animated.View
             style={[
               StyleSheet.absoluteFill,
+              styles.scrim,
               { backgroundColor: tokens.scrim },
               scrimStyle,
             ]}
@@ -212,13 +245,15 @@ export default function ReceiveModal({ contentWidth }) {
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
+  // Above TopHeader/TopFade (zIndex 10) so the scrim dims the top bar too.
+  scrim: { zIndex: 20 },
   panel: {
     width: '100%',
     alignItems: 'center',
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     ...SHADOWS.small,
-    zIndex: 10,
+    zIndex: 30,
   },
   floating: { position: 'absolute', left: 0, right: 0, bottom: 0 },
   // Matches halfModal's redesign sheet: grab on top, 34 below the content.

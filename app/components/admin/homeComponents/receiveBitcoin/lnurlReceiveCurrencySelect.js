@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import CurrencyIcon from '../../../../functions/CustomElements/redesign/CurrencyIcon';
 import { useTranslation } from 'react-i18next';
@@ -12,8 +12,8 @@ import PickRow from '../../../../functions/CustomElements/redesign/PickRow';
 import Note from '../../../../functions/CustomElements/redesign/Note';
 import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 
-// Sheet chrome around the content: grab area (10 + 5) + 34 bottom padding.
-const SHEET_CHROME = 49;
+// Sheet chrome around the content: grab area (10 + 5 + 5) + 34 bottom padding.
+const SHEET_CHROME = 54;
 
 // D163/D164: two radio rows; Dollars adds the minimum note above Done and the
 // sheet grows to fit. Done always closes and only writes on a change (Q12-17).
@@ -42,6 +42,21 @@ export default function LnurlReceiveCurrencySelect({
   const [selectedCurrency, setSelectedCurrency] = useState(currentCurrency);
 
   const hasChanged = selectedCurrency !== currentCurrency;
+
+  // Measured sizes, so a pick resizes the sheet in the same render as the
+  // note appears or goes (no frame at the old size under reduced motion).
+  const sheetHeightRef = useRef(0);
+  const noteHeightRef = useRef(0);
+  const pickCurrency = value => {
+    if (value !== selectedCurrency && sheetHeightRef.current) {
+      // Note height + its 20 top margin, minus Done's margin drop (20 → 16).
+      const noteSpace = noteHeightRef.current + 16;
+      setContentHeight(
+        sheetHeightRef.current + (value === 'usd' ? noteSpace : -noteSpace),
+      );
+    }
+    setSelectedCurrency(value);
+  };
 
   const onDone = () => {
     if (!hasChanged) {
@@ -78,9 +93,11 @@ export default function LnurlReceiveCurrencySelect({
 
   return (
     <View
-      onLayout={e =>
-        setContentHeight(Math.round(e.nativeEvent.layout.height) + SHEET_CHROME)
-      }
+      onLayout={e => {
+        sheetHeightRef.current =
+          Math.round(e.nativeEvent.layout.height) + SHEET_CHROME;
+        setContentHeight(sheetHeightRef.current);
+      }}
     >
       <SheetHeader
         first
@@ -88,6 +105,7 @@ export default function LnurlReceiveCurrencySelect({
         sub={t('contacts.remotePaymentCurrencySelect.description')}
       />
       <View
+        style={{ marginBottom: 20 }}
         accessibilityRole="radiogroup"
         accessibilityLabel={t('contacts.remotePaymentCurrencySelect.title')}
       >
@@ -101,31 +119,40 @@ export default function LnurlReceiveCurrencySelect({
               title={option.title}
               sub={option.sub}
               selected={selectedCurrency === option.value}
-              onPress={() => setSelectedCurrency(option.value)}
+              onPress={() => pickCurrency(option.value)}
             />
           ))}
         </ListCard>
       </View>
 
-      {selectedCurrency === 'usd' && (
-        <View style={styles.note}>
-          <Note
-            tone="warn"
-            text={t('contacts.remotePaymentCurrencySelect.warningMessage', {
-              amount: displayCorrectDenomination({
-                amount: 2000,
-                masterInfoObject: {
-                  ...masterInfoObject,
-                  userBalanceDenomination: 'sats',
-                },
-                fiatStats,
-              }),
-            })}
-          />
-        </View>
-      )}
+      {/* Always mounted (out of flow when hidden) so its height is known
+          before the pick. */}
+      <View
+        style={[styles.note, selectedCurrency !== 'usd' && styles.hidden]}
+        accessibilityElementsHidden={selectedCurrency !== 'usd'}
+        importantForAccessibility={
+          selectedCurrency === 'usd' ? 'auto' : 'no-hide-descendants'
+        }
+        onLayout={e => {
+          noteHeightRef.current = Math.round(e.nativeEvent.layout.height);
+        }}
+      >
+        <Note
+          tone="warn"
+          text={t('contacts.remotePaymentCurrencySelect.warningMessage', {
+            amount: displayCorrectDenomination({
+              amount: 2000,
+              masterInfoObject: {
+                ...masterInfoObject,
+                userBalanceDenomination: 'sats',
+              },
+              fiatStats,
+            }),
+          })}
+        />
+      </View>
       <CustomButton
-        buttonStyles={{ marginTop: selectedCurrency === 'usd' ? 16 : 20 }}
+        buttonStyles={{ marginTop: 'auto' }}
         textContent={t('constants.done')}
         actionFunction={onDone}
         size="regular"
@@ -136,5 +163,7 @@ export default function LnurlReceiveCurrencySelect({
 
 const styles = StyleSheet.create({
   optionTitle: { fontSize: 15, lineHeight: 21 },
-  note: { marginTop: 20, paddingHorizontal: 4 },
+  note: { marginTop: 0, marginBottom: 16 },
+  // Out of flow but still laid out, so it keeps its real height.
+  hidden: { position: 'absolute', left: 0, right: 0, opacity: 0 },
 });

@@ -1,7 +1,7 @@
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useCallback, useEffect, useRef } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import LottieView from 'lottie-react-native';
+import MotionLottie from '../../../../../functions/CustomElements/MotionLottie';
 import { useTranslation } from 'react-i18next';
 import { GlobalThemeView } from '../../../../../functions/CustomElements';
 import CustomButton from '../../../../../functions/CustomElements/button';
@@ -45,7 +45,7 @@ export default function NWCAccountCreated(props) {
       <View style={[styles.contentContainer, { width: contentWidth }]}>
         <TopBar onBack={handleDone} />
         <View style={styles.innerContainer}>
-          <LottieView
+          <MotionLottie
             ref={animationRef}
             source={confirmAnimation}
             renderMode="SOFTWARE"

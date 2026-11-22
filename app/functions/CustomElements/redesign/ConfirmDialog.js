@@ -8,6 +8,11 @@ import Animated, {
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../../../context-store/theme';
 import { FONT } from '../../../constants';
+import {
+  useReducedMotion,
+  ReduceMotion,
+  fadeMs,
+} from '../../../constants/motion';
 import ThemeText from '../textTheme';
 import CustomScrollView from '../scrollView';
 import Disc from './Disc';
@@ -72,14 +77,24 @@ export function AlertDialog({
   onDismiss,
 }) {
   const { tokens } = useTheme();
-  const scale = useSharedValue(0.96);
+  const reduced = useReducedMotion();
+  const scale = useSharedValue(reduced ? 1 : 0.96);
+  const opacity = useSharedValue(reduced ? 0 : 1);
 
   useEffect(() => {
+    if (reduced) {
+      opacity.value = withTiming(1, {
+        duration: fadeMs,
+        reduceMotion: ReduceMotion.Never,
+      });
+      return;
+    }
     scale.value = withTiming(1, { duration: 150 });
-  }, [scale]);
+  }, [scale, opacity, reduced]);
 
   const dialogStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
+    opacity: opacity.value,
   }));
 
   return (

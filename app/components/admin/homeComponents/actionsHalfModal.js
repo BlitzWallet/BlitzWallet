@@ -13,8 +13,8 @@ import AnimatedStep, {
 import { useTheme } from '../../../../context-store/theme';
 import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 
-// Sheet chrome around the content: grab area (10 + 5) + 34 bottom padding.
-const SHEET_CHROME = 49;
+// Sheet chrome around the content: grab area (10 + 5 + 5) + 34 bottom padding.
+const SHEET_CHROME = 54;
 const ROW_HEIGHT = 64;
 
 // Reusable list-of-actions sheet. Open it with

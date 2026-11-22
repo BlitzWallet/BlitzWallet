@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import Animated, { LinearTransition } from 'react-native-reanimated';
+import { useReducedMotion } from '../../../../constants/motion';
 import { MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
 import {
   GlobalThemeView,
@@ -20,6 +21,7 @@ import KeyValueRow from '../../../../functions/CustomElements/redesign/KeyValueR
 import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function SparkInfo() {
+  const reduced = useReducedMotion();
   const navigate = useNavigation();
   const { toggleMasterInfoObject, masterInfoObject } =
     useGlobalContextProvider();
@@ -114,7 +116,7 @@ export default function SparkInfo() {
             {showTokensInformation && (
               <Animated.View
                 key="default-token"
-                layout={LinearTransition.duration(200)}
+                layout={reduced ? undefined : LinearTransition.duration(200)}
               >
                 <ListRow
                   title={t('settings.sparkLrc20.selectTokenHeader')}

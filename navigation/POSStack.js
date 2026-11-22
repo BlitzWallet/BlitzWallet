@@ -3,9 +3,12 @@ import { POSTransactionsProvider } from '../context-store/pos';
 import ViewPOSTransactions from '../app/components/admin/homeComponents/settingsContent/posPath/transactions';
 import CustomHalfModal from '../app/functions/CustomElements/halfModal';
 
+import { useReducedMotion, screenAnimation } from '../app/constants/motion';
+
 const Stack = createNativeStackNavigator();
 
 export default function POSStack() {
+  const reduced = useReducedMotion();
   return (
     <POSTransactionsProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -19,7 +22,7 @@ export default function POSStack() {
           // POSTransactionsProvider and sees tips update live.
           name="TotalTipsScreen"
           component={CustomHalfModal}
-          options={{ animation: 'fade', presentation: 'transparentModal' }}
+          options={{ animation: screenAnimation('fade', reduced), presentation: 'transparentModal' }}
         />
       </Stack.Navigator>
     </POSTransactionsProvider>

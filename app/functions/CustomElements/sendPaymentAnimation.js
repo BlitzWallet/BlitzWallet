@@ -13,6 +13,7 @@ import { scheduleOnRN } from 'react-native-worklets';
 import ThemeText from './textTheme';
 import FullLoadingScreen from './loadingScreen';
 import { FONT } from '../../constants';
+import { useReducedMotion, ReduceMotion } from '../../constants/motion';
 
 // Custom easing function: very fast start to reach ~20% in 2 seconds, then smooth deceleration
 const initialEasing = Easing.bezier(0.29, 0.93, 0.85, 0.29); // Steep initial slope for fast 0-20%
@@ -30,6 +31,7 @@ export const SliderProgressAnimation = ({
   containerStyles = {},
   ref,
 }) => {
+  const reduced = useReducedMotion();
   const progress = useSharedValue(0);
   const slideUp = useSharedValue(0);
   const opacity = useSharedValue(0);
@@ -45,10 +47,12 @@ export const SliderProgressAnimation = ({
   useEffect(() => {
     if (isVisible && !isCompletedRef.current) {
       // Animate the progress indicator sliding up from the button
-      slideUp.value = withSpring(1, {
-        damping: 15,
-        stiffness: 150,
-      });
+      slideUp.value = reduced
+        ? 1
+        : withSpring(1, {
+            damping: 15,
+            stiffness: 150,
+          });
 
       opacity.value = withTiming(1, { duration: 300 });
 
@@ -56,6 +60,7 @@ export const SliderProgressAnimation = ({
       progress.value = withTiming(0.9, {
         duration: FIRST_DURATION, // 60 seconds for 0-90%
         easing: initialEasing,
+        reduceMotion: ReduceMotion.Never, // progress indicator: keeps moving
       });
 
       // Update percentage text
@@ -73,6 +78,7 @@ export const SliderProgressAnimation = ({
           progress.value = withTiming(1, {
             duration: SECOND_DURATION, // 120 seconds to go from 90% to 100%
             easing: creepEasing,
+            reduceMotion: ReduceMotion.Never, // progress indicator: keeps moving
           });
         }
       }, FIRST_DURATION);
@@ -199,6 +205,7 @@ export const SliderProgressAnimation = ({
       progress.value = withTiming(0.9, {
         duration: remainingDuration,
         easing: initialEasing,
+        reduceMotion: ReduceMotion.Never, // progress indicator: keeps moving
       });
 
       // Schedule the creep phase
@@ -207,6 +214,7 @@ export const SliderProgressAnimation = ({
           progress.value = withTiming(1, {
             duration: SECOND_DURATION,
             easing: creepEasing,
+            reduceMotion: ReduceMotion.Never, // progress indicator: keeps moving
           });
         }
       }, remainingDuration);
@@ -221,6 +229,7 @@ export const SliderProgressAnimation = ({
       progress.value = withTiming(1, {
         duration: remainingDuration,
         easing: creepEasing,
+        reduceMotion: ReduceMotion.Never, // progress indicator: keeps moving
       });
     }
   };

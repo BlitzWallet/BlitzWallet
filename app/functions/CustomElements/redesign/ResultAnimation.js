@@ -1,4 +1,4 @@
-import LottieView from 'lottie-react-native';
+import MotionLottie from '../MotionLottie';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
 import {
   getConfirmTxAnimation,
@@ -16,7 +16,7 @@ export default function ResultAnimation({ type = 'success', size = 125 }) {
       ? getErrorTxAnimation(theme, darkModeType)
       : getConfirmTxAnimation(theme, darkModeType);
   return (
-    <LottieView
+    <MotionLottie
       source={source}
       renderMode="SOFTWARE"
       loop={false}

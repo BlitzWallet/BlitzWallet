@@ -24,6 +24,7 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
+import { useReducedMotion, enterAnim } from '../../../constants/motion';
 import { useTheme } from '../../../../context-store/theme';
 import { tintStyle } from '../../../functions/webTintColor';
 import { useNavigation } from '@react-navigation/native';
@@ -39,6 +40,7 @@ import { validateMnemonic } from '@scure/bip39';
 import { wordlist } from '@scure/bip39/wordlists/english';
 
 export default function PinPage() {
+  const reduced = useReducedMotion();
   const [loginSettings, setLoginSettings] = useState({
     isBiometricEnabled: null,
     isPinEnabled: null,
@@ -120,9 +122,11 @@ export default function PinPage() {
       // stay filled while they shake 3× over 240 ms; keys wait until then.
       isShakingRef.current = true;
       setIsShaking(true);
-      dotsShake.value = withSequence(
-        ...[8, -8, 8, -8, 8, 0].map(x => withTiming(x, { duration: 40 })),
-      );
+      if (!reduced) {
+        dotsShake.value = withSequence(
+          ...[8, -8, 8, -8, 8, 0].map(x => withTiming(x, { duration: 40 })),
+        );
+      }
       setTimeout(() => {
         isShakingRef.current = false;
         setIsShaking(false);
@@ -310,7 +314,7 @@ export default function PinPage() {
       </View>
 
       {!!loginSettings.enteredPinCount && (
-        <Animated.View entering={FadeIn.duration(150)}>
+        <Animated.View entering={enterAnim(FadeIn.duration(150), reduced)}>
           <ThemeText
             styles={[styles.attemptsText, { color: tokens.danger }]}
             content={t('adminLogin.pinPage.attemptsText', {
@@ -407,9 +411,10 @@ export default function PinPage() {
 
 // Each digit fills its dot over 120 ms with the same 1.1 bounce as PinDot.
 export function LoginPinDot({ filled, filledColor, emptyColor }) {
+  const reduced = useReducedMotion();
   const scale = useSharedValue(1);
   useEffect(() => {
-    if (!filled) return;
+    if (!filled || reduced) return;
     scale.value = withSequence(
       withTiming(1.1, { duration: 100 }),
       withTiming(1, { duration: 100 }),

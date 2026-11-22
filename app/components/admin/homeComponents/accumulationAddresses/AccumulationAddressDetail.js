@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import ViewShot from 'react-native-view-shot';
 import * as FileSystem from 'expo-file-system/legacy';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { useReducedMotion, enterAnim } from '../../../../constants/motion';
 import {
   GlobalThemeView,
   ThemeText,
@@ -57,6 +58,7 @@ function normalizeFileUri(uri) {
 }
 
 export default function AccumulationAddressDetail() {
+  const reduced = useReducedMotion();
   const navigate = useNavigation();
   const route = useRoute();
   const { sourceChain, sourceAsset, destinationAsset } = route.params;
@@ -265,7 +267,7 @@ export default function AccumulationAddressDetail() {
           {/* 200 ms cross-fade when another address in the group is picked */}
           <Animated.View
             key={selected.accumulationAddressId}
-            entering={FadeIn.duration(200)}
+            entering={enterAnim(FadeIn.duration(200), reduced)}
           >
             <ViewShot
               ref={viewShotRef}

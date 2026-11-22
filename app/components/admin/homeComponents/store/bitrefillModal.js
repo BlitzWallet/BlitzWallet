@@ -28,6 +28,11 @@ import {
   encriptMessage,
   decryptMessage,
 } from '../../../../functions/messaging/encodingAndDecodingMessages';
+import {
+  useReducedMotion,
+  ReduceMotion,
+  fadeMs,
+} from '../../../../constants/motion';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -183,6 +188,7 @@ export default function BitrefillShopModal() {
 
   // ── Animations ──────────────────────────────────────────────────────────────
 
+  const reduced = useReducedMotion();
   const contentOpacity = useSharedValue(showEmailScreen ? 0 : 1);
   const contentTranslateX = useSharedValue(showEmailScreen ? -30 : 0);
 
@@ -190,6 +196,14 @@ export default function BitrefillShopModal() {
   const emailTranslateX = useSharedValue(showEmailScreen ? 0 : 30);
 
   useEffect(() => {
+    if (reduced) {
+      const fade = { duration: fadeMs, reduceMotion: ReduceMotion.Never };
+      contentOpacity.value = withTiming(showEmailScreen ? 0 : 1, fade);
+      contentTranslateX.value = showEmailScreen ? -30 : 0;
+      emailOpacity.value = withTiming(showEmailScreen ? 1 : 0, fade);
+      emailTranslateX.value = showEmailScreen ? 0 : 30;
+      return;
+    }
     contentOpacity.value = withTiming(showEmailScreen ? 0 : 1, {
       duration: 250,
     });

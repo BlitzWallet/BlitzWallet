@@ -1,5 +1,5 @@
 import { useGlobalThemeContext } from '../../../../context-store/theme';
-import LottieView from 'lottie-react-native';
+import MotionLottie from '../../../functions/CustomElements/MotionLottie';
 import { StyleSheet, View } from 'react-native';
 import { getConfirmTxAnimation } from '../../../functions/lottieAnimations';
 import { ThemeText } from '../../../functions/CustomElements';
@@ -12,7 +12,7 @@ export default function ChildQRWaiting() {
 
   return (
     <View style={styles.container}>
-      <LottieView
+      <MotionLottie
         source={confirmAnimation}
         renderMode="SOFTWARE"
         loop={false}

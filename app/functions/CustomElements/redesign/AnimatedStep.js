@@ -8,6 +8,7 @@ import Animated, {
   SlideOutLeft,
   SlideOutRight,
 } from 'react-native-reanimated';
+import { useReducedMotion, enterAnim, exitAnim } from '../../../constants/motion';
 
 export const PAGE_DURATION = 250;
 // halfModal.js animates contentHeight changes over this long.
@@ -26,6 +27,7 @@ export default function AnimatedStep({
   fadeOnly = false,
   children,
 }) {
+  const reduced = useReducedMotion();
   const isFirstRender = useRef(true);
 
   useEffect(() => {
@@ -40,18 +42,24 @@ export default function AnimatedStep({
   return (
     <Animated.View
       entering={
-        isFirstRender.current ? undefined : FadeIn.duration(PAGE_DURATION)
+        isFirstRender.current
+          ? undefined
+          : enterAnim(FadeIn.duration(PAGE_DURATION), reduced)
       }
-      exiting={FadeOut.duration(PAGE_DURATION)}
+      exiting={exitAnim(FadeOut.duration(PAGE_DURATION), reduced)}
       style={styles.page}
     >
       <Animated.View
         entering={
-          isFirstRender.current || fadeOnly
+          isFirstRender.current || fadeOnly || reduced
             ? undefined
             : enteringSlide.duration(PAGE_DURATION)
         }
-        exiting={fadeOnly ? undefined : exitingSlide.duration(PAGE_DURATION)}
+        exiting={
+          fadeOnly || reduced
+            ? undefined
+            : exitingSlide.duration(PAGE_DURATION)
+        }
         style={styles.page}
       >
         {children}

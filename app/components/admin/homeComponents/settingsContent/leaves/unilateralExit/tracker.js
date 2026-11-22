@@ -9,6 +9,7 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
+import { useReducedMotion } from '../../../../../../constants/motion';
 import { GlobalThemeView } from '../../../../../../functions/CustomElements';
 import CustomScrollView from '../../../../../../functions/CustomElements/scrollView';
 import CustomButton from '../../../../../../functions/CustomElements/button';
@@ -25,7 +26,7 @@ import {
   useGlobalThemeContext,
   useTheme,
 } from '../../../../../../../context-store/theme';
-import LottieView from 'lottie-react-native';
+import MotionLottie from '../../../../../../functions/CustomElements/MotionLottie';
 import { getConfirmTxAnimation } from '../../../../../../functions/lottieAnimations';
 import { useToast } from '../../../../../../../context-store/toastManager';
 import TopBar from '../../../../../../functions/CustomElements/redesign/TopBar';
@@ -152,7 +153,7 @@ export default function UnilateralExitTracker() {
       <GlobalThemeView useStandardWidth={true}>
         <View style={[styles.container, { width: contentWidth }]}>
           <CustomScrollView contentContainerStyle={styles.doneContent}>
-            <LottieView
+            <MotionLottie
               source={getConfirmTxAnimation(theme, darkModeType)}
               renderMode="SOFTWARE"
               autoPlay={true}
@@ -348,10 +349,12 @@ export default function UnilateralExitTracker() {
 
 function Pulse({ color }) {
   const opacity = useSharedValue(1);
+  const reducedMotion = useReducedMotion();
   useEffect(() => {
+    if (reducedMotion) return; // solid dot; the step text shows progress
     opacity.value = withRepeat(withTiming(0.3, { duration: 800 }), -1, true);
     return () => cancelAnimation(opacity);
-  }, []);
+  }, [reducedMotion]);
   const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
   return (
     <Animated.View style={[styles.pulse, { backgroundColor: color }, style]} />

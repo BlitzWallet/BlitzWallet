@@ -1,5 +1,6 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { useReducedMotion, enterAnim } from '../../../constants/motion';
 import { useTranslation } from 'react-i18next';
 import { COLORS } from '../../../constants';
 import { useGlobalInsets } from '../../../../context-store/insetsProvider';
@@ -44,6 +45,7 @@ const CORNERS = [
 // 56 action buttons. `onBack` omitted = no back button (Home camera pager).
 // actions: [{ icon, label (en key), onPress, disabled }]
 export default function ScannerView({ children, onBack, actions = [], hint }) {
+  const reduced = useReducedMotion();
   const { t } = useTranslation();
   const { topPadding, bottomPadding } = useGlobalInsets();
   const { tokens } = GetThemeColors();
@@ -51,7 +53,7 @@ export default function ScannerView({ children, onBack, actions = [], hint }) {
   return (
     <View style={styles.container}>
       <Animated.View
-        entering={FadeIn.duration(200)}
+        entering={enterAnim(FadeIn.duration(200), reduced)}
         style={StyleSheet.absoluteFill}
       >
         {children}
