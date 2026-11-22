@@ -11,13 +11,16 @@ import TopFade, { SOLID } from './TopFade';
 // the view below isn't a scroll view that can sit under the header.
 export default function TopHeader({ children, style, overlap = true }) {
   const [height, setHeight] = useState(0);
+  // Never overlap more than the header is tall, or the scroll view starts
+  // above the header, outside the fade.
+  const solid = overlap ? Math.min(SOLID, height || SOLID) : 0;
   return (
     <>
-      {height > 0 && <TopFade height={height} solid={overlap ? SOLID : 0} />}
+      {height > 0 && <TopFade height={height} solid={solid} />}
       <View
         style={[
           { width: '100%', zIndex: 10 },
-          overlap && { marginBottom: -SOLID },
+          overlap && { marginBottom: -solid },
           style,
         ]}
         onLayout={e => setHeight(e.nativeEvent.layout.height)}
