@@ -37,6 +37,11 @@ import HideOnScrollView from '../../../../functions/CustomElements/redesign/Hide
 import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
+import TopHeader from '../../../../functions/CustomElements/redesign/TopHeader';
+import {
+  FADE_TOP,
+  FADE_TOP_BUFFER,
+} from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function ContactsPage({ navigation }) {
   const { masterInfoObject } = useGlobalContextProvider();
@@ -215,9 +220,9 @@ export default function ContactsPage({ navigation }) {
       useStandardWidth={true}
     >
       <View style={[memoizedStyles.container, { width: contentWidth }]}>
-        {header}
-
+        <TopHeader>{header}</TopHeader>
         <HideOnScrollView
+          topInset={FADE_TOP + FADE_TOP_BUFFER}
           ref={scrollViewRef}
           contentContainerStyle={{
             paddingBottom: bottomPadding + TAB_ITEM_HEIGHT + 40,
@@ -382,7 +387,6 @@ const memoizedStyles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
   header: {
     marginTop: 10,
-    marginBottom: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -393,7 +397,7 @@ const memoizedStyles = StyleSheet.create({
     gap: 8,
   },
   empty: {
-    marginTop: 130,
+    marginTop: 150,
     alignItems: 'center',
   },
   unreadDot: {

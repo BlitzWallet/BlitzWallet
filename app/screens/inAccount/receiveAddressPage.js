@@ -27,6 +27,7 @@ import {
   ReceiveQrCard,
   shortAddress,
 } from '../../components/admin/homeComponents/receiveBitcoin/receiveParts';
+import { FADE_TOP } from '../../functions/CustomElements/redesign/TopFade';
 
 // No-amount address QR (Receive.dc.html "Bitcoin address", ReceiveMore.dc.html
 // "USDT on Tron", "Tokens"). Params:
@@ -236,7 +237,7 @@ export default function ReceiveAddressPage(props) {
   return (
     <GlobalThemeView useStandardWidth={false}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar title={title} />
+        <TopBar fade title={title} />
         <CustomScrollView contentContainerStyle={styles.scroll}>
           <ReceiveQrCard
             onPress={openAddressSheet}
@@ -273,7 +274,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 24,
+    paddingTop: FADE_TOP,
     paddingBottom: FADE,
   },
   warning: { marginBottom: 16 },

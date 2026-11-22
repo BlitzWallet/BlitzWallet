@@ -19,6 +19,8 @@ export default function HideOnScrollView({
   ListComponent = CustomScrollView,
   contentContainerStyle,
   onScroll,
+  // Space above the header, for sitting below a TopHeader's fade (FADE_TOP).
+  topInset = 0,
   ...props
 }) {
   const { tokens } = useTheme();
@@ -70,7 +72,7 @@ export default function HideOnScrollView({
         }}
         style={[
           styles.header,
-          { backgroundColor: tokens.ground },
+          { backgroundColor: tokens.ground, paddingTop: topInset },
           animatedStyle,
         ]}
       >

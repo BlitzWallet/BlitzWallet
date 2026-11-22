@@ -47,6 +47,7 @@ import { useImageCache } from '../../../../../context-store/imageCache';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function CreateSplitBill(props) {
   const navigate = useNavigation();
@@ -519,7 +520,7 @@ export default function CreateSplitBill(props) {
       useStandardWidth={true}
     >
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar title={t('contacts.splitBill.createBillTitle')} />
+        <TopBar fade title={t('contacts.splitBill.createBillTitle')} />
         <CustomScrollView
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={styles.scrollContent}
@@ -618,7 +619,7 @@ export default function CreateSplitBill(props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  scrollContent: { paddingBottom: FADE },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: FADE },
   hero: { marginTop: 0, alignItems: 'center' },
   heroButton: { marginTop: 2, maxWidth: '100%' },
   heroCents: { fontFamily: FONT.Title_Regular, letterSpacing: 0 },

@@ -18,6 +18,7 @@ import SectionHeader from '../../functions/CustomElements/redesign/SectionHeader
 import ContactAvatarDisc from '../../components/admin/homeComponents/contacts/internalComponents/contactAvatar';
 import { formatDisplayName } from '../../components/admin/homeComponents/contacts/utils/formatListDisplayName';
 import { FADE } from '../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../functions/CustomElements/redesign/TopFade';
 
 export default function SendList() {
   const { t } = useTranslation();
@@ -102,7 +103,7 @@ export default function SendList() {
       useTouchableWithoutFeedback={true}
     >
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar title={t('constants.send')} />
+        <TopBar fade title={t('constants.send')} />
         {sortedContacts.length ? (
           <CustomScrollView
             keyboardShouldPersistTaps="handled"
@@ -137,6 +138,6 @@ export default function SendList() {
 const styles = StyleSheet.create({
   screen: { paddingBottom: 0 },
   container: { flex: 1, ...CENTER },
-  list: { paddingBottom: FADE },
+  list: { paddingTop: FADE_TOP, paddingBottom: FADE },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 });

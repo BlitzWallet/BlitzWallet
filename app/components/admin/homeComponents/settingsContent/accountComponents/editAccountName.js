@@ -13,6 +13,7 @@ import PageHeader from '../../../../../functions/CustomElements/redesign/PageHea
 import UserInput from '../../../../../functions/CustomElements/redesign/UserInput';
 import BottomActions from '../../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../../functions/CustomElements/redesign/TopFade';
 
 export default function EditAccountName(props) {
   const accountId = props?.route?.params?.accountId;
@@ -56,6 +57,7 @@ export default function EditAccountName(props) {
     >
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           shouldDismissKeyboard={true}
           title={t('settings.accountComponents.editAccountName.title')}
         />
@@ -94,5 +96,5 @@ export default function EditAccountName(props) {
 }
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  scrollContent: { paddingBottom: FADE },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: FADE },
 });

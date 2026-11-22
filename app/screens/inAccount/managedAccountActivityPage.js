@@ -38,6 +38,7 @@ import ActivityRow, {
   ActivityRowSkeleton,
   buildActivitySections,
 } from '../../components/admin/homeComponents/viewAllComponents/activityRow';
+import { FADE_TOP } from '../../functions/CustomElements/redesign/TopFade';
 
 const PAGE = 20;
 const SKELETON_ROWS = [0, 1, 2, 3, 4, 5];
@@ -269,9 +270,9 @@ export default function ManagedAccountActivityPage() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar title={t('settings.childAccounts.transactions.title')} />
+        <TopBar fade title={t('settings.childAccounts.transactions.title')} />
         {isLoading ? (
-          <ListCard dividerInset={68} style={styles.first}>
+          <ListCard dividerInset={68} style={styles.skeleton}>
             {SKELETON_ROWS.map(key => (
               <ActivityRowSkeleton key={key} />
             ))}
@@ -316,11 +317,12 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 160,
   },
-  listContent: { paddingBottom: 24 },
+  listContent: { paddingTop: FADE_TOP, paddingBottom: 24 },
+  skeleton: { marginTop: FADE_TOP },
   squareTop: { borderTopLeftRadius: 0, borderTopRightRadius: 0 },
   squareBottom: { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 },
   middleRow: { borderRadius: 0 },
-  first: { marginTop: 22 },
+  first: { marginTop: 0 },
   loadMoreButton: {
     width: '100%',
     marginTop: 16,

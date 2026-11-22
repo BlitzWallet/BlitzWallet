@@ -32,6 +32,7 @@ import {
 } from 'react-native-keyboard-controller';
 import BottomActions from '../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../functions/CustomElements/redesign/TopFade';
 
 const NUMARRAY = Array.from({ length: 12 }, (_, i) => i + 1);
 const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
@@ -326,7 +327,7 @@ export default function RestoreWallet({ navigation: { reset } }) {
       useStandardWidth={true}
     >
       <View style={[styles.viewContainer, { width: contentWidth }]}>
-        <TopBar />
+        <TopBar fade />
         <View style={styles.keyContainer}>
           <CustomScrollView contentContainerStyle={styles.contentContainer}>
             <PageHeader
@@ -398,6 +399,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     width: '100%',
     ...CENTER,
+    paddingTop: FADE_TOP,
     paddingBottom: FADE,
   },
   seedGrid: { marginTop: 28 },

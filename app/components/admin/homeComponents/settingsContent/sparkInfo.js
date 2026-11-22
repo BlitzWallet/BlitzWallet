@@ -17,6 +17,7 @@ import SectionHeader from '../../../../functions/CustomElements/redesign/Section
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import KeyValueRow from '../../../../functions/CustomElements/redesign/KeyValueRow';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function SparkInfo() {
   const navigate = useNavigation();
@@ -66,7 +67,10 @@ export default function SparkInfo() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
-        <TopBar title={t('screens.inAccount.settingsContent.spark info')} />
+        <TopBar
+          fade
+          title={t('screens.inAccount.settingsContent.spark info')}
+        />
         <CustomScrollView
           style={styles.scroll}
           contentContainerStyle={styles.scrollContent}
@@ -139,7 +143,7 @@ export default function SparkInfo() {
 const styles = StyleSheet.create({
   content: { alignSelf: 'center', flex: 1 },
   scroll: { flex: 1 },
-  scrollContent: { paddingBottom: 40 },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: 40 },
   infoCard: { marginVertical: 6 },
   rowTitle: { fontSize: 15, lineHeight: 21 },
   note: { marginTop: 8, marginHorizontal: 4 },

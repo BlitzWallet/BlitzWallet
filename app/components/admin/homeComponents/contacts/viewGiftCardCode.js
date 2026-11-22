@@ -33,6 +33,7 @@ import Note from '../../../../functions/CustomElements/redesign/Note';
 import TextButton from '../../../../functions/CustomElements/redesign/TextButton';
 import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function ViewGiftCardCodePage({ route }) {
   const { giftCardInfo, isOutgoingPayment, message, senderName } =
@@ -149,7 +150,7 @@ export default function ViewGiftCardCodePage({ route }) {
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.page}>
       <View style={[styles.inner, { width: INSET_WINDOW_WIDTH }, CENTER]}>
-        <TopBar title={title} />
+        <TopBar fade title={title} />
         <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.hero}>
             <DiscText
@@ -317,7 +318,7 @@ export default function ViewGiftCardCodePage({ route }) {
 const styles = StyleSheet.create({
   page: { width: '100%' },
   inner: { flex: 1 },
-  scrollContent: { paddingTop: 8, paddingBottom: FADE },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: FADE },
   hero: { alignItems: 'center' },
   skeletonHero: { alignItems: 'center' },
   skeletonDisc: { width: 72, height: 72, borderRadius: 36 },

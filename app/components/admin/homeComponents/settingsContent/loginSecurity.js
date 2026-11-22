@@ -24,6 +24,7 @@ import {
 } from '../../../../functions/handleMnemonic';
 import { useKeysContext } from '../../../../../context-store/keys';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 import PasswordField from '../../../admin/loginComponents/passwordField';
 import TextButton from '../../../../functions/CustomElements/redesign/TextButton';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -110,7 +111,7 @@ function WebLoginSecurity() {
 
   if (loadFailed)
     return (
-      <View style={styles.innerContainer}>
+      <View style={[styles.innerContainer, { paddingTop: FADE_TOP }]}>
         <ThemeText content={t('settings.loginSecurity.loadError')} />
         <CustomButton
           size="regular"
@@ -916,7 +917,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 0,
+    paddingTop: FADE_TOP,
     paddingBottom: 40,
   },
   firstCard: {

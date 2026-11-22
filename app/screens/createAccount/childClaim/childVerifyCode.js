@@ -18,6 +18,7 @@ import SasPatternGrid from '../../../components/admin/homeComponents/settingsCon
 import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 import BottomActions from '../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../functions/CustomElements/redesign/TopFade';
 
 export default function ChildVerifyCode() {
   const navigate = useNavigation();
@@ -46,7 +47,7 @@ export default function ChildVerifyCode() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar onBack={handleNoMatch} />
+        <TopBar fade onBack={handleNoMatch} />
         <CustomScrollView contentContainerStyle={styles.contentContainer}>
           <PageHeader
             large
@@ -85,7 +86,7 @@ export default function ChildVerifyCode() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  contentContainer: { flexGrow: 1, paddingBottom: FADE },
+  contentContainer: { flexGrow: 1, paddingTop: FADE_TOP, paddingBottom: FADE },
   grid: { marginTop: 28 },
   hint: {
     textAlign: 'center',

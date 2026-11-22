@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../../../../context-store/theme';
+import { RAMP, hex } from './TopFade';
 
 const FADE_ABOVE = 40; // fade above the control, touches pass through
 export const SOLID = 32; // depth into the control where the page colour is solid
@@ -22,12 +23,13 @@ export default function BottomFade({
   const { tokens } = useTheme();
   const total = height + FADE_ABOVE;
   const end = Math.min(1, (FADE_ABOVE + solid) / total);
+  const ramp = [...RAMP].reverse(); // clear at the top, solid by `end`
   return (
     <>
       <LinearGradient
         pointerEvents="none"
-        colors={[tokens.ground + '00', tokens.ground + '59', tokens.ground]}
-        locations={[0, end * (FADE_ABOVE / (FADE_ABOVE + SOLID)), end]}
+        colors={ramp.map(a => tokens.ground + hex(a))}
+        locations={ramp.map((_, i) => (i * end) / (ramp.length - 1))}
         style={[styles.fill, { height: total }]}
       />
       {blockTouches && (

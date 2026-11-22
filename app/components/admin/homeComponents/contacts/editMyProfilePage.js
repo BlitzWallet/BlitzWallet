@@ -44,6 +44,7 @@ import { formatDisplayName } from './utils/formatListDisplayName';
 import ContactAvatar from './internalComponents/contactAvatar';
 import { useToast } from '../../../../../context-store/toastManager';
 import { copyToClipboard } from '../../../../functions';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -107,6 +108,7 @@ export default function EditMyProfilePage(props) {
     >
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={
             isEditingMyProfile
               ? fromSettings
@@ -139,6 +141,7 @@ export default function EditMyProfilePage(props) {
             )
           }
         />
+
         <InnerContent
           isEditingMyProfile={isEditingMyProfile}
           selectedAddedContact={selectedAddedContact}
@@ -732,11 +735,13 @@ const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
   scrollContainer: {
     flexGrow: 1,
+    paddingTop: FADE_TOP,
     width: '100%',
     alignItems: 'center',
   },
   contactScrollContent: {
     flexGrow: 1,
+    paddingTop: FADE_TOP,
     width: '100%',
   },
   contactPhoto: {

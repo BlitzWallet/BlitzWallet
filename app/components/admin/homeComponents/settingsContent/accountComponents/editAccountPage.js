@@ -63,6 +63,7 @@ import ListCard from '../../../../../functions/CustomElements/redesign/ListCard'
 import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
 import AmountHero from '../../../../../functions/CustomElements/redesign/AmountHero';
 import useAfterTransition from '../../../../../hooks/useAfterTransition';
+import { FADE_TOP } from '../../../../../functions/CustomElements/redesign/TopFade';
 
 const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
 
@@ -544,6 +545,7 @@ export default function EditAccountPage(props) {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={accountInformation.name}
           right={
             (isConnecting ||
@@ -564,7 +566,10 @@ export default function EditAccountPage(props) {
             )
           }
         />
-        <CustomScrollView keyboardShouldPersistTaps={'handled'}>
+        <CustomScrollView
+          keyboardShouldPersistTaps={'handled'}
+          contentContainerStyle={{ paddingTop: FADE_TOP }}
+        >
           <View style={styles.avatarContainer}>
             <TouchableOpacity
               activeOpacity={canEditAvatar ? 0.2 : 1}

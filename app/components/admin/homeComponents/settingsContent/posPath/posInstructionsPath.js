@@ -25,6 +25,7 @@ import {
 } from '../../../../../functions/handleShare';
 import BottomActions from '../../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../../functions/CustomElements/redesign/TopFade';
 
 const normalizeFileUri = path => {
   if (path.startsWith('file://')) return path;
@@ -98,6 +99,7 @@ export default function POSInstructionsPath() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('settings.posPath.posInstructionsPath.title')}
           right={
             <IconButton
@@ -136,5 +138,5 @@ export default function POSInstructionsPath() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  scrollContent: { paddingBottom: FADE },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: FADE },
 });

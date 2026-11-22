@@ -37,6 +37,7 @@ import formatDate from '../../functions/formatDate';
 import buildSpendingChart from '../../functions/analytics/spendingChart';
 import { ANALYTICS_TIMEFRAMES } from '../../functions/analytics/periods';
 import IconButton from '../../functions/CustomElements/redesign/IconButton';
+import { FADE_TOP } from '../../functions/CustomElements/redesign/TopFade';
 
 const CHART_HEIGHT = 120;
 // Timeframes with a period before them that is worth comparing against.
@@ -113,6 +114,7 @@ export default function AnalyticsPage() {
     <GlobalThemeView styles={{ paddingBottom: 0 }} useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('analytics.home.title')}
           right={
             !isEmpty && (
@@ -122,7 +124,10 @@ export default function AnalyticsPage() {
         />
         <CustomScrollView
           style={styles.scroll}
-          contentContainerStyle={{ paddingBottom: bottomPadding }}
+          contentContainerStyle={{
+            paddingTop: FADE_TOP,
+            paddingBottom: bottomPadding,
+          }}
         >
           {isEmpty ? (
             <View style={styles.empty}>

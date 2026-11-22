@@ -39,6 +39,7 @@ import TextButton from '../../../../../functions/CustomElements/redesign/TextBut
 import Spinner from '../../../../../functions/CustomElements/redesign/Spinner';
 import BottomActions from '../../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../../functions/CustomElements/redesign/TopFade';
 
 const NIP5_DOMAIN = '@blitzwalletapp.com';
 const MAX_NAME_LENGTH = 60;
@@ -220,6 +221,7 @@ export default function Nip5VerificationPage() {
     >
       <View style={{ flex: 1, width: contentWidth, ...CENTER }}>
         <TopBar
+          fade
           title={t('settings.nip5.title')}
           shouldDismissKeyboard={true}
           right={<IconButton icon={'Info'} onPress={openInfo} />}
@@ -375,7 +377,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     position: 'relative',
   },
-  scrollContent: { paddingBottom: FADE },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: FADE },
   preview: {
     marginTop: 28,
     alignItems: 'center',

@@ -18,6 +18,7 @@ export default function GiftsPageHome() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('screens.inAccount.giftPages.giftsHome.title')}
           right={
             <IconButton

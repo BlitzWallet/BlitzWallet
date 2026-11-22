@@ -21,6 +21,7 @@ import ListCard from '../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../functions/CustomElements/redesign/ListRow';
 import SectionHeader from '../../functions/CustomElements/redesign/SectionHeader';
 import Disc from '../../functions/CustomElements/redesign/Disc';
+import { FADE_TOP } from '../../functions/CustomElements/redesign/TopFade';
 
 const PREFERENCES_ROWS = [
   {
@@ -251,7 +252,7 @@ export default function SettingsIndex() {
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
       <View style={[styles.content, { width: contentWidth }]}>
-        <TopBar title={t('settings.index.settingsHead')} />
+        <TopBar fade title={t('settings.index.settingsHead')} />
         <CustomScrollView
           style={styles.scroll}
           contentContainerStyle={styles.scrollContent}
@@ -301,7 +302,7 @@ const styles = StyleSheet.create({
   globalContainer: { paddingBottom: 0 },
   content: { alignSelf: 'center', flex: 1 },
   scroll: { flex: 1 },
-  scrollContent: { paddingTop: 0, paddingBottom: 24 },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: 24 },
   section: { width: '100%' },
   cardSpacing: { marginTop: 24 },
   rowTitle: { fontSize: 15, lineHeight: 21 },

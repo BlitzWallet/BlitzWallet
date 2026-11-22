@@ -9,6 +9,11 @@ import {
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import CustomScrollView from '../../functions/CustomElements/scrollView';
+import TopHeader from '../../functions/CustomElements/redesign/TopHeader';
+import {
+  FADE_TOP,
+  FADE_TOP_BUFFER,
+} from '../../functions/CustomElements/redesign/TopFade';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import PageTitle from '../../functions/CustomElements/redesign/PageTitle';
@@ -308,12 +313,15 @@ export default function MoneyTab() {
   return (
     <GlobalThemeView styles={styles.container} useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
-        <View style={styles.header}>
-          <PageTitle text={t('money.title')} />
-        </View>
+        <TopHeader>
+          <View style={styles.header}>
+            <PageTitle text={t('money.title')} />
+          </View>
+        </TopHeader>
         <CustomScrollView
           ref={scrollViewRef}
           contentContainerStyle={{
+            paddingTop: FADE_TOP + FADE_TOP_BUFFER,
             paddingBottom: bottomPadding + TAB_ITEM_HEIGHT + 40,
           }}
         >
@@ -349,7 +357,6 @@ const styles = StyleSheet.create({
   content: { alignSelf: 'center', width: '100%', flex: 1 },
   header: {
     marginTop: 10,
-    marginBottom: 20,
     minHeight: 45,
     justifyContent: 'center',
   },

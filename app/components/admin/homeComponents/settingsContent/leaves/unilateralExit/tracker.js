@@ -51,6 +51,7 @@ import { exitGraph, txState } from './tree';
 import { useFeeAddressBalance } from './feeSheet';
 import BottomActions from '../../../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../../../functions/CustomElements/redesign/TopFade';
 
 const PHASE_KEYS = {
   sending: 'phaseSending',
@@ -192,7 +193,7 @@ export default function UnilateralExitTracker() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar title={t('settings.unilateralExit.title')} />
+        <TopBar fade title={t('settings.unilateralExit.title')} />
         <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.hero}>
             <ThemeText
@@ -359,7 +360,7 @@ function Pulse({ color }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  scrollContent: { paddingBottom: 24 },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: 24 },
   hero: { marginTop: 24 },
   block: { marginTop: 16, gap: 12 },
   center: { textAlign: 'center' },

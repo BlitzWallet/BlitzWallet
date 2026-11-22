@@ -14,6 +14,11 @@ import { useTranslation } from 'react-i18next';
 import ListCard from '../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../functions/CustomElements/redesign/Disc';
+import TopHeader from '../../functions/CustomElements/redesign/TopHeader';
+import {
+  FADE_TOP,
+  FADE_TOP_BUFFER,
+} from '../../functions/CustomElements/redesign/TopFade';
 
 export default function AppStore() {
   const navigate = useNavigation();
@@ -46,9 +51,11 @@ export default function AppStore() {
   return (
     <GlobalThemeView styles={styles.container} useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
-        <View style={styles.header}>
-          <PageTitle text={t('apps.appList.title')} />
-        </View>
+        <TopHeader>
+          <View style={styles.header}>
+            <PageTitle text={t('apps.appList.title')} />
+          </View>
+        </TopHeader>
         <CustomScrollView
           ref={scrollViewRef}
           contentContainerStyle={[
@@ -141,12 +148,15 @@ const styles = StyleSheet.create({
   },
   header: {
     marginTop: 10,
-    marginBottom: 20,
     minHeight: 45,
     justifyContent: 'center',
   },
   card: { marginTop: 12 },
   container: { paddingBottom: 0 },
 
-  scrollContent: { flexGrow: 1, width: '100%' },
+  scrollContent: {
+    flexGrow: 1,
+    width: '100%',
+    paddingTop: FADE_TOP + FADE_TOP_BUFFER,
+  },
 });

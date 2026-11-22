@@ -21,6 +21,7 @@ import ListRow from '../../../../../../functions/CustomElements/redesign/ListRow
 import IconButton from '../../../../../../functions/CustomElements/redesign/IconButton';
 import BottomActions from '../../../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../../../functions/CustomElements/redesign/TopFade';
 
 export default function AddPOSItemsPage() {
   const { masterInfoObject, toggleMasterInfoObject } =
@@ -166,10 +167,12 @@ export default function AddPOSItemsPage() {
     >
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('settings.posPath.items.addPOSItemsPage.title')}
           shouldDismissKeyboard={true}
         />
         <HideOnScrollView
+          topInset={FADE_TOP}
           contentContainerStyle={styles.scrollContent}
           header={
             <SearchField

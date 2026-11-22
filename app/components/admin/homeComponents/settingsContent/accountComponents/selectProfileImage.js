@@ -116,6 +116,7 @@ const EmojiGrid = memo(({ header, sections, onEmojiSelect, selectedEmoji }) => {
     <HideOnScrollView
       ListComponent={SectionList}
       header={header}
+      topInset={20}
       sections={sections}
       keyExtractor={(item, index) => `row-${index}`}
       renderItem={renderEmojiRow}
@@ -333,7 +334,7 @@ const styles = StyleSheet.create({
   previewContainer: {
     alignSelf: 'center',
     marginTop: 8,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   previewCircle: {
     width: 104,

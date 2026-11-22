@@ -30,6 +30,8 @@ import Segmented from '../../../../../../functions/CustomElements/redesign/Segme
 import PageHeader from '../../../../../../functions/CustomElements/redesign/PageHeader';
 import useQrSize from '../../../../../../hooks/useQrSize';
 import CustomScrollView from '../../../../../../functions/CustomElements/scrollView';
+import TopHeader from '../../../../../../functions/CustomElements/redesign/TopHeader';
+import { FADE_TOP } from '../../../../../../functions/CustomElements/redesign/TopFade';
 
 export default function ChildLinkCode(props) {
   const navigate = useNavigation();
@@ -176,7 +178,7 @@ export default function ChildLinkCode(props) {
       </View>
     ) : (
       <View style={styles.tabContent}>
-        <CustomScrollView>
+        <CustomScrollView contentContainerStyle={{ paddingTop: FADE_TOP }}>
           <PageHeader
             title={t('settings.childAccounts.pairing.qrTitle')}
             sub={t('settings.childAccounts.pairing.qrSubtitle')}
@@ -188,7 +190,7 @@ export default function ChildLinkCode(props) {
     );
 
   const codeContent = (
-    <View style={styles.tabContent}>
+    <View style={[styles.tabContent, { paddingTop: FADE_TOP }]}>
       <PageHeader
         title={t('settings.childAccounts.pairing.usernameTitle')}
         sub={t('settings.childAccounts.pairing.usernameSubtitle')}
@@ -219,28 +221,30 @@ export default function ChildLinkCode(props) {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar
-          title={t('settings.childAccounts.pairing.title')}
-          right={<PairingExpiryClock />}
-        />
-        <View style={styles.toggleWrap}>
-          <Segmented
-            fit
-            capitalizeLabels={false}
-            options={[
-              {
-                value: 'code',
-                label: t('settings.childAccounts.pairing.codeOption'),
-              },
-              {
-                value: 'qr',
-                label: t('settings.childAccounts.pairing.qrOption'),
-              },
-            ]}
-            value={selectedDisplayOption}
-            onChange={setSelectedDisplayOption}
+        <TopHeader>
+          <TopBar
+            title={t('settings.childAccounts.pairing.title')}
+            right={<PairingExpiryClock />}
           />
-        </View>
+          <View style={styles.toggleWrap}>
+            <Segmented
+              fit
+              capitalizeLabels={false}
+              options={[
+                {
+                  value: 'code',
+                  label: t('settings.childAccounts.pairing.codeOption'),
+                },
+                {
+                  value: 'qr',
+                  label: t('settings.childAccounts.pairing.qrOption'),
+                },
+              ]}
+              value={selectedDisplayOption}
+              onChange={setSelectedDisplayOption}
+            />
+          </View>
+        </TopHeader>
         <View style={styles.content}>
           {isQrTab ? (
             <Animated.View

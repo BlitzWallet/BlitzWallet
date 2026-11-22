@@ -791,7 +791,6 @@ export default function ConfirmSplitPayment(props) {
     <GlobalThemeView useStandardWidth={false}>
       <View style={[styles.replacementContainer, { width: contentWidth }]}>
         <TopBar title={t('constants.send')} />
-
         <CustomScrollView
           contentContainerStyle={
             uiState === 'SWAP_RATES_CHANGED'

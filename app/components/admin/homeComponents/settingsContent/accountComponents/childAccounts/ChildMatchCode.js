@@ -22,6 +22,7 @@ import SasPatternGrid from './SasPatternGrid';
 import useHandleBackPressNew from '../../../../../../hooks/useHandleBackPressNew';
 import BottomActions from '../../../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../../../functions/CustomElements/redesign/TopFade';
 
 export default function ChildMatchCode() {
   const navigate = useNavigation();
@@ -73,6 +74,7 @@ export default function ChildMatchCode() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('settings.childAccounts.pairing.sasNavTitle')}
           onBack={handleNoMatch}
           right={<PairingExpiryClock />}
@@ -114,7 +116,7 @@ export default function ChildMatchCode() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  contentContainer: { flexGrow: 1, paddingBottom: FADE },
+  contentContainer: { flexGrow: 1, paddingTop: FADE_TOP, paddingBottom: FADE },
   grid: { marginTop: 20 },
   hint: {
     textAlign: 'center',

@@ -32,6 +32,7 @@ import {
 } from '../../../../../../functions/CustomElements/redesign/Skeleton';
 import BottomActions from '../../../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../../../functions/CustomElements/redesign/TopFade';
 
 export default function UnilateralExitReview(props) {
   const { address, feeRate, mode = 'exit' } = props.route.params;
@@ -168,7 +169,7 @@ export default function UnilateralExitReview(props) {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar title={t(`settings.unilateralExit.${titleKey}`)} />
+        <TopBar fade title={t(`settings.unilateralExit.${titleKey}`)} />
         <CustomScrollView contentContainerStyle={styles.scrollPad}>
           {preview && (
             <>
@@ -235,7 +236,7 @@ export default function UnilateralExitReview(props) {
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
   scrollContent: { paddingBottom: 24 },
-  scrollPad: { paddingBottom: FADE },
+  scrollPad: { paddingTop: FADE_TOP, paddingBottom: FADE },
   hero: { marginTop: 24 },
   block: { marginTop: 16 },
   spacer: { flex: 1 },

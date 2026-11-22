@@ -14,6 +14,7 @@ import UserInput from '../../../../../../functions/CustomElements/redesign/UserI
 import Note from '../../../../../../functions/CustomElements/redesign/Note';
 import BottomActions from '../../../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../../../functions/CustomElements/redesign/TopFade';
 
 // Plain address or a bitcoin: link; anything else (invoice, LNURL) is refused.
 async function toBitcoinAddress(text) {
@@ -55,6 +56,7 @@ export default function UnilateralExitAddress(props) {
     >
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('settings.unilateralExit.title')}
           shouldDismissKeyboard={true}
         />
@@ -115,7 +117,7 @@ export default function UnilateralExitAddress(props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  scrollContent: { paddingBottom: FADE },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: FADE },
   error: { marginTop: 12 },
   footer: { gap: 12 },
 });

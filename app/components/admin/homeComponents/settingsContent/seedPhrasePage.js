@@ -12,6 +12,10 @@ import calculateSeedQR from './seedQR';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import Segmented from '../../../../functions/CustomElements/redesign/Segmented';
+import {
+  FADE_TOP,
+  FADE_TOP_BUFFER,
+} from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function SeedPhrasePage({ extraData, route }) {
   const { accountMnemoinc: contextMnemonic } = useKeysContext();
@@ -119,7 +123,7 @@ export default function SeedPhrasePage({ extraData, route }) {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scroll: { flex: 1 },
-  scrollContent: { paddingTop: 16, paddingBottom: 24 },
+  scrollContent: { paddingTop: FADE_TOP + FADE_TOP_BUFFER, paddingBottom: 24 },
   title: {
     fontFamily: FONT.Title_Medium,
     fontSize: 28,

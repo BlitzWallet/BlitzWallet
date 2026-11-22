@@ -26,6 +26,7 @@ import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
 import BottomActions from '../../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../../functions/CustomElements/redesign/TopFade';
 
 const RowValue = ({ text, icon }) => {
   const { tokens } = useTheme();
@@ -129,13 +130,14 @@ export default function PosSettingsPage() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('settings.posPath.settings.title')}
           shouldDismissKeyboard={true}
         />
         <CustomScrollView
           style={styles.scrollView}
           contentContainerStyle={{
-            paddingTop: 16,
+            paddingTop: FADE_TOP,
             paddingBottom: FADE,
           }}
           keyboardShouldPersistTaps="handled"

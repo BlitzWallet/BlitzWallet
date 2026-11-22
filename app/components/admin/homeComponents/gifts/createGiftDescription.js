@@ -12,6 +12,7 @@ import PageHeader from '../../../../functions/CustomElements/redesign/PageHeader
 import UserInput from '../../../../functions/CustomElements/redesign/UserInput';
 import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function CreateGiftDescription(props) {
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
@@ -36,6 +37,7 @@ export default function CreateGiftDescription(props) {
     >
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('screens.inAccount.giftPages.createGift.header')}
           shouldDismissKeyboard={true}
         />
@@ -109,6 +111,7 @@ const styles = StyleSheet.create({
   },
   scroll: {
     flexGrow: 1,
+    paddingTop: FADE_TOP,
     paddingBottom: FADE,
   },
   buttonContainer: { gap: 10 },

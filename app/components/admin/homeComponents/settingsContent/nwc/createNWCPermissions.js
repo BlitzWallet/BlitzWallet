@@ -21,6 +21,7 @@ import Disc from '../../../../../functions/CustomElements/redesign/Disc';
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import BottomActions from '../../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../../functions/CustomElements/redesign/TopFade';
 
 export default function CreateNWCPermissions(props) {
   const navigate = useNavigation();
@@ -123,6 +124,7 @@ export default function CreateNWCPermissions(props) {
     <CustomKeyboardAvoidingView useLocalPadding={true} useStandardWidth={true}>
       <View style={[styles.innerContainer, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t(
             isEditing
               ? 'settings.nwc.createNWCPermissions.title'
@@ -200,7 +202,7 @@ const styles = StyleSheet.create({
     flex: 1,
     ...CENTER,
   },
-  scrollContent: { flexGrow: 1, paddingBottom: FADE },
+  scrollContent: { flexGrow: 1, paddingTop: FADE_TOP, paddingBottom: FADE },
   settingsItemLabel: {
     fontSize: SIZES.smedium,
     includeFontPadding: false,

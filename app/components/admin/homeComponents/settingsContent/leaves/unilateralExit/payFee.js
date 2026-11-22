@@ -25,6 +25,7 @@ import {
 } from '../../../../../../functions/unilateralExit/exitEngine';
 import BottomActions from '../../../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../../../functions/CustomElements/redesign/TopFade';
 
 export default function UnilateralExitPayFee() {
   const { t } = useTranslation();
@@ -112,7 +113,7 @@ export default function UnilateralExitPayFee() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar title={t('settings.unilateralExit.title')} />
+        <TopBar fade title={t('settings.unilateralExit.title')} />
         <CustomScrollView contentContainerStyle={styles.scrollContent}>
           {!!feeAddress && (
             <View style={styles.block}>
@@ -178,7 +179,7 @@ export default function UnilateralExitPayFee() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  scrollContent: { paddingBottom: FADE },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: FADE },
   block: { marginTop: 16, gap: 12 },
   buttons: { marginTop: 16, gap: 12 },
   qr: { alignSelf: 'center' },

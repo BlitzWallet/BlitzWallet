@@ -14,6 +14,7 @@ import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { getWalletTokens } from '../../../../functions/lrc20/utils';
 import TokenRow from './tokenRow';
 import useAfterTransition from '../../../../hooks/useAfterTransition';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function AllTokensPage() {
   const { sparkInformation } = useSparkWallet();
@@ -45,8 +46,9 @@ export default function AllTokensPage() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar title={t('wallet.homeLightning.balancePage.allTokens')} />
+        <TopBar fade title={t('wallet.homeLightning.balancePage.allTokens')} />
         <HideOnScrollView
+          topInset={FADE_TOP}
           keyboardShouldPersistTaps="handled"
           header={
             <SearchField

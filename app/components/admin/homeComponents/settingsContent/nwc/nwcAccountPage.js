@@ -16,6 +16,7 @@ import IconButton from '../../../../../functions/CustomElements/redesign/IconBut
 import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
+import { FADE_TOP } from '../../../../../functions/CustomElements/redesign/TopFade';
 
 export default function NWCAccountPage(props) {
   const navigate = useNavigation();
@@ -94,6 +95,7 @@ export default function NWCAccountPage(props) {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={savedData.accountName}
           right={
             <IconButton
@@ -113,7 +115,6 @@ export default function NWCAccountPage(props) {
             />
           }
         />
-
         <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <ListCard>
             {editableItems.map((item, index) => (
@@ -164,7 +165,7 @@ const styles = StyleSheet.create({
     ...CENTER,
   },
   scrollContent: {
-    paddingTop: 20,
+    paddingTop: FADE_TOP,
     flexGrow: 1,
   },
 });

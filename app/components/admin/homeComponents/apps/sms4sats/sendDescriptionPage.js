@@ -34,6 +34,7 @@ import ResultAnimation from '../../../../../functions/CustomElements/redesign/Re
 import useContentWidth from '../../../../../functions/CustomElements/redesign/useContentWidth';
 import BottomActions from '../../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../../functions/CustomElements/redesign/TopFade';
 
 export default function SMSMessagingSendDescriptionPage(props) {
   const navigate = useNavigation();
@@ -221,7 +222,7 @@ export default function SMSMessagingSendDescriptionPage(props) {
       useStandardWidth={true}
     >
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar title={t('constants.send')} shouldDismissKeyboard={true} />
+        <TopBar fade title={t('constants.send')} shouldDismissKeyboard={true} />
         <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <PageHeader
             title={t('apps.sms4sats.sendPage.descriptionStepTitle')}
@@ -279,7 +280,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
     textAlign: 'center',
   },
-  scrollContent: { paddingBottom: FADE },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: FADE },
   button: {
     marginTop: CONTENT_KEYBOARD_OFFSET,
   },

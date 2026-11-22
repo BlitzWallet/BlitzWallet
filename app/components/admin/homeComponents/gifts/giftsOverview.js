@@ -29,6 +29,7 @@ import {
   giftNumberLabel,
   giftShortDate,
 } from './giftDisplay';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 const DAY = 24 * 60 * 60 * 1000;
 const HOUR = 60 * 60 * 1000;
@@ -309,7 +310,7 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   flex: { flex: 1 },
   emptyContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  scrollContent: { flexGrow: 1, paddingTop: 4, paddingBottom: FADE },
+  scrollContent: { flexGrow: 1, paddingTop: FADE_TOP, paddingBottom: FADE },
   buttonGroup: {
     gap: 10,
     marginTop: CONTENT_KEYBOARD_OFFSET,

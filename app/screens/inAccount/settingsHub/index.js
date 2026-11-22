@@ -21,6 +21,7 @@ import Disc from '../../../functions/CustomElements/redesign/Disc';
 import IconButton from '../../../functions/CustomElements/redesign/IconButton';
 import CustomScrollView from '../../../functions/CustomElements/scrollView';
 import { useGlobalInsets } from '../../../../context-store/insetsProvider';
+import { FADE_TOP } from '../../../functions/CustomElements/redesign/TopFade';
 
 const DOOMSDAY_ROW = [
   {
@@ -208,6 +209,7 @@ export default function SettingsHub(props) {
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('settings.index.profileHead')}
           right={
             <IconButton
@@ -217,7 +219,10 @@ export default function SettingsHub(props) {
             />
           }
         />
-        <CustomScrollView styles={{ paddingBottom: bottomPadding }}>
+        <CustomScrollView
+          styles={{ paddingBottom: bottomPadding }}
+          contentContainerStyle={{ paddingTop: FADE_TOP }}
+        >
           <ProfileCard
             profileImage={myProfileImage}
             name={myContact?.name}

@@ -73,6 +73,7 @@ import { waitForForground } from '../../../../hooks/useWaitForForground';
 import useBlockSendDuringExit from '../../../../functions/unilateralExit/useBlockSendDuringExit';
 import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 const QUOTE_TTL_MS = 115_000;
 
@@ -724,6 +725,7 @@ export default function StablecoinSendScreen() {
     <GlobalThemeView useStandardWidth={false}>
       <View style={[styles.replacementContainer, { width: contentWidth }]}>
         <TopBar
+          fade
           title={`${t('constants.send')}`}
           right={
             isConfirmMode ? null : (
@@ -761,7 +763,6 @@ export default function StablecoinSendScreen() {
             )
           }
         />
-
         <CustomScrollView
           contentContainerStyle={[
             styles.scrollContent,
@@ -951,7 +952,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingTop: 52,
+    paddingTop: FADE_TOP,
     paddingBottom: 10,
   },
   // Amount step: centred like SendAmount; the review keeps the top offset.

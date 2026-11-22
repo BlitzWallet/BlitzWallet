@@ -7,10 +7,15 @@ import ThemeText from '../textTheme';
 import IconButton from './IconButton';
 import { useInSheet } from './sheetSurface';
 import { KeyboardController } from 'react-native-keyboard-controller';
+import TopHeader from './TopHeader';
 
 // Back (44) · centred title 17/500, wraps to 2 lines · right slot.
 // `showBack={false}` keeps the slot (title stays centred) but hides the button.
-export default function TopBar({
+// `fade`: the scroll view below slides SOLID under the bar and its content
+// dissolves out at the bar's bottom edge. Give that scroll content
+// paddingTop: FADE_TOP. Pages only; ignored in sheets.
+
+function TopBarInner({
   title,
   onBack,
   right,
@@ -70,6 +75,45 @@ export default function TopBar({
         {right}
       </View>
     </View>
+  );
+}
+
+export default function TopBar({
+  title,
+  onBack,
+  right,
+  scrolled = false,
+  shouldDismissKeyboard = false,
+  showBack = true,
+  fade = false,
+}) {
+  const inSheet = useInSheet();
+  const showFade = fade && !inSheet;
+
+  if (showFade) {
+    return (
+      <TopHeader>
+        <TopBarInner
+          title={title}
+          onBack={onBack}
+          right={right}
+          scrolled={scrolled}
+          shouldDismissKeyboard={shouldDismissKeyboard}
+          showBack={showBack}
+        />
+      </TopHeader>
+    );
+  }
+
+  return (
+    <TopBarInner
+      title={title}
+      onBack={onBack}
+      right={right}
+      scrolled={scrolled}
+      shouldDismissKeyboard={shouldDismissKeyboard}
+      showBack={showBack}
+    />
   );
 }
 

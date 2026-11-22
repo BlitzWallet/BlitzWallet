@@ -22,6 +22,7 @@ import BalanceActions from './balanceActions';
 import ActivityCard from './activityCard';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import TokenRow from './tokenRow';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 const TOKENS_SHOWN = 4;
 
@@ -41,8 +42,8 @@ export default function TokensPage() {
   return (
     <GlobalThemeView styles={styles.page} useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar title={t('constants.tokens')} />
-        <CustomScrollView>
+        <TopBar fade title={t('constants.tokens')} />
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <ThemeText
             content={t('wallet.homeLightning.balancePage.balances')}
             variant={'hint'}
@@ -96,7 +97,8 @@ export default function TokensPage() {
 const styles = StyleSheet.create({
   page: { paddingBottom: 0 },
   container: { flex: 1, ...CENTER, paddingTop: 7 },
-  label: { marginTop: 56, fontSize: 14, lineHeight: 21, marginBottom: 8 },
+  scrollContent: { paddingTop: FADE_TOP },
+  label: { marginTop: 16, fontSize: 14, lineHeight: 21, marginBottom: 8 },
   card: { paddingVertical: 4 },
   rows: { paddingHorizontal: 0 },
   viewAll: {

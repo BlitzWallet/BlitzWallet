@@ -19,6 +19,7 @@ import CustomScrollView from '../../../functions/CustomElements/scrollView';
 import ConsentRow from '../../../functions/CustomElements/redesign/ConsentRow';
 import BottomActions from '../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../functions/CustomElements/redesign/TopFade';
 
 export default function ChildClaimInfo() {
   const navigate = useNavigation();
@@ -48,7 +49,7 @@ export default function ChildClaimInfo() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar />
+        <TopBar fade />
         <CustomScrollView contentContainerStyle={styles.contentContainer}>
           <PageHeader
             large
@@ -126,7 +127,7 @@ export default function ChildClaimInfo() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  contentContainer: { flexGrow: 1, paddingBottom: FADE },
+  contentContainer: { flexGrow: 1, paddingTop: FADE_TOP, paddingBottom: FADE },
   infoCard: { marginTop: 32 },
   termsCard: { marginTop: 12 },
   rowTitle: { fontSize: 15, lineHeight: 21 },

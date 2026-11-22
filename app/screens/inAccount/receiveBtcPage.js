@@ -53,6 +53,7 @@ import {
   buildPaylinkURL,
 } from '../../functions/receiveBitcoin/paylinkUtils';
 import { addDataToCollection } from '../../../db';
+import { FADE_TOP } from '../../functions/CustomElements/redesign/TopFade';
 
 // Invoice (Receive.dc.html "Lightning invoice · Bitcoin / Dollars"). The
 // Bitcoin or Dollars row picked on Receive sets endReceiveType; the pencil
@@ -356,6 +357,7 @@ export default function ReceivePaymentHome(props) {
     <GlobalThemeView useStandardWidth={false}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title=""
           right={
             <IconButton
@@ -545,7 +547,7 @@ function useInvoiceAmountLines({
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  scroll: { flexGrow: 1, paddingTop: 24, paddingBottom: FADE },
+  scroll: { flexGrow: 1, paddingTop: FADE_TOP, paddingBottom: FADE },
   amount: { alignItems: 'flex-start', alignSelf: 'center' },
   qr: { alignItems: 'center', marginTop: 22 },
   anyAmount: {

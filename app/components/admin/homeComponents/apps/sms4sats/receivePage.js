@@ -51,6 +51,7 @@ import {
   SMS4SATS_API,
   toSms4SatsCountryId,
 } from './utils';
+import { FADE_TOP } from '../../../../../functions/CustomElements/redesign/TopFade';
 
 // The catalog has ~800 services; the common ones go first.
 const POPULAR_SERVICES = [
@@ -437,7 +438,7 @@ function SMSNumberResult({ result, contentWidth, onDone, paidText, onCopy }) {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar onBack={onDone} />
+        <TopBar fade onBack={onDone} />
         {isReady ? (
           <CustomScrollView contentContainerStyle={styles.resultScroll}>
             <PageHeader

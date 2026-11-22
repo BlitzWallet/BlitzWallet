@@ -22,6 +22,7 @@ import HideOnScrollView from '../../../../../functions/CustomElements/redesign/H
 import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
 import { SkeletonRow } from '../../../../../functions/CustomElements/redesign/Skeleton';
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
+import { FADE_TOP } from '../../../../../functions/CustomElements/redesign/TopFade';
 
 export default function ViewPOSTransactions() {
   const { groupedTxs, isLoading } = usePOSTransactions();
@@ -136,10 +137,12 @@ export default function ViewPOSTransactions() {
     >
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('settings.posPath.transactions.title')}
           shouldDismissKeyboard={true}
         />
         <HideOnScrollView
+          topInset={FADE_TOP}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ paddingBottom: bottomPadding }}
           header={

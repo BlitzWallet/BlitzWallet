@@ -14,6 +14,7 @@ import PageTitle from '../../../../../functions/CustomElements/redesign/PageTitl
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
 import BottomActions from '../../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../../functions/CustomElements/redesign/TopFade';
 
 const FEATURES = [
   'apps.chatGPT.addCreditsPage.feature1',
@@ -32,7 +33,7 @@ export default function AddChatGPTCredits() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar />
+        <TopBar fade />
         <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <PageTitle
             titleStyles={styles.unlockTitle}
@@ -76,6 +77,7 @@ export default function AddChatGPTCredits() {
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
   scrollContent: {
+    paddingTop: FADE_TOP,
     paddingBottom: FADE,
   },
   unlockTitle: {

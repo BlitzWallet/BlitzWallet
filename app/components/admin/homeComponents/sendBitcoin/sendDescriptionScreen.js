@@ -28,6 +28,7 @@ import {
 import normalizeLNURLAddress from '../../../../functions/lnurl/normalizeLNURLAddress';
 import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 // Route SendDescription: the note, shown only when the recipient will see it.
 export default function SendDescriptionScreen(props) {
@@ -202,7 +203,7 @@ export default function SendDescriptionScreen(props) {
       }}
     >
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar title={t('constants.send')} />
+        <TopBar fade title={t('constants.send')} />
         <CustomScrollView
           style={styles.hero}
           keyboardShouldPersistTaps="handled"
@@ -279,7 +280,7 @@ export default function SendDescriptionScreen(props) {
 const styles = StyleSheet.create({
   container: { flex: 1, alignSelf: 'center' },
   hero: { flex: 1, minHeight: 0 },
-  noteContent: { flexGrow: 1, paddingTop: 24, paddingBottom: FADE },
+  noteContent: { flexGrow: 1, paddingTop: FADE_TOP, paddingBottom: FADE },
   headline: {
     flexDirection: 'row',
     flexWrap: 'wrap',

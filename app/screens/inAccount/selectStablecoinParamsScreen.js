@@ -17,6 +17,7 @@ import { CENTER, ICONS } from '../../constants';
 import { Image } from 'expo-image';
 import BottomActions from '../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../functions/CustomElements/redesign/TopFade';
 
 const EVM_CHAINS = [
   'Base',
@@ -74,6 +75,7 @@ export default function SelectStablecoinParamsScreen() {
     <GlobalThemeView useStandardWidth={false}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t(
             isNonEvm
               ? 'wallet.stablecoinSend.selectAsset'
@@ -89,7 +91,9 @@ export default function SelectStablecoinParamsScreen() {
                   address: shortAddress,
                   chain: chainFamily,
                 })
-              : t('wallet.stablecoinSend.sendingTo', { address: shortAddress })
+              : t('wallet.stablecoinSend.sendingTo', {
+                  address: shortAddress,
+                })
           }
         />
         <CustomScrollView
@@ -163,8 +167,8 @@ const styles = StyleSheet.create({
     flex: 1,
     ...CENTER,
   },
-  sub: { marginTop: 20, marginBottom: 16 },
-  scrollContent: { flexGrow: 1 },
+  sub: { marginTop: 20 },
+  scrollContent: { flexGrow: 1, paddingTop: FADE_TOP },
   note: { paddingVertical: 12, paddingHorizontal: 4 },
   button: { ...CENTER },
   cardIcon: {

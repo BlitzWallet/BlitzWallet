@@ -44,6 +44,7 @@ import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
 import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function SendAndRequestPage(props) {
   const {
@@ -261,6 +262,7 @@ export default function SendAndRequestPage(props) {
     >
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={title}
           onBack={step === 'note' ? goToAmount : undefined}
           shouldDismissKeyboard={step === 'note'}
@@ -277,7 +279,6 @@ export default function SendAndRequestPage(props) {
             ) : null
           }
         />
-
         <View style={styles.steps}>
           <AnimatedStep active={step === 'amount'} direction={direction}>
             <View style={styles.step}>
@@ -473,7 +474,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 12,
+    paddingTop: FADE_TOP,
     paddingBottom: FADE,
   },
   avatarRow: {
@@ -497,7 +498,7 @@ const styles = StyleSheet.create({
   },
   noteContent: {
     flexGrow: 1,
-    paddingTop: 24,
+    paddingTop: FADE_TOP,
     paddingBottom: FADE,
   },
   headline: {

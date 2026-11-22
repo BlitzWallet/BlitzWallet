@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import factoryResetWallet from '../../../../functions/factoryResetWallet';
 import ConsentRow from '../../../../functions/CustomElements/redesign/ConsentRow';
 import RemoveConfirmationHeader from '../../../../functions/CustomElements/redesign/RemoveConfirmationHeader';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function ResetPage() {
   const [wantsToReset, setWantsToReset] = useState(false);
@@ -61,7 +62,7 @@ export default function ResetPage() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, marginTop: 24 },
+  container: { flex: 1, marginTop: FADE_TOP + 24 },
   footer: {
     gap: 12,
     marginTop: 'auto',

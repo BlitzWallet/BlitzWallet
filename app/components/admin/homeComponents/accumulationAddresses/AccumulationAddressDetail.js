@@ -48,6 +48,7 @@ import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
 import QrCard from '../../../../functions/CustomElements/redesign/QrCard';
 import Note from '../../../../functions/CustomElements/redesign/Note';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 import { destinationLabel, shortenAddress } from './AccumulationAddressCard';
 import useQrSize from '../../../../hooks/useQrSize';
 
@@ -247,6 +248,7 @@ export default function AccumulationAddressDetail() {
     <GlobalThemeView useStandardWidth>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={`${selected.sourceAsset} → ${destinationLabel(
             selected.destinationAsset,
             t,
@@ -339,7 +341,7 @@ const styles = StyleSheet.create({
     ...CENTER,
   },
   scrollContent: {
-    paddingTop: 20,
+    paddingTop: FADE_TOP,
     paddingBottom: FADE,
   },
   addressRow: {

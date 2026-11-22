@@ -24,6 +24,7 @@ import {
   giftNumberLabel,
   giftShortDate,
 } from './giftDisplay';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function ReclaimGift() {
   const { expiredGiftsArray, updateGiftList, checkForRefunds } = useGifts();
@@ -92,7 +93,10 @@ export default function ReclaimGift() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar title={t('screens.inAccount.giftPages.reclaimPage.title')} />
+        <TopBar
+          fade
+          title={t('screens.inAccount.giftPages.reclaimPage.title')}
+        />
         <PageHeader
           title={t('screens.inAccount.giftPages.reclaimPage.header')}
           sub={t('screens.inAccount.giftPages.reclaimPage.desc')}
@@ -154,6 +158,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  scrollContent: { paddingBottom: FADE },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: FADE },
   buttonContainer: { gap: 10 },
 });

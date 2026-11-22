@@ -32,6 +32,7 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import AdaptiveButtonRow from '../../../../functions/CustomElements/adaptiveButtonRow';
 import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function FastPay() {
   const { masterInfoObject, toggleMasterInfoObject } =
@@ -122,7 +123,7 @@ export default function FastPay() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
-        <TopBar title={t('screens.inAccount.settingsContent.fast pay')} />
+        <TopBar fade title={t('screens.inAccount.settingsContent.fast pay')} />
         <CustomScrollView
           style={styles.scroll}
           contentContainerStyle={styles.scrollContent}
@@ -194,7 +195,7 @@ export default function FastPay() {
         </CustomScrollView>
 
         {isEditing && (
-          <BottomActions style={styles.editTray}>
+          <BottomActions overlap={false} style={styles.editTray}>
             <CustomNumberKeyboard
               showDot={false}
               setInputValue={setThresholdInput}
@@ -240,8 +241,8 @@ export default function FastPay() {
 const styles = StyleSheet.create({
   content: { alignSelf: 'center', flex: 1 },
   scroll: { flex: 1 },
-  scrollContent: { paddingBottom: FADE },
-  firstCard: { marginTop: 16 },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: FADE },
+  firstCard: { marginTop: 0 },
   rowTitle: { fontSize: 15, lineHeight: 21 },
   thresholdHeader: { marginTop: 20 },
   amountCard: {

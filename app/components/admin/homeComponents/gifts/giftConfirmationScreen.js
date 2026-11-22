@@ -36,6 +36,7 @@ import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { formatGiftAmount } from './giftDisplay';
 import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 const K = 'screens.inAccount.giftPages.giftConfirmation.';
 
@@ -154,6 +155,7 @@ export default function GiftConfirmation(props) {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           onBack={handleGoHome}
           right={
             <IconButton
@@ -256,7 +258,7 @@ export default function GiftConfirmation(props) {
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
   scrollView: { flex: 1 },
-  scrollContent: { paddingBottom: FADE },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: FADE },
   header: { alignItems: 'center', marginTop: 16, marginBottom: 28 },
   title: {
     marginTop: 16,

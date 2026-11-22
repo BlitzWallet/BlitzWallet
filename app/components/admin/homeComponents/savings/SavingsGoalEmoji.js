@@ -22,6 +22,7 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 const GOAL_EMOJIS = [
   '💵',
@@ -52,8 +53,7 @@ export default function SavingsGoalEmoji() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar title={t('savings.goalEmoji.screenTitle')} />
-
+        <TopBar fade title={t('savings.goalEmoji.screenTitle')} />
         <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <ThemeText
             variant={'title'}
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     flex: 1,
     ...CENTER,
   },
-  scrollContent: { paddingBottom: FADE },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: FADE },
   title: {
     marginTop: 20,
   },

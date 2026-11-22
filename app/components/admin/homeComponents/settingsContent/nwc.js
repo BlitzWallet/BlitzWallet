@@ -25,6 +25,7 @@ import SectionHeader from '../../../../functions/CustomElements/redesign/Section
 import DiscText from '../../../../functions/CustomElements/redesign/DiscText';
 import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function NosterWalletConnect({ route }) {
   const navigate = useNavigation();
@@ -156,7 +157,7 @@ function CustomPageWrapper({ children }) {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.contentContianer, { width: contentWidth }]}>
-        <TopBar title={t('settings.nwc.pageTitle')} />
+        <TopBar fade title={t('settings.nwc.pageTitle')} />
         {children}
       </View>
     </GlobalThemeView>
@@ -170,7 +171,7 @@ const styles = StyleSheet.create({
   },
 
   scrollContent: {
-    paddingTop: 24,
+    paddingTop: FADE_TOP,
     paddingBottom: FADE,
     flexGrow: 1,
   },

@@ -42,6 +42,7 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import ContactAvatar from './internalComponents/contactAvatar';
 import { formatDisplayName } from './utils/formatListDisplayName';
 import formatDate from '../../../../functions/formatDate';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 const MAX_TRANSACTIONS = 50;
 
@@ -327,6 +328,7 @@ export default function ExpandedContactsPage(props) {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           right={
             <View style={styles.topBar}>
               <IconButton
@@ -345,7 +347,6 @@ export default function ExpandedContactsPage(props) {
             </View>
           }
         />
-
         {!selectedContact ? (
           <FullLoadingScreen
             text={t('contacts.expandedContactPage.loadingContactError')}
@@ -440,7 +441,7 @@ const styles = StyleSheet.create({
     marginTop: CONTENT_KEYBOARD_OFFSET,
   },
   flex: { flex: 1 },
-  listContent: { paddingBottom: FADE },
+  listContent: { paddingTop: FADE_TOP, paddingBottom: FADE },
   header: { alignItems: 'center', marginTop: 8 },
   avatar: { ...CENTER },
   nameText: {
