@@ -176,18 +176,20 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   buttons: {
+    width: '100%',
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
+    alignItems: 'flex-start',
     gap: 20,
     marginBottom: 15,
   },
   button: {
+    flex: 1,
     alignItems: 'center',
     gap: 5,
   },
   text: {
     fontSize: SIZES.smedium,
+    textAlign: 'center',
   },
   error: {
     fontSize: SIZES.smedium,
