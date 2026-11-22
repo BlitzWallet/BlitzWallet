@@ -29,6 +29,10 @@ import { SheetSurface } from '../../../../functions/CustomElements/redesign/shee
 import BottomFade from '../../../../functions/CustomElements/redesign/BottomFade';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { QrBadge } from './receiveParts';
+import {
+  ASSET_ICON_DENSE,
+  assetDividerInset,
+} from '../../../../functions/CustomElements/redesign/CurrencyIcon';
 import ReceiveAssetSheet from './ReceiveAssetSheet';
 
 const DURATION = 250;
@@ -188,16 +192,19 @@ export default function ReceiveModal({ contentWidth }) {
           style={[{ width: contentWidth }, dockStyle]}
         >
           <SectionHeader first title={t('receive.fromAnotherWallet')} />
-          <ListCard forceSheetColor>
+          <ListCard
+            forceSheetColor
+            dividerInset={assetDividerInset(ASSET_ICON_DENSE)}
+          >
             <ListRow
               onPress={() => setAsset('bitcoin')}
-              lead={<QrBadge kind="bitcoin" size={36} />}
+              lead={<QrBadge kind="bitcoin" size={ASSET_ICON_DENSE} />}
               title={t('constants.bitcoin_upper')}
               showChevron
             />
             <ListRow
               onPress={() => setAsset('dollars')}
-              lead={<QrBadge kind="dollar" size={36} />}
+              lead={<QrBadge kind="dollar" size={ASSET_ICON_DENSE} />}
               title={t('constants.dollars_upper')}
               showChevron
             />

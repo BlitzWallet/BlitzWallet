@@ -12,6 +12,11 @@ import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { AssetDisc, SheetEmpty } from '../savings/savingsSheetParts';
+import {
+  ASSET_ICON_ROW,
+  ASSET_ROW_HEIGHT,
+  assetDividerInset,
+} from '../../../../functions/CustomElements/redesign/CurrencyIcon';
 import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import { useSwapFormatters } from './swapParts';
 
@@ -59,15 +64,15 @@ export default function SwapChooseCurrency({
           title={t('screens.inAccount.swapsPage.chooseCurrencyTitle')}
           first={true}
         />
-        <ListCard dividerInset={68}>
+        <ListCard dividerInset={assetDividerInset(ASSET_ICON_ROW)}>
           {[0, 1].map(key => (
             <SkeletonRow
               key={key}
-              lead={44}
+              lead={ASSET_ICON_ROW}
               title={130}
               sub={190}
               trailing={0}
-              minHeight={84}
+              minHeight={ASSET_ROW_HEIGHT}
             />
           ))}
         </ListCard>
@@ -169,15 +174,14 @@ export default function SwapChooseCurrency({
         title={t('screens.inAccount.swapsPage.chooseCurrencyTitle')}
         first={true}
       />
-      <ListCard dividerInset={68}>
+      <ListCard dividerInset={assetDividerInset(ASSET_ICON_ROW)}>
         {options.map(option => (
           <View key={option.key} style={!option.enabled && styles.dim}>
             <ListRow
-              lead={<AssetDisc asset={option.disc} size={44} />}
+              lead={<AssetDisc asset={option.disc} size={ASSET_ICON_ROW} />}
               title={option.title}
-              titleStyle={styles.rowTitle}
               sub={option.sub}
-              minHeight={84}
+              minHeight={ASSET_ROW_HEIGHT}
               showChevron={true}
               onPress={() => {
                 if (!option.enabled) {
@@ -209,7 +213,6 @@ export default function SwapChooseCurrency({
 }
 
 const styles = StyleSheet.create({
-  rowTitle: { fontSize: 15, lineHeight: 21 },
   dim: { opacity: 0.45 },
   history: { marginTop: 'auto' },
   historyText: { fontSize: 15, lineHeight: 21 },

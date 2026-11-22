@@ -1,7 +1,11 @@
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
-import CurrencyIcon from '../../../../../functions/CustomElements/redesign/CurrencyIcon';
+import CurrencyIcon, {
+  ASSET_ICON_ROW,
+  ASSET_ROW_HEIGHT,
+  assetDividerInset,
+} from '../../../../../functions/CustomElements/redesign/CurrencyIcon';
 import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import PickRow from '../../../../../functions/CustomElements/redesign/PickRow';
@@ -37,20 +41,20 @@ export default function SelectContactRequestCurrency({
   return (
     <View style={styles.innerContainer}>
       <SheetHeader first title={t('contacts.selectCurrencyToRequest.header')} />
-      <ListCard>
+      <ListCard dividerInset={assetDividerInset(ASSET_ICON_ROW)}>
         <PickRow
-          lead={<CurrencyIcon size={48} isBitcoin />}
+          lead={<CurrencyIcon size={ASSET_ICON_ROW} isBitcoin />}
           onPress={() => selectSendingBalance('BTC')}
           title={t('constants.bitcoin_upper')}
           selected={selectedRecieveOption === 'BTC'}
-          minHeight={76}
+          minHeight={ASSET_ROW_HEIGHT}
         />
         <PickRow
-          lead={<CurrencyIcon size={48} />}
+          lead={<CurrencyIcon size={ASSET_ICON_ROW} />}
           onPress={() => selectSendingBalance('USD')}
           title={t('constants.dollars_upper')}
           selected={selectedRecieveOption === 'USD'}
-          minHeight={76}
+          minHeight={ASSET_ROW_HEIGHT}
         />
       </ListCard>
     </View>

@@ -2,7 +2,11 @@ import { StyleSheet, View } from 'react-native';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import CurrencyIcon from '../../../../functions/CustomElements/redesign/CurrencyIcon';
+import CurrencyIcon, {
+  ASSET_ICON_ROW,
+  ASSET_ROW_HEIGHT,
+  assetDividerInset,
+} from '../../../../functions/CustomElements/redesign/CurrencyIcon';
 import { useTranslation } from 'react-i18next';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
@@ -81,13 +85,11 @@ export default function LnurlReceiveCurrencySelect({
     {
       value: 'btc',
       title: t('constants.bitcoin_upper'),
-      sub: t('contacts.remotePaymentCurrencySelect.arriveAsSats'),
       isBitcoin: true,
     },
     {
       value: 'usd',
       title: t('constants.dollars_upper'),
-      sub: t('contacts.remotePaymentCurrencySelect.arriveAsDollars'),
     },
   ];
 
@@ -102,22 +104,29 @@ export default function LnurlReceiveCurrencySelect({
       <SheetHeader
         first
         title={t('contacts.remotePaymentCurrencySelect.title')}
-        sub={t('contacts.remotePaymentCurrencySelect.description')}
+        sub={t(
+          accountsLnurlId
+            ? 'contacts.remotePaymentCurrencySelect.subAccountDescription'
+            : 'contacts.remotePaymentCurrencySelect.description',
+        )}
       />
       <View
         style={{ marginBottom: 20 }}
         accessibilityRole="radiogroup"
         accessibilityLabel={t('contacts.remotePaymentCurrencySelect.title')}
       >
-        <ListCard dividerInset={72}>
+        <ListCard dividerInset={assetDividerInset(ASSET_ICON_ROW)}>
           {options.map(option => (
             <PickRow
               key={option.value}
-              minHeight={76}
-              titleStyle={styles.optionTitle}
-              lead={<CurrencyIcon size={44} isBitcoin={option.isBitcoin} />}
+              minHeight={ASSET_ROW_HEIGHT}
+              lead={
+                <CurrencyIcon
+                  size={ASSET_ICON_ROW}
+                  isBitcoin={option.isBitcoin}
+                />
+              }
               title={option.title}
-              sub={option.sub}
               selected={selectedCurrency === option.value}
               onPress={() => pickCurrency(option.value)}
             />
@@ -162,7 +171,6 @@ export default function LnurlReceiveCurrencySelect({
 }
 
 const styles = StyleSheet.create({
-  optionTitle: { fontSize: 15, lineHeight: 21 },
   note: { marginTop: 0, marginBottom: 16 },
   // Out of flow but still laid out, so it keeps its real height.
   hidden: { position: 'absolute', left: 0, right: 0, opacity: 0 },

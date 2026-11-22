@@ -14,7 +14,11 @@ import {
   normalizeDisplayCurrency,
 } from '../../../../functions/displayCurrency';
 import CurrencyCoin from './currencyCoin';
-import CurrencyIcon from '../../../../functions/CustomElements/redesign/CurrencyIcon';
+import {
+  ASSET_ICON_DENSE,
+  assetDividerInset,
+} from '../../../../functions/CustomElements/redesign/CurrencyIcon';
+import { BITCOIN_SATS_ICON } from '../../../../constants';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import ListCard, {
@@ -88,8 +92,8 @@ export default function DisplayCurrencySelect({
       {
         id: SATS_DISPLAY_CURRENCY,
         title: t('constants.bitcoin_upper'),
-        subtitle: 'Sats',
-        isBitcoin: true,
+        subtitle: 'BTC',
+        symbol: BITCOIN_SATS_ICON,
       },
       {
         id: 'USD',
@@ -131,17 +135,13 @@ export default function DisplayCurrencySelect({
       key={row.id}
       onPress={() => onSelect(row.id)}
       lead={
-        row.isBitcoin ? (
-          <CurrencyIcon size={36} isBitcoin />
-        ) : (
-          <CurrencyCoin
-            symbol={row.symbol}
-            backgroundColor={
-              mode === 'lightsOut' ? tokens.disc : tokens.surface
-            }
-            size={36}
-          />
-        )
+        <CurrencyCoin
+          symbol={row.symbol}
+          backgroundColor={
+            mode === 'lightsOut' ? tokens.disc : tokens.surface
+          }
+          size={ASSET_ICON_DENSE}
+        />
       }
       title={row.title}
       sub={row.subtitle}
@@ -174,7 +174,7 @@ export default function DisplayCurrencySelect({
                 backgroundColor={
                   mode === 'lightsOut' ? tokens.disc : tokens.surface
                 }
-                size={36}
+                size={ASSET_ICON_DENSE}
               />
             }
             title={item.info.name}
@@ -191,7 +191,7 @@ export default function DisplayCurrencySelect({
     <>
       <SheetHeader first title={t('settings.fiatCurrency.halfModalTitle')} />
 
-      <ListCard>
+      <ListCard dividerInset={assetDividerInset(ASSET_ICON_DENSE)}>
         {pinnedRows.map(renderPinnedRow)}
         <ListRow
           onPress={() => setExpanded(prev => !prev)}

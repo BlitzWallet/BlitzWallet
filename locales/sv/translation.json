@@ -1605,11 +1605,10 @@
     "remotePaymentCurrencySelect": {
       "title": "Mottagningsvaluta",
       "description": "Välj hur du vill ta emot betalningar från kontakter och din Lightning-adress.",
+      "subAccountDescription": "Välj hur du vill ta emot betalningar till din Lightning-adress.",
       "futurePaymentsMessage": "Alla framtida betalningar kommer att tas emot i {{option}}",
       "warningMessage": "Betalningar under {{amount}} kommer fortfarande in som Bitcoin.",
-      "changeSelectionError": "{{option}} är redan valt. Ändra ditt val för att uppdatera inställningen.",
-      "arriveAsSats": "Betalningar kommer som sats",
-      "arriveAsDollars": "Betalningar kommer som dollar"
+      "changeSelectionError": "{{option}} är redan valt. Ändra ditt val för att uppdatera inställningen."
     },
     "selectCurrencyToSend": {
       "header": "Vad vill du skicka?"

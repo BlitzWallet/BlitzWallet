@@ -1605,11 +1605,10 @@
     "remotePaymentCurrencySelect": {
       "title": "Empfangswährung",
       "description": "Wählen Sie, wie Sie Zahlungen von Kontakten und Ihrer Lightning-Adresse erhalten möchten.",
+      "subAccountDescription": "Wählen Sie, wie Sie Zahlungen an Ihre Lightning-Adresse erhalten möchten.",
       "futurePaymentsMessage": "Alle zukünftigen Zahlungen werden in {{option}} empfangen.",
       "warningMessage": "Zahlungen unter {{amount}} kommen weiterhin als Bitcoin an.",
-      "changeSelectionError": "{{option}} ist bereits ausgewählt. Bitte wählen Sie eine andere Option, um die Einstellung zu ändern.",
-      "arriveAsSats": "Zahlungen kommen als Sats an",
-      "arriveAsDollars": "Zahlungen kommen als Dollar an"
+      "changeSelectionError": "{{option}} ist bereits ausgewählt. Bitte wählen Sie eine andere Option, um die Einstellung zu ändern."
     },
     "selectCurrencyToSend": {
       "header": "Wie möchten Sie senden?"

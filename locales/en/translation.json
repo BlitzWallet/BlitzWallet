@@ -1605,9 +1605,8 @@
     "remotePaymentCurrencySelect": {
       "title": "Receive currency",
       "description": "How payments from contacts and your Lightning address arrive.",
+      "subAccountDescription": "How payments to your Lightning address arrive.",
       "futurePaymentsMessage": "Receive as {{option}}",
-      "arriveAsSats": "Payments arrive as sats",
-      "arriveAsDollars": "Payments arrive as dollars",
       "warningMessage": "Payments under {{amount}} still arrive as Bitcoin.",
       "changeSelectionError": "{{option}} is already selected. Change your selection to update your setting."
     },
