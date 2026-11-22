@@ -527,7 +527,7 @@
         "inputLabel": "Entrada: {{amount}}/M",
         "outputLabel": "Saída: {{amount}}/M",
         "chooseModel": "Escolha o modelo",
-        "noModels": "Nenhum modelo corresponde a esse nome. Verifique a ortografia ou tente um nome diferente.",
+        "noModels": "Nenhum modelo corresponde a esse nome.  a ortografia ou tente um nome diferente.",
         "searchPlaceholder": "Pesquisar modelos"
       },
       "exampleSearchCards": {
@@ -1005,7 +1005,7 @@
         "automaticRefund": "Nenhum número estava disponível para este serviço. Seus fundos já foram reembolsados.",
         "waitedRefund": "Nenhum número estava disponível para este serviço. Seus fundos serão reembolsados automaticamente após 21 minutos.",
         "paidSubtitle": "{{title}} · pago {{amount}}",
-        "stillAllocating": "Seu número ainda não está pronto. Verifique as mensagens SMS em um minuto. Se nenhum número for atribuído, você é reembolsado automaticamente."
+        "stillAllocating": "Seu número ainda não está pronto.  as mensagens SMS em um minuto. Se nenhum número for atribuído, você é reembolsado automaticamente."
       },
       "viewSMSReceiveCode": {
         "header": "Seu código",
@@ -1343,7 +1343,7 @@
         "header": "Escolha o saldo para realizar esse pagamento"
       },
       "handlingAddressErrors": {
-        "invalidFormat": "Os endereços devem ser somente texto. Por favor, verifique e tente novamente.",
+        "invalidFormat": "Os endereços devem ser somente texto. Por favor,  e tente novamente.",
         "parseError": "Não conseguimos reconhecer o tipo de pagamento. Insira um endereço Spark, usuário Blitz, endereço Bitcoin, endereço Blitz/fatura ou um endereço USDT/USDC de uma rede suportada.",
         "paymentProcessingError": "Erro ao processar informações de pagamento",
         "tooLowSendingAmount": "O valor do envio é muito alto para cobrir o pagamento e as taxas. O valor máximo de envio é {{amount}}",
@@ -1412,7 +1412,7 @@
         "verifiedBody": "A Branta verificou que esta solicitação de pagamento realmente vem de {{merchantName}}, para você saber para quem está pagando.",
         "verifiedBodyNoName": "A Branta verificou que esta solicitação de pagamento é autêntica, para você saber para quem está pagando.",
         "checkAddress": "Verifique se corresponde ao que você recebeu.",
-        "checkAddress_receive": "Verifique se corresponde com o endereço compartilhado."
+        "checkAddress_receive": "Verifique se corresponde com o endereço copiado."
       }
     },
     "switchOption": {
