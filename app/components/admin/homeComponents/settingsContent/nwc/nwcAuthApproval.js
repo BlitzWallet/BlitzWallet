@@ -36,7 +36,10 @@ import {
 } from '../../../../../functions/displayCurrency';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { saveNWCAccount } from '../../../../../functions/nwc';
-import { parseNWCAuthRequest } from '../../../../../functions/nwc/walletAuth';
+import {
+  parseNWCAuthRequest,
+  isSafeReturnTo,
+} from '../../../../../functions/nwc/walletAuth';
 import NostrWalletConnectNoNotifications from './noNotifications';
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
 import ResultAnimation from '../../../../../functions/CustomElements/redesign/ResultAnimation';
@@ -213,8 +216,13 @@ export default function NWCAuthApproval({
     }
   };
 
-  // Only reachable from the success page, never after a decline or error.
-  const returnToApp = () => Linking.openURL(request.returnTo).catch(() => {});
+  // Only reachable from the success page, never after a decline or error. The
+  // target is re-checked here too: this screen must never hand an arbitrary
+  // scheme to the OS, or open this app's own payment links (walletAuth.js).
+  const returnToApp = () => {
+    if (!isSafeReturnTo(request.returnTo)) return handleBackPressFunction();
+    Linking.openURL(request.returnTo).catch(() => {});
+  };
 
   const toggleOptional = key =>
     setEnabledOptional(prev => ({ ...prev, [key]: !prev[key] }));

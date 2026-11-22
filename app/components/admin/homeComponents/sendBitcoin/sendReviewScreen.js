@@ -63,6 +63,7 @@ export default function SendReviewScreen(props) {
   const params = props.route.params;
   const {
     fromPage,
+    deeplinkOrigin,
     publishMessageFunc,
     paymentInfo,
     enteredPaymentInfo = {},
@@ -163,8 +164,10 @@ export default function SendReviewScreen(props) {
     };
   }, []);
 
-  // Fast pay logic
+  // Fast pay logic. Never for a payment a deep link delivered: arriving from
+  // outside the app is not the user asking for this payment to be spent.
   const canUseFastPay =
+    !deeplinkOrigin &&
     sparkInformation.didConnect &&
     Object.keys(paymentInfo || {}).length > 0 &&
     masterInfoObject[QUICK_PAY_STORAGE_KEY]?.isFastPayEnabled &&

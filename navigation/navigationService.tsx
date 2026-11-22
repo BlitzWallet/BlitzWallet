@@ -4,7 +4,11 @@ type RootStackParamList = {
   Home: { someParam?: string };
   Details: { someParam?: string };
   ExpandedAddContactsPage: { newContact: object };
-  ConfirmPaymentScreen: { btcAdress: string; fromPage?: string };
+  ConfirmPaymentScreen: {
+    btcAdress: string;
+    fromPage?: string;
+    deeplinkOrigin?: boolean;
+  };
   SendAmount: { btcAdress: string; paymentInfo: object; lockedAmount?: boolean };
   SendDescription: { btcAdress: string; paymentInfo: object };
   SendReview: { btcAdress: string; paymentInfo: object; description?: string };

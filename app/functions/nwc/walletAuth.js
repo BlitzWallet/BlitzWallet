@@ -27,22 +27,23 @@ const HTTPS_FORM =
 const HEX64 = /^[0-9a-f]{64}$/;
 const STATE = /^[0-9a-f]{32,128}$/;
 const MAX_RELAYS = 3;
-// return_to: an absolute URI with no whitespace/control chars. Apps use custom
-// schemes, so block the dangerous ones instead of allow-listing.
+// return_to is handed to Linking.openURL, which gives it to the OS. Only https
+// (with no userinfo) may leave through that door: a custom scheme opens another
+// app with attacker-chosen arguments, and this app's own schemes (blitz:,
+// blitz-wallet:, bitcoin:, lightning:, …) route straight back into its payment
+// deep-link handler — a "return" must never be able to open a payment screen.
 // eslint-disable-next-line no-control-regex
-const RETURN_TO = /^([a-z][a-z0-9+.-]*):[^\s\u0000-\u001f\u007f]{1,2000}$/i;
-const BLOCKED_RETURN_SCHEMES = [
-  'javascript',
-  'data',
-  'file',
-  'blob',
-  'vbscript',
-  'about',
-  'content',
-  'intent',
-  'nostr+walletauth',
-  'nostr+walletconnect',
-];
+const RETURN_TO = /^https:\/\/(?![^/?#]*@)[^\s\u0000-\u001f\u007f]{1,2000}$/i;
+// Its own hosts are payment/pool/gift links, so returning "to the app" there
+// re-enters the deep-link router instead of reaching a client app.
+const OWN_HOSTS =
+  /^https:\/\/(?:[^/?#]*\.)?(?:blitzwalletapp\.com|blitz-wallet\.com|blitzwallet\.app)\.?(?:[/:?#]|$)/i;
+
+export const isSafeReturnTo = returnTo =>
+  typeof returnTo === 'string' &&
+  RETURN_TO.test(returnTo) &&
+  !OWN_HOSTS.test(returnTo);
+
 const LINK_EXPIRY_GRACE_MS = 60 * 1000; // phone and app clocks can disagree
 
 const invalid = {
@@ -138,9 +139,8 @@ export function parseNWCAuthRequest(text) {
     .trim()
     .slice(0, 40);
 
-  // Optional and non-fatal: a bad return_to just means no "return" button.
+  // Optional and non-fatal: an unsafe return_to just means no "return" button.
   const returnTo = (params.get('return_to') || '').trim();
-  const scheme = returnTo.match(RETURN_TO)?.[1].toLowerCase();
 
   return {
     didWork: true,
@@ -152,8 +152,7 @@ export function parseNWCAuthRequest(text) {
       permissions,
       optionalPermissions,
       budget,
-      returnTo:
-        scheme && !BLOCKED_RETURN_SCHEMES.includes(scheme) ? returnTo : null,
+      returnTo: isSafeReturnTo(returnTo) ? returnTo : null,
     },
   };
 }

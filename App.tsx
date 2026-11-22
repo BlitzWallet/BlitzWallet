@@ -441,6 +441,7 @@ function ResetStack(): JSX.Element | null {
                     params: {
                       btcAdress: `paylink://${match[1]}`,
                       fromPage: 'paylink',
+                      deeplinkOrigin: true,
                     },
                   },
                 ],
@@ -556,6 +557,7 @@ function ResetStack(): JSX.Element | null {
                     name: 'ConfirmPaymentScreen',
                     params: {
                       btcAdress: paymentUrl,
+                      deeplinkOrigin: true,
                     },
                   },
                 ],
