@@ -43,9 +43,8 @@ export default function HomeNav() {
 
 const styles = StyleSheet.create({
   topBar: {
-    marginTop: 7,
     marginBottom: 20,
-    minHeight: 44,
+    minHeight: 45,
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',

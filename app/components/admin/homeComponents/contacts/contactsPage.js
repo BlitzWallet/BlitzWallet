@@ -386,7 +386,6 @@ const LIST_DIVIDER_INSET = 68;
 const memoizedStyles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
   header: {
-    marginTop: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

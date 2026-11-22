@@ -356,7 +356,6 @@ const styles = StyleSheet.create({
   container: { paddingBottom: 0 },
   content: { alignSelf: 'center', width: '100%', flex: 1 },
   header: {
-    marginTop: 10,
     minHeight: 45,
     justifyContent: 'center',
   },
