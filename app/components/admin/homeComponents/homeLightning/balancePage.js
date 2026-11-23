@@ -15,7 +15,7 @@ import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { getAssetBalanceText } from './balanceCard';
+import { getAssetBalanceText, isDollarDust } from './balanceCard';
 import BalanceActions from './balanceActions';
 import ActivityCard from './activityCard';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
@@ -56,7 +56,9 @@ export default function BalancePage(props) {
                 amount: balance,
                 masterInfoObject,
                 fiatStats,
+                roundUpDust: true,
               })}
+              isDust={!isBitcoin && isDollarDust(balance)}
               amountSize={AMOUNT_HERO_SIZE.primary}
               isHidden={masterInfoObject.userBalanceDenomination === 'hidden'}
             />

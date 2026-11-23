@@ -14,7 +14,10 @@ import { useAppStatus } from '../../../../context-store/appStatus';
 import { useSparkWallet } from '../../../../context-store/sparkContext';
 import GetThemeColors from '../../../hooks/themeColors';
 import { useGlobalInsets } from '../../../../context-store/insetsProvider';
-import BalanceCard, { getAssetBalanceText } from './homeLightning/balanceCard';
+import BalanceCard, {
+  getAssetBalanceText,
+  isDollarDust,
+} from './homeLightning/balanceCard';
 import BalanceActions from './homeLightning/balanceActions';
 import ConnectionErrorCard from './homeLightning/connectionErrorCard';
 import HomeCard from './homeLightning/homeCard';
@@ -254,7 +257,10 @@ export default function HomeLightning() {
               {isTotalLoaded ? (
                 <Animated.View
                   key={isHidden ? 'hidden' : 'shown'}
-                  entering={enterAnim(FadeIn.duration(isHidden ? 150 : 250), reduced)}
+                  entering={enterAnim(
+                    FadeIn.duration(isHidden ? 150 : 250),
+                    reduced,
+                  )}
                 >
                   <TouchableOpacity
                     testID="home-total-balance"
@@ -300,11 +306,13 @@ export default function HomeLightning() {
                 label={t('constants.dollars_upper')}
                 isHidden={isHidden}
                 isLoading={!isWalletLoaded}
+                isDust={isDollarDust(dollarBalanceToken)}
                 amount={getAssetBalanceText({
                   isBitcoin: false,
                   amount: dollarBalanceToken,
                   masterInfoObject,
                   fiatStats,
+                  roundUpDust: true,
                 })}
               />
               <BalanceCard

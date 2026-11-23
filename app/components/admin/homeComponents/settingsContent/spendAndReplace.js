@@ -15,7 +15,11 @@ import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
-import { getAssetBalanceText } from '../homeLightning/balanceCard';
+import {
+  getAssetBalanceText,
+  isDollarDust,
+} from '../homeLightning/balanceCard';
+import DustChevron from '../../../../functions/CustomElements/redesign/DustChevron';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
@@ -45,6 +49,7 @@ export default function SpendAndReplace() {
     amount: dollarBalanceToken,
     masterInfoObject,
     fiatStats,
+    roundUpDust: true,
   });
 
   return (
@@ -78,10 +83,15 @@ export default function SpendAndReplace() {
               )}
               styles={[styles.balanceLabel, { color: tokens.muted }]}
             />
-            <ThemeText
-              content={dollarBalance}
-              styles={[styles.balanceValue, { color: tokens.ink }]}
-            />
+            <View style={styles.balanceRow}>
+              {isDollarDust(dollarBalanceToken) && (
+                <DustChevron fontSize={22} color={tokens.ink} />
+              )}
+              <ThemeText
+                content={dollarBalance}
+                styles={[styles.balanceValue, { color: tokens.ink }]}
+              />
+            </View>
             <View
               style={[styles.divider, { backgroundColor: tokens.divider }]}
             />
@@ -128,6 +138,10 @@ const styles = StyleSheet.create({
     lineHeight: 30,
     fontVariant: ['tabular-nums'],
     includeFontPadding: false,
+  },
+  balanceRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
     marginTop: 2,
     marginBottom: 14,
   },

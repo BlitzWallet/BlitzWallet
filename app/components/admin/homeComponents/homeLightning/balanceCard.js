@@ -7,17 +7,23 @@ import { ThemeText } from '../../../../functions/CustomElements';
 import { CARD_RADIUS, FONT, HIDDEN_BALANCE_CLOSE } from '../../../../constants';
 import CurrencyIcon from '../../../../functions/CustomElements/redesign/CurrencyIcon';
 import SkeletonBar from '../../../../functions/CustomElements/redesign/SkeletonBar';
+import DustChevron from '../../../../functions/CustomElements/redesign/DustChevron';
 import { splitAmountUnit } from '../../../../functions/CustomElements/redesign/AmountHero';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import formatBalanceAmount from '../../../../functions/formatNumber';
 import truncateToTwoDecimals from '../../../../functions/truncateNumber';
 
+// Display only: a USDB balance (6 decimals) under one cent would read "$0.00".
+export const isDollarDust = amount => amount > 0 && amount < 0.01;
+
 // Fixed-unit balance text: Dollars always in USD, Bitcoin always in sats.
+// `roundUpDust` shows sub-cent dollars as 0.01; the caller draws a DustChevron.
 export function getAssetBalanceText({
   isBitcoin,
   amount,
   masterInfoObject,
   fiatStats,
+  roundUpDust = false,
 }) {
   if (isBitcoin) {
     return displayCorrectDenomination({
@@ -31,7 +37,7 @@ export function getAssetBalanceText({
   }
   return displayCorrectDenomination({
     amount: formatBalanceAmount(
-      truncateToTwoDecimals(amount),
+      truncateToTwoDecimals(roundUpDust && isDollarDust(amount) ? 0.01 : amount),
       false,
       masterInfoObject,
     ),
@@ -49,6 +55,7 @@ export default function BalanceCard({
   label = '',
   isHidden = false,
   isLoading = false,
+  isDust = false,
 }) {
   const reduced = useReducedMotion();
   const { tokens } = GetThemeColors();
@@ -89,7 +96,11 @@ export default function BalanceCard({
           <Animated.View
             key={isHidden ? 'hidden' : 'shown'}
             entering={enterAnim(FadeIn.duration(150).delay(40), reduced)}
+            style={styles.amountRow}
           >
+            {isDust && !isHidden && (
+              <DustChevron fontSize={22} fontFamily={FONT.Title_Medium} />
+            )}
             <ThemeText
               CustomNumberOfLines={1}
               adjustsFontSizeToFit={true}
@@ -130,6 +141,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   bottom: { gap: 2 },
+  amountRow: { flexDirection: 'row', alignItems: 'baseline' },
   label: {
     fontFamily: FONT.Title_Medium,
     fontSize: 14,

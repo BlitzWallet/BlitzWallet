@@ -7,6 +7,7 @@ import { formatCurrency } from './formatCurrency';
 import formatBalanceAmount from './formatNumber';
 import formatTokensLabel from './lrc20/formatTokensLabel';
 import numberConverter from './numberConverter';
+import isFiatDustAmount from './isFiatDustAmount';
 
 export default function displayCorrectDenomination({
   amount,
@@ -17,6 +18,7 @@ export default function displayCorrectDenomination({
   useMillionDenomination = false,
   forceCurrency = null,
   convertAmount = true,
+  roundUpDust = false,
 }) {
   try {
     const localBalanceDenomination = masterInfoObject.userBalanceDenomination;
@@ -62,7 +64,19 @@ export default function displayCorrectDenomination({
       return `${formattedBalance} ${labelText}`;
     }
 
-    const formattedBalance = convertAmount
+    // Callers that draw a DustChevron ask for sub-cent fiat to read 0.01.
+    const isRoundedUpDust =
+      roundUpDust &&
+      isFiatDustAmount({
+        amount,
+        denomination: localBalanceDenomination,
+        fiatStats,
+        convertAmount,
+      });
+
+    const formattedBalance = isRoundedUpDust
+      ? formatBalanceAmount('0.01', false, masterInfoObject)
+      : convertAmount
       ? formatBalanceAmount(
           numberConverter(
             amount,
