@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef } from 'react';
 import { CONTENT_KEYBOARD_OFFSET, FONT } from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
 import ThemeText from '../textTheme';
@@ -8,6 +8,7 @@ import IconButton from './IconButton';
 import { useInSheet } from './sheetSurface';
 import { KeyboardController } from 'react-native-keyboard-controller';
 import TopHeader from './TopHeader';
+import useSideWidth from './useSideWidth';
 
 // Back (44) · centred title 17/500, wraps to 2 lines · right slot.
 // `showBack={false}` keeps the slot (title stays centred) but hides the button.
@@ -27,7 +28,7 @@ function TopBarInner({
   const { tokens } = useTheme();
   const inSheet = useInSheet();
   const lastBackPressRef = useRef(0);
-  const [rightWidth, setRightWidth] = useState(44);
+  const [rightWidth, rightRef, onRightLayout] = useSideWidth();
 
   // Same double-tap guard as CustomSettingsTopBar.
   const handleBack = useCallback(async () => {
@@ -69,14 +70,9 @@ function TopBarInner({
         styles={styles.title}
       />
       <View
+        ref={rightRef}
         style={[styles.side, styles.right]}
-        onLayout={e => {
-          // Android snaps widths to its pixel grid by position, so this
-          // flips ~0.4px each pass (44.19 ↔ 43.81) and feeds back through the
-          // left minWidth forever. Ignore sub-pixel changes.
-          const w = e.nativeEvent.layout.width;
-          setRightWidth(prev => (Math.abs(prev - w) < 1 ? prev : w));
-        }}
+        onLayout={onRightLayout}
       >
         {right}
       </View>
