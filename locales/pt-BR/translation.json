@@ -2530,7 +2530,7 @@
         "noEmployees": "No momento, você não tem funcionários com gorjetas salvas. Assim que um funcionário usar o ponto de venda, suas gorjetas aparecerão aqui para que você possa pagá-las.",
         "noTips": "O funcionário não tem gorjetas",
         "noEmployeeTitle": "Nenhuma gorjeta a pagar",
-        "noEmployeeSubTitle": "Você ainda não tem gorjetas a pagar. Quando um funcionário receber uma gorjeta, ele aparecerá aqui.",
+        "noEmployeeSubTitle": "Você ainda não tem gorjetas para pagar. Quando um funcionário receber uma gorjeta, ela aparecerá aqui.",
         "allPaid": "Tudo pago"
       },
       "items": {
