@@ -558,6 +558,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   resultScroll: {
+    paddingTop: FADE_TOP,
     paddingBottom: FADE,
   },
   numberCard: {

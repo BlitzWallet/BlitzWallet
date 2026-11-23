@@ -11,6 +11,7 @@ import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useTheme } from '../../../../../context-store/theme';
 import openWebBrowser from '../../../../functions/openWebBrowser';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
 import ListCard, {
   ListDivider,
@@ -255,7 +256,7 @@ export default function AboutPage() {
 const styles = StyleSheet.create({
   content: { alignSelf: 'center', flex: 1 },
   scroll: { flex: 1 },
-  scrollContent: { paddingTop: 44, paddingBottom: 40 },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: 40 },
   card: {
     borderRadius: 20,
     paddingHorizontal: 16,

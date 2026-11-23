@@ -389,7 +389,7 @@ const memoizedStyles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    minHeight: 45,
+    minHeight: 44,
   },
   headerButtons: {
     flexDirection: 'row',

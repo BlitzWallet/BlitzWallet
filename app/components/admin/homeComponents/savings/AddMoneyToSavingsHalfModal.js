@@ -361,11 +361,7 @@ export default function AddMoneyToSavingsHalfModal({
     handleBackPressFunction();
   };
 
-  const backBar = (
-    <View style={styles.backBar}>
-      <TopBar onBack={goBack} />
-    </View>
-  );
+  const backBar = <TopBar onBack={goBack} />;
 
   // ─── chooseGoal ───────────────────────────────────────────────────────────
   const renderChooseGoal = () => (
@@ -778,9 +774,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     overflow: 'hidden',
-  },
-  backBar: {
-    marginTop: 8,
   },
   list: {
     flexGrow: 0,

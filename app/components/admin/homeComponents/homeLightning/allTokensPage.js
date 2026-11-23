@@ -80,7 +80,7 @@ export default function AllTokensPage() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...CENTER, paddingTop: 7 },
+  container: { flex: 1, ...CENTER },
   search: { marginTop: 24, width: '100%' },
   card: { paddingVertical: 4, marginBottom: 20 },
   empty: { textAlign: 'center', marginTop: 24 },

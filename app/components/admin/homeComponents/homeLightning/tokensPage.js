@@ -96,7 +96,7 @@ export default function TokensPage() {
 
 const styles = StyleSheet.create({
   page: { paddingBottom: 0 },
-  container: { flex: 1, ...CENTER, paddingTop: 7 },
+  container: { flex: 1, ...CENTER },
   scrollContent: { paddingTop: FADE_TOP },
   label: { marginTop: 16, fontSize: 14, lineHeight: 21, marginBottom: 8 },
   card: { paddingVertical: 4 },

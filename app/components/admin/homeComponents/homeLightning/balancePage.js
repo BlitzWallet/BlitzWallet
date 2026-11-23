@@ -99,7 +99,7 @@ export default function BalancePage(props) {
 
 const styles = StyleSheet.create({
   page: { paddingBottom: 0 },
-  container: { flex: 1, ...CENTER, paddingTop: 7 },
+  container: { flex: 1, ...CENTER },
   hero: { alignItems: 'flex-start', minHeight: 84, justifyContent: 'center' },
   scrollContent: { paddingTop: FADE_TOP },
   label: { marginTop: 16, fontSize: 14 },

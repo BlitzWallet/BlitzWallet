@@ -800,11 +800,7 @@ export default function WithdrawFromSavingsHalfModal({
 
   const closeOrBack =
     step.length > 1 ? goBack : () => handleBackPressFunction();
-  const backBar = (
-    <View style={styles.backBar}>
-      <TopBar onBack={closeOrBack} />
-    </View>
-  );
+  const backBar = <TopBar onBack={closeOrBack} />;
 
   // ─── balanceType: Bitcoin rewards or goal money ───────────────────────────
   const renderBalanceType = () => {
@@ -1257,9 +1253,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     overflow: 'hidden',
-  },
-  backBar: {
-    marginTop: 8,
   },
   list: {
     flexGrow: 0,
