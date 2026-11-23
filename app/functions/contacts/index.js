@@ -1,5 +1,6 @@
 import { uniqueNamesGenerator, animals, names } from 'unique-names-generator';
 import i18next from 'i18next';
+import { decode as decodeBolt11 } from '../decodeBolt11';
 
 export function generateRandomContact() {
   const randomName = uniqueNamesGenerator({
@@ -41,6 +42,16 @@ export async function getBolt11InvoiceForContact(
         const data = await response.json();
         if (data.status !== 'OK' && !data?.pr)
           throw new Error('Not able to get invoice');
+        const decodedInvoice = decodeBolt11(data.pr);
+        const requestedMsats = sendingValue * 1000;
+        if (
+          !decodedInvoice.millisatoshis ||
+          decodedInvoice.millisatoshis != requestedMsats
+        ) {
+          throw new Error(
+            `Invoice amount (${decodedInvoice.millisatoshis} msat) does not match requested amount (${requestedMsats} msat)`,
+          );
+        }
         invoice = data.pr;
         break;
       } catch (err) {
