@@ -127,7 +127,7 @@
     "bitcoin_upper": "Bitcoin",
     "dollars_upper": "Dólares",
     "rate": "Cotação",
-    "swap": "Trocar",
+    "swap": "Enviar",
     "paymentDescriptionPlaceholder": "Descrição (opcional)",
     "print": "Imprimir",
     "transfer": "Transferir",
@@ -1416,8 +1416,8 @@
         "viewAddress": "Ver endereço",
         "verifiedBody": "A Branta verificou que esta solicitação de pagamento realmente vem de {{merchantName}}, para você saber para quem está pagando.",
         "verifiedBodyNoName": "A Branta verificou que esta solicitação de pagamento é autêntica, para você saber para quem está pagando.",
-        "checkAddress": "Verifique se corresponde ao que você recebeu.",
-        "checkAddress_receive": "Verifique se corresponde com o endereço compartilhado."
+        "checkAddress": "Confira o endereço.",
+        "checkAddress_receive": "Confira o endereço."
       }
     },
     "switchOption": {
@@ -1463,9 +1463,9 @@
       "balancePage": {
         "receiveBitcoin": "Receber Bitcoin",
         "receiveDollars": "Receber dólares",
-        "emptyBitcoin": "Os Bitcoins que você enviar e receber aparecerão aqui.",
-        "emptyDollars": "Os dólares que você enviar e receber aparecerão aqui.",
-        "emptyTokens": "Os tokens que você enviar e receber aparecerão aqui.",
+        "emptyBitcoin": "Os bitcoins que você enviar ou receber aparecerão aqui.",
+        "emptyDollars": "Os dólares que você enviar ou receber aparecerão aqui.",
+        "emptyTokens": "Os tokens que você enviar ou receber aparecerão aqui.",
         "balances": "Saldos",
         "viewAllTokens": "Ver todos os {{count}} tokens",
         "allTokens": "Todos os tokens",
@@ -1554,7 +1554,7 @@
       "noProfilesHint": "Verifique a ortografia ou pesquise o endereço Lightning dele.",
       "lightningAddress": "Endereço Lightning",
       "noName": "Sem nome definido",
-      "scanLabel": "Escaneie o QR code de um contato"
+      "scanLabel": "Leia o QR code de um contato"
     },
     "expandedContactPage": {
       "loadingContactError": "Não foi possível carregar o contato, tente novamente",
@@ -1705,7 +1705,7 @@
       "shareMessage": "Olá, me adicione no Blitz! {{address}}",
       "copyAddress": "Copiar seu endereço Lightning",
       "qrCode": "Código QR",
-      "printHint": "Escaneie este código para me pagar ou me adicionar no Blitz"
+      "printHint": "Leia este código para me pagar ou me adicionar na Blitz"
     },
     "splitBill": {
       "addFriendsTitle": "Mais pessoas",
@@ -1921,8 +1921,8 @@
         "point2_accounts": "Se alguém acessar essa frase, poderá roubar os fundos dessa conta. Não há como recuperar fundos perdidos.",
         "point3_accounts": "Nunca compartilhe com ninguém — nenhuma pessoa, site ou aplicativo.",
         "title_settings": "Mantenha sua frase de recuperação em segredo",
-        "point1_settings": "Sua frase de recuperação é a chave mestra da sua carteira.",
-        "point2_settings": "Quem obtiver a frase pode levar seu dinheiro, e fundos perdidos não podem ser recuperados.",
+        "point1_settings": "Essa frase secreta de recuperação permite recuperar fundos de todas suas contas na carteira Blitz.",
+        "point2_settings": "Se alguém acessar essa frase, poderá roubar os fundos de todas suas contas na carteira Blitz. Não é possível recuperar fundos perdidos.",
         "point3_settings": "Nunca compartilhe com ninguém — nenhuma pessoa, site ou aplicativo.",
         "checkbox": "Entendo que compartilhar minha frase de recuperação pode resultar na perda permanente dos meus fundos.",
         "continueButton": "Continuar"
@@ -2153,7 +2153,7 @@
         "message": "{{name}} vai parar de funcionar com sua carteira. O dinheiro na sua conta Wallet Connect continua lá."
       },
       "connectionString": {
-        "subtitle": "Escaneie no {{name}} ou copie e cole.",
+        "subtitle": "Leia no {{name}} ou copie e cole.",
         "warning": "Quem tiver este código de conexão pode usar todas as permissões que você deu a ele."
       },
       "addAccount": "Nova conexão",
@@ -2535,7 +2535,7 @@
         "noEmployees": "No momento, você não tem funcionários com gorjetas salvas. Assim que um funcionário usar o ponto de venda, suas gorjetas aparecerão aqui para que você possa pagá-las.",
         "noTips": "O funcionário não tem gorjetas",
         "noEmployeeTitle": "Nenhuma gorjeta a pagar",
-        "noEmployeeSubTitle": "Você ainda não tem gorjetas a pagar. Quando um funcionário receber uma gorjeta, ela aparecerá aqui.",
+        "noEmployeeSubTitle": "Você ainda não tem gorjetas para pagar. Quando um funcionário receber uma gorjeta, ela aparecerá aqui.",
         "allPaid": "Tudo pago"
       },
       "items": {
@@ -3159,12 +3159,12 @@
         "filterSwaps": "Trocas",
         "filterSavings": "Metas em dólar",
         "filterPools": "Vaquinhas",
-        "noTxHistoryTitle": "Sem histórico de transações",
-        "noTxHistorySub": "Suas transações aparecerão aqui assim que houver movimentações na sua conta.",
+        "noTxHistoryTitle": "Sem atividade",
+        "noTxHistorySub": "Suas transações aparecerão aqui.",
         "searchPlaceholder": "Pesquisar descrições",
         "noFilterResultsTitle": "Nenhuma transação correspondente",
         "noFilterResultsSub": "Nenhuma transação corresponde aos filtros atuais. Tente ajustá-los ou removê-los.",
-        "filterModalTitle": "Filtrar pagamentos",
+        "filterModalTitle": "Filtrar transações",
         "exportButton": "Exportar",
         "filterDirectionTitle": "Direção",
         "filterSent": "Enviada",
@@ -3178,7 +3178,7 @@
         "filterApply": "Aplicar filtros",
         "filterClearAll": "Limpar tudo",
         "exportTitle": "Exportar CSV",
-        "filterTitle": "Filtrar pagamentos",
+        "filterTitle": "Filtrar transações",
         "filterShowing": "Mostrando",
         "filterClear": "Limpar",
         "insightsLabel": "Análise de gastos",
@@ -3293,7 +3293,7 @@
           "copyAllLinks": "Copiar todos os links",
           "bulkDesc": "Envie cada link para uma pessoa. Cada presente pode ser resgatado uma vez.",
           "bulkRowTitle": "Presente {{number}} · {{amount}}",
-          "scanToClaim": "Escaneie para resgatar",
+          "scanToClaim": "Leia para resgatar",
           "scanWarning": "Quem escanear primeiro resgata o presente."
         },
         "claimHome": {
@@ -3418,7 +3418,7 @@
         "paymentDescription_outgoing": "{{swapDirection}}",
         "paymentDescription_incoming": "{{swapDirection}}",
         "yourAreConverting": "Você está enviando",
-        "youWillReceive": "Você receberá",
+        "youWillReceive": "Receber",
         "bitcoinPrice": "Preço do Bitcoin",
         "swapFee": "Taxa",
         "exchangeRate": "Cotação",
@@ -3428,13 +3428,13 @@
         "swapInProgressError": "Uma troca já está em andamento. Aguarde.",
         "insufficientBalance": "O valor é maior que o saldo disponível. Insira um valor menor.",
         "simulationInProgress": "Aguarde, a troca ainda está sendo calculada.",
-        "convertHead": "Trocar",
+        "convertHead": "Enviar",
         "percentConvertSelector": "% do saldo",
         "slippage": "Slippage",
         "slippageDesc": "Slippage é a diferença percentual na variação de preço que você está disposto a aceitar. Um slippage baixo pode causar falhas na transação, enquanto um slippage alto pode resultar em receber menos do que o esperado.",
         "auto": "Auto",
         "navbar": {
-          "swap": "Trocar",
+          "swap": "Enviar",
           "amount": "Quantia",
           "details": "Detalhes"
         },
@@ -3478,7 +3478,7 @@
         "phone": "Telefone",
         "placeholder": "Insira ou cole um endereço",
         "placeholderEmpty": "Insira um endereço",
-        "emptyTitle": "Cole ou escaneie para enviar para qualquer pessoa",
+        "emptyTitle": "Envie dinheiro para seus contatos",
         "emptySub": "Os contatos que você adicionar aparecerão aqui.",
         "contacts": "Enviar para um contato",
         "contact": "Contato"
@@ -4136,10 +4136,10 @@
     "connections_other": "{{count}} conexões"
   },
   "receive": {
-    "requestFromContact": "Solicitar de um contato",
+    "requestFromContact": "Receber de um contato",
     "fromAnotherWallet": "Receber de outra carteira ou corretora",
     "emptyTitle": "Receba pagamentos de pessoas que você conhece",
-    "emptySub": "Adicione um contato para solicitar dinheiro a ele. Os contatos que você adicionar aparecerão aqui.",
+    "emptySub": "Adicione contatos para solicitar dinheiro.",
     "addContact": "Adicionar contato",
     "showMyQr": "Mostrar meu código QR",
     "receiveBitcoin": "Receber Bitcoin",
@@ -4156,19 +4156,19 @@
     "btcSource_solana": "BTC da Solana",
     "pickNetworkSub": "Escolha a rede que o remetente está usando. Pergunte a ele se não tiver certeza.",
     "networkFee": "Taxa",
-    "fromTheAmount": "Taxas de rede",
+    "fromTheAmount": "Taxa de rede",
     "networkFeeInfo": "Receber Bitcoin neste endereço custa uma pequena taxa de rede. A taxa é descontada do valor recebido, portanto o saldo pode ficar um pouco menor do que o enviado.",
-    "arrives": "Chega",
+    "arrives": "Recebimento",
     "afterConfirmations": "Após 3 confirmações",
-    "arrivesInfoBitcoin": "O Bitcoin enviado a este endereço aparece no seu saldo depois que a rede Bitcoin o confirmar 3 vezes. Isso normalmente leva cerca de 30 minutos.",
+    "arrivesInfoBitcoin": "Os bitcoins enviados para este endereço aparecem no seu saldo depois de 3 confirmações na rede Bitcoin. Isso normalmente leva cerca de 30 minutos.",
     "inAFewMinutes": "Em alguns minutos",
     "arrivesInfoStable": "Os pagamentos aparecem no seu saldo depois que a rede {{chain}} os confirma, normalmente em poucos minutos.",
     "minimum": "Mínimo",
     "fee": "Taxa",
     "aboutOnePercent": "Cerca de 1%",
-    "bitcoinWarning": "As taxas de rede representam uma fatia maior em valores pequenos. Para pagamentos menores, Criar fatura é mais barato.",
+    "bitcoinWarning": "A taxa de rede representa uma fatia maior em valores pequenos. Para pagamentos menores, criar fatura é mais barato.",
     "stableWarning": "Envie apenas {{asset}} na rede {{chain}}. Outras moedas ou redes podem ser perdidas.",
-    "tokensWarning": "Envie apenas tokens da Spark para este endereço. Eles aparecem em Tokens.",
+    "tokensWarning": "Envie apenas tokens da Spark para este endereço.",
     "invoice": "Fatura",
     "anyAmount": "Qualquer valor",
     "scanWithLightningWallet": "Leia com qualquer carteira Lightning",
