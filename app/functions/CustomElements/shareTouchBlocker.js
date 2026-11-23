@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { Platform, Pressable, StyleSheet } from 'react-native';
+import { AppState, Platform, Pressable, StyleSheet } from 'react-native';
 
 // iOS lets a tap outside the share sheet both dismiss it and reach the screen
 // behind it, and the sheet changes neither AppState nor navigation focus. So
@@ -19,13 +19,49 @@ const subscribe = listener => {
   return () => listeners.delete(listener);
 };
 
+// Resolves once the app leaves and comes back to the foreground, or after 1s
+// if it never left (sheet failed to open).
+const waitForAppReturn = () =>
+  new Promise(resolve => {
+    let left = false;
+    const done = () => {
+      clearTimeout(timer);
+      sub.remove();
+      resolve();
+    };
+    const sub = AppState.addEventListener('change', state => {
+      if (state !== 'active') left = true;
+      else if (left) done();
+    });
+    const timer = setTimeout(() => {
+      if (!left) done();
+    }, 1000);
+  });
+
+// One share sheet at a time: a double tap would otherwise open two.
+let isSharing = false;
+
 export async function withShareTouchBlock(openShareSheet) {
-  if (Platform.OS !== 'ios') return openShareSheet();
-  setBlocking(true);
+  if (isSharing) return {};
+  isSharing = true;
   try {
-    return await openShareSheet();
+    if (Platform.OS === 'android') {
+      // Android resolves as soon as the chooser launches, so hold the lock
+      // until the app is back in the foreground.
+      const returned = waitForAppReturn();
+      const result = await openShareSheet();
+      await returned;
+      return result;
+    }
+    if (Platform.OS !== 'ios') return await openShareSheet();
+    setBlocking(true);
+    try {
+      return await openShareSheet();
+    } finally {
+      setBlocking(false);
+    }
   } finally {
-    setBlocking(false);
+    isSharing = false;
   }
 }
 
@@ -36,7 +72,12 @@ export default function ShareTouchBlocker() {
     <Pressable
       accessible={false}
       style={styles.blocker}
-      onPressOut={() => setBlocking(false)}
+      onPressOut={() => {
+        // The tap outside closed the sheet; release the lock even if the
+        // share promise never settles.
+        isSharing = false;
+        setBlocking(false);
+      }}
     />
   );
 }
