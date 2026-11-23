@@ -1609,7 +1609,7 @@
     "remotePaymentCurrencySelect": {
       "title": "Moeda de recebimento",
       "description": "Escolha a moeda padrão de recebimento nos pagamentos de contatos e do seu endereço Blitz",
-      "subAccountDescription": "Escolha como receber pagamentos no seu endereço Blitz",
+      "subAccountDescription": "Escolha como receber pagamentos no endereço Blitz desta conta.",
       "futurePaymentsMessage": "Todos os pagamentos futuros serão recebidos em {{option}}",
       "warningMessage": "Pagamentos abaixo de {{amount}} continuam chegando em Bitcoin.",
       "changeSelectionError": "{{option}} já está selecionado. Altere sua seleção para atualizar sua configuração."
