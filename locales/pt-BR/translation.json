@@ -527,7 +527,7 @@
         "inputLabel": "Entrada: {{amount}}/M",
         "outputLabel": "Saída: {{amount}}/M",
         "chooseModel": "Escolha o modelo",
-        "noModels": "Nenhum modelo corresponde a esse nome.  a ortografia ou tente um nome diferente.",
+        "noModels": "Nenhum modelo corresponde a esse nome. Verifique a ortografia ou tente um nome diferente.",
         "searchPlaceholder": "Pesquisar modelos"
       },
       "exampleSearchCards": {
