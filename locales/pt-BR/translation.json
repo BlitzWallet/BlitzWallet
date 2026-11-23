@@ -1916,8 +1916,8 @@
         "point2_accounts": "Se alguém acessar essa frase, poderá roubar os fundos dessa conta. Não há como recuperar fundos perdidos.",
         "point3_accounts": "Nunca compartilhe com ninguém — nenhuma pessoa, site ou aplicativo.",
         "title_settings": "Mantenha sua frase de recuperação em segredo",
-        "point1_settings": "Sua frase de recuperação é a chave mestra da sua carteira.",
-        "point2_settings": "Quem obtiver a frase pode levar seu dinheiro, e fundos perdidos não podem ser recuperados.",
+        "point1_settings": "Essa frase secreta de recuperação permite recuperar fundos de todas suas contas na carteira Blitz.",
+        "point2_settings": "Se alguém acessar essa frase, poderá roubar os fundos de todas suas contas na carteira Blitz. Não é possível recuperar fundos perdidos.",
         "point3_settings": "Nunca compartilhe com ninguém — nenhuma pessoa, site ou aplicativo.",
         "checkbox": "Entendo que compartilhar minha frase de recuperação pode resultar na perda permanente dos meus fundos.",
         "continueButton": "Continuar"
