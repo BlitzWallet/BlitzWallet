@@ -21,6 +21,7 @@ export default function CustomScrollView(props) {
     if (!inSheet) return null;
     const { panGesture, scrollBlocksDrag } = sheetDrag;
     return Gesture.Native()
+      .shouldCancelWhenOutside(false)
       .simultaneousWithExternalGesture(panGesture)
       .onBegin(() => {
         touching.value = true;
