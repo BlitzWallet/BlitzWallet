@@ -1411,8 +1411,8 @@
         "viewAddress": "Ver endereço",
         "verifiedBody": "A Branta verificou que esta solicitação de pagamento realmente vem de {{merchantName}}, para você saber para quem está pagando.",
         "verifiedBodyNoName": "A Branta verificou que esta solicitação de pagamento é autêntica, para você saber para quem está pagando.",
-        "checkAddress": "Verifique o endereço.",
-        "checkAddress_receive": "Verifique o endereço."
+        "checkAddress": "Confira o endereço.",
+        "checkAddress_receive": "Confira o endereço."
       }
     },
     "switchOption": {
