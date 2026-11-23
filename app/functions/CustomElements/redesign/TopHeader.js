@@ -18,14 +18,16 @@ export default function TopHeader({ children, style, overlap = true }) {
     <>
       {height > 0 && <TopFade height={height} solid={solid} />}
       <View
+        pointerEvents={overlap ? 'box-none' : 'auto'}
         style={[
           { width: '100%', zIndex: 10 },
-          overlap && { marginBottom: -solid },
+          overlap && { minHeight: SOLID, marginBottom: -SOLID },
           style,
         ]}
-        onLayout={e => setHeight(e.nativeEvent.layout.height)}
       >
-        {children}
+        <View onLayout={e => setHeight(e.nativeEvent.layout.height)}>
+          {children}
+        </View>
       </View>
     </>
   );
