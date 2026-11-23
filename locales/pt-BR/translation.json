@@ -1005,7 +1005,7 @@
         "automaticRefund": "Nenhum número estava disponível para este serviço. Seus fundos já foram reembolsados.",
         "waitedRefund": "Nenhum número estava disponível para este serviço. Seus fundos serão reembolsados automaticamente após 21 minutos.",
         "paidSubtitle": "{{title}} · pago {{amount}}",
-        "stillAllocating": "Seu número ainda não está pronto.  as mensagens SMS em um minuto. Se nenhum número for atribuído, você é reembolsado automaticamente."
+        "stillAllocating": "Seu número ainda não está pronto. Verifique as mensagens SMS em um minuto. Se nenhum número for atribuído, você é reembolsado automaticamente."
       },
       "viewSMSReceiveCode": {
         "header": "Seu código",
