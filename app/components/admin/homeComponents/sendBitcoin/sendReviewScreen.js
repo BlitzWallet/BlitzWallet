@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { InputTypes } from 'bitcoin-address-parser';
@@ -28,7 +28,12 @@ import {
   isSendingPayingEventEmiiter,
   SENDING_PAYMENT_EVENT_NAME,
 } from '../../../../../context-store/sparkContext';
-import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
+import {
+  onchainFeeForSpeed,
+  sparkPaymenWrapper,
+} from '../../../../functions/spark/payments';
+import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import SkeletonBar from '../../../../functions/CustomElements/redesign/SkeletonBar';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
 import { satsToDollars } from '../../../../functions/spark/flashnet';
 import { useAuthContext } from '../../../../../context-store/authContext';
@@ -55,6 +60,9 @@ import useBlockSendDuringExit from '../../../../functions/unilateralExit/useBloc
 import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
 
+// Rough confirmation time per on-chain speed, for the fee row and speed sheet.
+const ONCHAIN_SPEED_MINUTES = { fast: 10, medium: 30, slow: 60 };
+
 // Route SendReview: shows a prepared payment and sends it.
 export default function SendReviewScreen(props) {
   useBlockSendDuringExit();
@@ -75,8 +83,27 @@ export default function SendReviewScreen(props) {
   } = params;
 
   const isSendingPayment = useRef(null);
+
+  // On-chain sends: the quote carries fast/medium/slow fees, so a speed change
+  // only re-reads it; without a quote one is fetched (fee row loads meanwhile).
+  const isOnchain = paymentInfo?.paymentNetwork === 'Bitcoin';
+  const [onchainSpeed, setOnchainSpeed] = useState('fast');
+  const [feeQuote, setFeeQuote] = useState(paymentInfo?.feeQuote);
+  const [isLoadingFee, setIsLoadingFee] = useState(false);
+  const reviewPaymentInfo = useMemo(
+    () =>
+      isOnchain && feeQuote
+        ? {
+            ...paymentInfo,
+            feeQuote,
+            paymentFee: onchainFeeForSpeed(feeQuote, onchainSpeed),
+          }
+        : paymentInfo,
+    [paymentInfo, isOnchain, feeQuote, onchainSpeed],
+  );
+
   const details = useSendPaymentDetails({
-    paymentInfo,
+    paymentInfo: reviewPaymentInfo,
     params,
     isSendingPayment: isSendingPayment.current,
   });
@@ -180,6 +207,7 @@ export default function SendReviewScreen(props) {
   const canSendPayment =
     paymentValidation.canProceed &&
     sendingAmount !== 0 &&
+    !isLoadingFee &&
     uiState === 'CONFIRM_PAYMENT';
 
   const isUsingFastPay = canUseFastPay && canSendPayment;
@@ -417,7 +445,8 @@ export default function SendReviewScreen(props) {
         memo,
         userBalance: bitcoinBalance,
         sparkInformation: sparkInfoRef.current,
-        feeQuote: paymentInfo.feeQuote,
+        feeQuote,
+        exitSpeed: onchainSpeed,
         swapPaymentQuote: paymentInfo.swapPaymentQuote,
         usingZeroAmountInvoice: paymentInfo.usingZeroAmountInvoice,
         seletctedToken: selectedLRC20Asset,
@@ -578,6 +607,8 @@ export default function SendReviewScreen(props) {
     convertedSendAmount,
     masterInfoObject,
     effectivePaymentFee,
+    feeQuote,
+    onchainSpeed,
     bitcoinBalance,
     sparkInformation,
     currentWalletMnemoinc,
@@ -608,6 +639,60 @@ export default function SendReviewScreen(props) {
     [bottomPadding],
   );
 
+  const selectOnchainSpeed = useCallback(
+    async speed => {
+      setOnchainSpeed(speed);
+      if (feeQuote) return;
+      setIsLoadingFee(true);
+      try {
+        const response = await sparkPaymenWrapper({
+          getFee: true,
+          address: paymentInfo.address,
+          paymentType: 'bitcoin',
+          amountSats: convertedSendAmount,
+          masterInfoObject,
+          mnemonic: currentWalletMnemoinc,
+        });
+        if (!response.didWork) throw new Error(response.error);
+        if (isMountedRef.current) setFeeQuote(response.feeQuote);
+      } catch (err) {
+        errorMessageNavigation(err.message);
+      } finally {
+        if (isMountedRef.current) setIsLoadingFee(false);
+      }
+    },
+    [
+      feeQuote,
+      paymentInfo,
+      convertedSendAmount,
+      masterInfoObject,
+      currentWalletMnemoinc,
+      errorMessageNavigation,
+    ],
+  );
+
+  const openSpeedSheet = () => {
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'onchainSpeed',
+      sliderHight: 0.5,
+      selectedSpeed: onchainSpeed,
+      onSelectSpeed: selectOnchainSpeed,
+      options: Object.keys(ONCHAIN_SPEED_MINUTES).map(value => ({
+        value,
+        title: t(`wallet.sendPages.feeInfo.${value}`),
+        sub: [
+          feeQuote &&
+            formatFeeText(onchainFeeForSpeed(feeQuote, value), details),
+          t('wallet.sendPages.feeInfo.tenMinutes', {
+            numMins: ONCHAIN_SPEED_MINUTES[value],
+          }),
+        ]
+          .filter(Boolean)
+          .join(' · '),
+      })),
+    });
+  };
+
   // The budget sheet opens on the first slide, once per payment; the slide
   // that follows it sends.
   const handleSwipe = () => {
@@ -629,7 +714,9 @@ export default function SendReviewScreen(props) {
   const feeSpeedText =
     isLightningPayment || isLiquidPayment || isSparkPayment
       ? t('constants.instant')
-      : t('wallet.sendPages.feeInfo.tenMinutes', { numMins: 10 });
+      : t('wallet.sendPages.feeInfo.tenMinutes', {
+          numMins: ONCHAIN_SPEED_MINUTES[onchainSpeed],
+        });
 
   return (
     <CustomKeyboardAvoidingView
@@ -692,11 +779,54 @@ export default function SendReviewScreen(props) {
                   }
                   isToken={isUsingLRC20 && selectedLRC20Asset !== USDB_TOKEN_ID}
                 />
-                <KeyValueRow
-                  layout="stacked"
-                  label={t('wallet.sendPages.feeInfo.title')}
-                  value={`${feeAmountText} · ${feeSpeedText}`}
-                />
+                {isOnchain ? (
+                  <TouchableOpacity
+                    style={styles.feeRow}
+                    onPress={openSpeedSheet}
+                    disabled={isSending || isLoadingFee || isUsingFastPay}
+                    accessibilityRole="button"
+                    accessibilityLabel={t(
+                      'wallet.sendPages.feeInfo.changeSpeedTitle',
+                    )}
+                  >
+                    <View style={styles.feeText}>
+                      {isLoadingFee ? (
+                        <View style={styles.feeLoading}>
+                          <ThemeText
+                            variant="body"
+                            content={t('wallet.sendPages.feeInfo.title')}
+                            styles={styles.feeLoadingLabel}
+                          />
+                          <View style={styles.feeLoadingValue}>
+                            <SkeletonBar
+                              width={140}
+                              height={14}
+                              borderRadius={7}
+                            />
+                          </View>
+                        </View>
+                      ) : (
+                        <KeyValueRow
+                          layout="stacked"
+                          label={t('wallet.sendPages.feeInfo.title')}
+                          value={`${feeAmountText} · ${feeSpeedText}`}
+                        />
+                      )}
+                    </View>
+                    <ThemeIcon
+                      redesign
+                      iconName="Pencil"
+                      size={18}
+                      colorOverride={tokens.muted}
+                    />
+                  </TouchableOpacity>
+                ) : (
+                  <KeyValueRow
+                    layout="stacked"
+                    label={t('wallet.sendPages.feeInfo.title')}
+                    value={`${feeAmountText} · ${feeSpeedText}`}
+                  />
+                )}
               </ListCard>
             </>
           )}
@@ -760,4 +890,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   rateButton: { alignSelf: 'stretch' },
+  feeRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  feeText: { flex: 1 },
+  // Matches KeyValueRow stacked: 14 pad, 22 label, 2 gap, 20 value.
+  feeLoading: { paddingVertical: 14 },
+  feeLoadingLabel: { fontSize: 15, lineHeight: 22 },
+  feeLoadingValue: { height: 20, marginTop: 2, justifyContent: 'center' },
 });

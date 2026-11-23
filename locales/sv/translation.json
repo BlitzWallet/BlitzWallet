@@ -1374,7 +1374,11 @@
       "feeInfo": {
         "title": "Avgift och hastighet",
         "backTextToAmount": "{{amount}}",
-        "tenMinutes": "{{numMins}} Protokoll"
+        "tenMinutes": "{{numMins}} Protokoll",
+        "changeSpeedTitle": "Ändra betalningshastighet",
+        "fast": "Snabb",
+        "medium": "Medel",
+        "slow": "Långsam"
       },
       "selectLRC20Token": {
         "title": "Välj Token",

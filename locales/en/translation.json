@@ -1374,7 +1374,11 @@
       "feeInfo": {
         "title": "Fee and speed",
         "backTextToAmount": "{{amount}}",
-        "tenMinutes": "{{numMins}} minutes"
+        "tenMinutes": "{{numMins}} minutes",
+        "changeSpeedTitle": "Change payment speed",
+        "fast": "Fast",
+        "medium": "Medium",
+        "slow": "Slow"
       },
       "reviewParts": {
         "splitNamesOne": "{{first}}",

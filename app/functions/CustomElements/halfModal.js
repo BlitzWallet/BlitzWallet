@@ -80,6 +80,7 @@ import RemoveBudgetHalfModal from '../../components/admin/homeComponents/analyti
 import AnalyticsFilterHalfModal from '../../components/admin/homeComponents/analytics/analyticsFilterHalfModal';
 import ExploreFilterHalfModal from '../../components/admin/homeComponents/explore/exploreFilterHalfModal';
 import BudgetWarningModal from '../../components/admin/homeComponents/sendBitcoin/components/nearBudgetLimitWarning';
+import OnchainSpeedSheet from '../../components/admin/homeComponents/sendBitcoin/components/onchainSpeedSheet';
 import BTCMapMerchantContent from '../../screens/inAccount/btcMapMerchant';
 import BTCMapFilterContent from '../../screens/inAccount/btcMapFilter';
 import BTCMapListContent from '../../screens/inAccount/btcMapList';
@@ -658,6 +659,15 @@ export default function CustomHalfModal(props) {
           <ExploreFilterHalfModal
             timeframe={props?.route?.params?.timeframe}
             onChange={props?.route?.params?.onChange}
+            handleBackPressFunction={handleBackPressFunction}
+          />
+        );
+      case 'onchainSpeed':
+        return (
+          <OnchainSpeedSheet
+            options={props?.route?.params?.options}
+            selectedSpeed={props?.route?.params?.selectedSpeed}
+            onSelectSpeed={props?.route?.params?.onSelectSpeed}
             handleBackPressFunction={handleBackPressFunction}
           />
         );

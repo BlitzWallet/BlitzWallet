@@ -1374,7 +1374,11 @@
       "feeInfo": {
         "title": "Redevance et rapidité",
         "backTextToAmount": "{{amount}}",
-        "tenMinutes": "{{numMins}} minutes"
+        "tenMinutes": "{{numMins}} minutes",
+        "changeSpeedTitle": "Modifier la vitesse de paiement",
+        "fast": "Rapide",
+        "medium": "Moyenne",
+        "slow": "Lente"
       },
       "selectLRC20Token": {
         "title": "Sélectionner le jeton",

@@ -1374,7 +1374,11 @@
       "feeInfo": {
         "title": "Gebühr und Geschwindigkeit",
         "backTextToAmount": "{{amount}}",
-        "tenMinutes": "{{numMins}} Minuten"
+        "tenMinutes": "{{numMins}} Minuten",
+        "changeSpeedTitle": "Zahlungsgeschwindigkeit ändern",
+        "fast": "Schnell",
+        "medium": "Mittel",
+        "slow": "Langsam"
       },
       "selectLRC20Token": {
         "title": "Token auswählen",

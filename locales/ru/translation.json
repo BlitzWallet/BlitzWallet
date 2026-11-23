@@ -1384,7 +1384,11 @@
       "feeInfo": {
         "title": "Комиссия и скорость",
         "backTextToAmount": "{{amount}}",
-        "tenMinutes": "{{numMins}} минут"
+        "tenMinutes": "{{numMins}} минут",
+        "changeSpeedTitle": "Изменить скорость платежа",
+        "fast": "Быстро",
+        "medium": "Средне",
+        "slow": "Медленно"
       },
       "selectLRC20Token": {
         "title": "Выберите токен",
