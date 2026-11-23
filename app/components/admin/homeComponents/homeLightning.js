@@ -7,18 +7,27 @@ import {
 import { useGlobalContextProvider } from '../../../../context-store/context';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
 import HomeNav from './navBar';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../../context-store/appStatus';
 import { useSparkWallet } from '../../../../context-store/sparkContext';
 import GetThemeColors from '../../../hooks/themeColors';
 import { useGlobalInsets } from '../../../../context-store/insetsProvider';
-import BalanceCard, { getAssetBalanceText } from './homeLightning/balanceCard';
+import BalanceCard, {
+  getAssetBalanceText,
+  isDollarDust,
+} from './homeLightning/balanceCard';
 import BalanceActions from './homeLightning/balanceActions';
 import ConnectionErrorCard from './homeLightning/connectionErrorCard';
 import HomeCard from './homeLightning/homeCard';
-import { CENTER, FONT, MAX_WEB_CONTENT_WIDTH, SIZES } from '../../../constants';
+import {
+  AMOUNT_HERO_SIZE,
+  CENTER,
+  FONT,
+  MAX_WEB_CONTENT_WIDTH,
+  SIZES,
+} from '../../../constants';
 import FormattedSatText from '../../../functions/CustomElements/satTextDisplay';
 import Animated, {
   useSharedValue,
@@ -28,7 +37,9 @@ import Animated, {
   FadeIn,
   LayoutAnimationConfig,
 } from 'react-native-reanimated';
+import { useReducedMotion, enterAnim } from '../../../constants/motion';
 import { TAB_ITEM_HEIGHT } from '../../../../navigation/tabs';
+import { useTabScrollToTop } from '../../../../navigation/tabs/useTabScrollToTop';
 import { useUserBalanceContext } from '../../../../context-store/userBalanceContext';
 import AmountHero from '../../../functions/CustomElements/redesign/AmountHero';
 import { useNodeContext } from '../../../../context-store/nodeContext';
@@ -81,7 +92,8 @@ const MemoizedStickyNavbarContainer = memo(
   },
 );
 
-export default function HomeLightning({ navigation }) {
+export default function HomeLightning() {
+  const reduced = useReducedMotion();
   const { fiatStats } = useNodeContext();
   const {
     sparkInformation,
@@ -145,16 +157,7 @@ export default function HomeLightning({ navigation }) {
   const BALANCE_FADE_START = navbarHeight;
   const BALANCE_FADE_END = 100;
 
-  useFocusEffect(
-    useCallback(() => {
-      if (!navigation) return;
-      return navigation?.addListener('tabPress', () => {
-        if (scrollViewRef.current) {
-          scrollViewRef.current.scrollTo({ y: 0, animated: true });
-        }
-      });
-    }, [navigation]),
-  );
+  useTabScrollToTop(scrollViewRef);
 
   const onScroll = useAnimatedScrollHandler({
     onScroll: event => {
@@ -220,7 +223,7 @@ export default function HomeLightning({ navigation }) {
   const scrollViewContainerStyles = useMemo(() => {
     return {
       flexGrow: 1,
-      paddingBottom: bottomPadding + TAB_ITEM_HEIGHT + 10,
+      paddingBottom: bottomPadding + TAB_ITEM_HEIGHT + 25,
     };
   }, [bottomPadding]);
 
@@ -254,14 +257,17 @@ export default function HomeLightning({ navigation }) {
               {isTotalLoaded ? (
                 <Animated.View
                   key={isHidden ? 'hidden' : 'shown'}
-                  entering={FadeIn.duration(isHidden ? 150 : 250)}
+                  entering={enterAnim(
+                    FadeIn.duration(isHidden ? 150 : 250),
+                    reduced,
+                  )}
                 >
                   <TouchableOpacity
                     testID="home-total-balance"
                     onPress={handleBalanceChange}
                   >
                     <AmountHero
-                      amountSize={60}
+                      amountSize={AMOUNT_HERO_SIZE.primary}
                       amount={totalSatValue}
                       fiatStats={fiatStats}
                       masterInfoObject={masterInfoObject}
@@ -300,11 +306,13 @@ export default function HomeLightning({ navigation }) {
                 label={t('constants.dollars_upper')}
                 isHidden={isHidden}
                 isLoading={!isWalletLoaded}
+                isDust={isDollarDust(dollarBalanceToken)}
                 amount={getAssetBalanceText({
                   isBitcoin: false,
                   amount: dollarBalanceToken,
                   masterInfoObject,
                   fiatStats,
+                  roundUpDust: true,
                 })}
               />
               <BalanceCard

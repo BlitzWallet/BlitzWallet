@@ -1,4 +1,11 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { SheetDragContext } from './scrollView';
 import { StyleSheet, View, TouchableOpacity, Platform } from 'react-native';
 import {
   KeyboardAvoidingView,
@@ -44,6 +51,7 @@ import Animated, {
   withSpring,
   cancelAnimation,
 } from 'react-native-reanimated';
+import { useReducedMotion, ReduceMotion, fadeMs } from '../../constants/motion';
 import { scheduleOnRN } from 'react-native-worklets';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { useAppStatus } from '../../../context-store/appStatus';
@@ -72,6 +80,7 @@ import RemoveBudgetHalfModal from '../../components/admin/homeComponents/analyti
 import AnalyticsFilterHalfModal from '../../components/admin/homeComponents/analytics/analyticsFilterHalfModal';
 import ExploreFilterHalfModal from '../../components/admin/homeComponents/explore/exploreFilterHalfModal';
 import BudgetWarningModal from '../../components/admin/homeComponents/sendBitcoin/components/nearBudgetLimitWarning';
+import OnchainSpeedSheet from '../../components/admin/homeComponents/sendBitcoin/components/onchainSpeedSheet';
 import BTCMapMerchantContent from '../../screens/inAccount/btcMapMerchant';
 import BTCMapFilterContent from '../../screens/inAccount/btcMapFilter';
 import BTCMapListContent from '../../screens/inAccount/btcMapList';
@@ -109,7 +118,17 @@ export default function CustomHalfModal(props) {
   const contentType = props?.route?.params?.wantedContent;
   const slideHeight = props?.route?.params?.sliderHight || 0.5;
   const { transparentOveraly, tokens } = GetThemeColors();
-  const [contentHeight, setContentHeight] = useState(0);
+  const [contentHeight, setContentHeightState] = useState(0);
+  // Ignore sub-2px changes: resizing a bottom-anchored sheet moves its top,
+  // which re-snaps the content to the pixel grid and flips onLayout's
+  // rounded height by 1px — a resize loop that jitters the sheet forever.
+  const setContentHeight = useCallback(
+    height =>
+      setContentHeightState(prev =>
+        Math.abs(height - prev) < 2 ? prev : height,
+      ),
+    [],
+  );
 
   // Content sets this while it must not be swiped or tapped away (a payment
   // in flight). Its own buttons can still close the sheet.
@@ -125,22 +144,40 @@ export default function CustomHalfModal(props) {
   const shouldDismissKeyboardOnMount =
     !CONTENT_TYPES_WITH_MOUNT_FOCUS.has(contentType);
 
-  const translateY = useSharedValue(screenDimensions.height);
+  const reduced = useReducedMotion();
+  const translateY = useSharedValue(reduced ? 0 : screenDimensions.height);
+  const opacity = useSharedValue(reduced ? 0 : 1);
   const maxHeight = screenDimensions.height * 0.95;
   const animatedHeight = useSharedValue(
     Math.min(maxHeight, screenDimensions.height * slideHeight),
   );
 
   const slideIn = useCallback(() => {
+    if (reduced) {
+      translateY.value = 0;
+      opacity.value = withTiming(1, {
+        duration: fadeMs,
+        reduceMotion: ReduceMotion.Never,
+      });
+      return;
+    }
     translateY.value = withTiming(0, { duration: 200 });
-  }, [translateY]);
+  }, [translateY, opacity, reduced]);
 
   const slideOut = useCallback(() => {
+    if (reduced) {
+      opacity.value = withTiming(0, {
+        duration: fadeMs,
+        reduceMotion: ReduceMotion.Never,
+      });
+      return;
+    }
     translateY.value = withTiming(screenDimensions.height, { duration: 200 });
-  }, [screenDimensions.height, translateY]);
+  }, [screenDimensions.height, translateY, opacity, reduced]);
 
   useEffect(() => {
-    if (contentHeight) {
+    // Reduced motion sizes the sheet with a plain style (below) instead.
+    if (contentHeight && !reduced) {
       animatedHeight.value = withTiming(Math.min(contentHeight, maxHeight), {
         duration: 200,
       });
@@ -202,6 +239,7 @@ export default function CustomHalfModal(props) {
         closeTimerRef.current = null;
       }
       cancelAnimation(translateY);
+      cancelAnimation(opacity);
       cancelAnimation(animatedHeight);
     };
   }, [shouldDismissKeyboardOnMount, slideIn]);
@@ -624,6 +662,15 @@ export default function CustomHalfModal(props) {
             handleBackPressFunction={handleBackPressFunction}
           />
         );
+      case 'onchainSpeed':
+        return (
+          <OnchainSpeedSheet
+            options={props?.route?.params?.options}
+            selectedSpeed={props?.route?.params?.selectedSpeed}
+            onSelectSpeed={props?.route?.params?.onSelectSpeed}
+            handleBackPressFunction={handleBackPressFunction}
+          />
+        );
       case 'nearBudgetLimitWarning':
         return (
           <BudgetWarningModal
@@ -719,6 +766,7 @@ export default function CustomHalfModal(props) {
           <LNURLAccountMangement
             account={props?.route?.params?.account}
             lnurlAddress={props?.route?.params?.lnurlAddress}
+            setContentHeight={setContentHeight}
           />
         );
       case 'ProfilePhotoModal':
@@ -788,25 +836,64 @@ export default function CustomHalfModal(props) {
     }
   };
 
-  const panGesture = Gesture.Pan()
-    .enabled(!dismissLocked)
-    .onUpdate(e => {
-      if (e.translationY > 0) {
-        translateY.value = e.translationY;
-      }
-    })
-    .onEnd(e => {
-      if (e.translationY > 100) {
-        scheduleOnRN(handleBackPressFunction);
-      } else {
-        translateY.value = withSpring(0);
-      }
-    });
+  // Drag anywhere on the sheet to close. Scrollers in the sheet run alongside
+  // (CustomScrollView) and hold the sheet still while scrolled down; the drag
+  // counts from the moment the list reaches its top.
+  const scrollBlocksDrag = useSharedValue(false);
+  const dragStart = useSharedValue(null);
+  // ponytail: no momentum handoff and no scroll lock while the sheet is
+  // pulled down; add both if a list sheet feels off.
+  const panGesture = useMemo(
+    () =>
+      Gesture.Pan()
+        .enabled(!dismissLocked)
+        .activeOffsetY(10)
+        .failOffsetX([-15, 15])
+        .onUpdate(e => {
+          if (scrollBlocksDrag.value) {
+            dragStart.value = null;
+            return;
+          }
+          if (dragStart.value === null) dragStart.value = e.translationY;
+          translateY.value = Math.max(0, e.translationY - dragStart.value);
+        })
+        .onEnd(() => {
+          if (translateY.value > 100) {
+            scheduleOnRN(handleBackPressFunction);
+          } else {
+            translateY.value = reduced ? 0 : withSpring(0);
+          }
+        })
+        .onFinalize(() => {
+          dragStart.value = null;
+        }),
+    [dismissLocked, handleBackPressFunction, reduced],
+  );
+  const sheetDrag = useMemo(
+    () => ({ panGesture, scrollBlocksDrag }),
+    [panGesture],
+  );
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-    height: animatedHeight.value,
-  }));
+  const animatedStyle = useAnimatedStyle(() =>
+    reduced
+      ? {
+          transform: [{ translateY: translateY.value }],
+          opacity: opacity.value,
+        }
+      : {
+          transform: [{ translateY: translateY.value }],
+          height: animatedHeight.value,
+          opacity: opacity.value,
+        },
+  );
+  // A React-state height lands in the same commit as the content that set
+  // it, so the sheet never shows a frame at the old size.
+  const reducedHeightStyle = reduced && {
+    height: Math.min(
+      contentHeight || screenDimensions.height * slideHeight,
+      maxHeight,
+    ),
+  };
 
   return (
     <KeyboardAvoidingView
@@ -819,29 +906,30 @@ export default function CustomHalfModal(props) {
         disabled={dismissLocked}
         onPress={handleBackPressFunction}
       />
-      <Animated.View
-        style={[
-          styles.contentContainer,
-          animatedStyle,
-          {
-            backgroundColor: 'black',
-            marginTop: topPadding + CONTENT_KEYBOARD_OFFSET,
-          },
-          Platform.OS === 'web' && styles.webContentConteiner,
-        ]}
-      >
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: tokens.surface,
-            ...(Platform.OS === 'web' && {
-              paddingLeft: leftPadding,
-              paddingRight: rightPadding,
-            }),
-            paddingBottom: bottomPadding,
-          }}
+      <GestureDetector gesture={panGesture}>
+        <Animated.View
+          style={[
+            styles.contentContainer,
+            reducedHeightStyle,
+            animatedStyle,
+            {
+              backgroundColor: 'black',
+              marginTop: topPadding + CONTENT_KEYBOARD_OFFSET,
+            },
+            Platform.OS === 'web' && styles.webContentConteiner,
+          ]}
         >
-          <GestureDetector gesture={panGesture}>
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: tokens.surface,
+              ...(Platform.OS === 'web' && {
+                paddingLeft: leftPadding,
+                paddingRight: rightPadding,
+              }),
+              paddingBottom: bottomPadding,
+            }}
+          >
             <View style={styles.topBarContainer}>
               <View
                 style={[
@@ -852,14 +940,16 @@ export default function CustomHalfModal(props) {
                 ]}
               />
             </View>
-          </GestureDetector>
-          <SheetSurface>
-            <View style={[styles.gutter, { width: contentWidth }]}>
-              {renderContent()}
-            </View>
-          </SheetSurface>
-        </View>
-      </Animated.View>
+            <SheetDragContext.Provider value={sheetDrag}>
+              <SheetSurface>
+                <View style={[styles.gutter, { width: contentWidth }]}>
+                  {renderContent()}
+                </View>
+              </SheetSurface>
+            </SheetDragContext.Provider>
+          </View>
+        </Animated.View>
+      </GestureDetector>
     </KeyboardAvoidingView>
   );
 }
@@ -890,7 +980,7 @@ const styles = StyleSheet.create({
     height: 5,
     borderRadius: 999,
     marginTop: 0,
-    marginBottom: 0,
+    marginBottom: 5,
   },
 
   contentContainer: {

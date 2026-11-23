@@ -79,7 +79,8 @@ export const GlobalContactsList = ({ children }) => {
   const toggleGlobalContactsInformation = useCallback(
     (newData, writeToDB) => {
       setGlobalContactsInformation(prev => {
-        const resolved = typeof newData === 'function' ? newData(prev) : newData;
+        const resolved =
+          typeof newData === 'function' ? newData(prev) : newData;
         // A functional payload may return null/undefined to abort (e.g. a
         // failed encryption) — never merge that over live state.
         if (!resolved) return prev;
@@ -648,7 +649,13 @@ export const GlobalContactsList = ({ children }) => {
         return;
       }
 
-      const docs = await getSingleContact(rid);
+      let docs;
+      try {
+        docs = await getSingleContact(rid);
+      } catch (err) {
+        console.log('Parent contact lookup blocked:', err.code);
+        return;
+      }
       const parent = docs?.[0]?.contacts?.myProfile;
       if (!parent?.uuid) return;
       if (parent.uuid === publicKey) {

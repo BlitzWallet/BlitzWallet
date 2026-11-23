@@ -11,6 +11,7 @@ import { ThemeText } from '../../functions/CustomElements';
 import { useTheme } from '../../../context-store/theme';
 import { ChainLogo } from '../../components/admin/homeComponents/receiveBitcoin/receiveParts';
 import { chainsForAsset } from '../../components/admin/homeComponents/receiveBitcoin/ReceiveAssetSheet';
+import { FADE_TOP } from '../../functions/CustomElements/redesign/TopFade';
 
 // Receive USDT / USDC: pick a network (ReceiveMore.dc.html). A network goes
 // straight to its address, no amount needed.
@@ -25,11 +26,8 @@ export default function ReceiveStablecoinNetworks(props) {
   return (
     <GlobalThemeView useStandardWidth={false}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar title={t('receive.receiveAsset', { asset })} />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scroll}
-        >
+        <TopBar fade title={t('receive.receiveAsset', { asset })} />
+        <CustomScrollView contentContainerStyle={styles.scroll}>
           <ThemeText
             styles={[styles.sub, { color: tokens.muted }]}
             content={t('receive.pickNetworkSub')}
@@ -60,6 +58,6 @@ export default function ReceiveStablecoinNetworks(props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  scroll: { paddingTop: 20, paddingBottom: 20 },
+  scroll: { paddingTop: FADE_TOP, paddingBottom: 20 },
   sub: { fontSize: 14, lineHeight: 20, marginBottom: 12, marginHorizontal: 4 },
 });

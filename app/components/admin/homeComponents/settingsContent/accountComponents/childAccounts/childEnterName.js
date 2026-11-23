@@ -27,6 +27,9 @@ import { crashlyticsRecordErrorReport } from '../../../../../../functions/crashl
 import TopBar from '../../../../../../functions/CustomElements/redesign/TopBar';
 import PageHeader from '../../../../../../functions/CustomElements/redesign/PageHeader';
 import UserInput from '../../../../../../functions/CustomElements/redesign/UserInput';
+import BottomActions from '../../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../../../functions/CustomElements/redesign/TopFade';
 
 export default function ChildEnterName(props) {
   const navigate = useNavigation();
@@ -201,12 +204,13 @@ export default function ChildEnterName(props) {
     >
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           shouldDismissKeyboard={true}
           title={t('settings.accountComponents.editAccountName.title')}
         />
         <CustomScrollView
-          showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps={'handled'}
+          contentContainerStyle={styles.scrollContent}
         >
           <PageHeader
             title={t(
@@ -231,19 +235,21 @@ export default function ChildEnterName(props) {
             showTextCount
           />
         </CustomScrollView>
-        <CustomButton
-          disabled={!accountName.trim()}
-          useLoading={isCreating}
-          textContent={
-            editChild
-              ? canSave
-                ? t('constants.save')
-                : t('constants.back')
-              : t('settings.childAccounts.enterName.create')
-          }
-          actionFunction={handleNext}
-          size={'regular'}
-        />
+        <BottomActions>
+          <CustomButton
+            disabled={!accountName.trim()}
+            useLoading={isCreating}
+            textContent={
+              editChild
+                ? canSave
+                  ? t('constants.save')
+                  : t('constants.back')
+                : t('settings.childAccounts.enterName.create')
+            }
+            actionFunction={handleNext}
+            size={'regular'}
+          />
+        </BottomActions>
       </View>
     </CustomKeyboardAvoidingView>
   );
@@ -251,4 +257,5 @@ export default function ChildEnterName(props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: FADE },
 });

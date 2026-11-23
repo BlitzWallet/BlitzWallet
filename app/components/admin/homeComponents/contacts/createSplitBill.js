@@ -22,6 +22,7 @@ import { FONT } from '../../../../constants/theme';
 import { bulkPaymentRequest } from '../../../../functions/spark/bulkPaymentFunctions';
 import { getDocsByIds } from '../../../../../db';
 import {
+  AMOUNT_HERO_SIZE,
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   MAX_WEB_CONTENT_WIDTH,
@@ -44,6 +45,9 @@ import { keyboardNavigate } from '../../../../functions/customNavigation';
 import ContactAvatarDisc from './internalComponents/contactAvatar';
 import { useImageCache } from '../../../../../context-store/imageCache';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function CreateSplitBill(props) {
   const navigate = useNavigation();
@@ -516,9 +520,8 @@ export default function CreateSplitBill(props) {
       useStandardWidth={true}
     >
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar title={t('contacts.splitBill.createBillTitle')} />
+        <TopBar fade title={t('contacts.splitBill.createBillTitle')} />
         <CustomScrollView
-          showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={styles.scrollContent}
         >
@@ -546,7 +549,7 @@ export default function CreateSplitBill(props) {
                 amount={isUSD ? totalHeroAmount : totalNative}
                 formatAmount={!isUSD}
                 splitCents={!isUSD}
-                amountSize={52}
+                amountSize={AMOUNT_HERO_SIZE.sheet}
                 mutedValue={totalNative <= 0}
               />
             </TouchableOpacity>
@@ -592,21 +595,23 @@ export default function CreateSplitBill(props) {
           />
         </CustomScrollView>
 
-        <CustomButton
-          buttonStyles={[
-            styles.confirmButton,
-            { opacity: canConfirm ? 1 : 0.5 },
-          ]}
-          actionFunction={handleConfirm}
-          disabled={isLoading}
-          useLoading={isLoading}
-          size="regular"
-          textContent={
-            paymentType === 'request'
-              ? t('constants.request')
-              : t('constants.review')
-          }
-        />
+        <BottomActions>
+          <CustomButton
+            buttonStyles={[
+              styles.confirmButton,
+              { opacity: canConfirm ? 1 : 0.5 },
+            ]}
+            actionFunction={handleConfirm}
+            disabled={isLoading}
+            useLoading={isLoading}
+            size="regular"
+            textContent={
+              paymentType === 'request'
+                ? t('constants.request')
+                : t('constants.review')
+            }
+          />
+        </BottomActions>
       </View>
     </CustomKeyboardAvoidingView>
   );
@@ -614,8 +619,8 @@ export default function CreateSplitBill(props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  scrollContent: { paddingBottom: 24 },
-  hero: { marginTop: 24, alignItems: 'center' },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: FADE },
+  hero: { marginTop: 0, alignItems: 'center' },
   heroButton: { marginTop: 2, maxWidth: '100%' },
   heroCents: { fontFamily: FONT.Title_Regular, letterSpacing: 0 },
   muted: { textAlign: 'center' },

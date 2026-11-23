@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { AMOUNT_HERO_SIZE } from '../../../../../constants';
 import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -137,7 +138,7 @@ export default function PoolAmountKeypad({
           amount={sats}
           fiatStats={conversionFiatStats}
           masterInfoObject={primaryMasterInfoObject}
-          amountSize={52}
+          amountSize={AMOUNT_HERO_SIZE.sheet}
           mutedValue={!sats}
         />
         {!!sub && (

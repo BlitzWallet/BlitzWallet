@@ -30,6 +30,10 @@ import ChildQRWaiting from './childQRWaiting';
 import TopBar from '../../../functions/CustomElements/redesign/TopBar';
 import Segmented from '../../../functions/CustomElements/redesign/Segmented';
 import UserInput from '../../../functions/CustomElements/redesign/UserInput';
+import BottomActions from '../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../functions/CustomElements/redesign/BottomFade';
+import TopHeader from '../../../functions/CustomElements/redesign/TopHeader';
+import { FADE_TOP } from '../../../functions/CustomElements/redesign/TopFade';
 
 // Statuses in which the camera is live on the Scan tab. While joining /
 // awaiting the camera is stopped (isActive=false) and the status content
@@ -133,32 +137,33 @@ export default function ChildEnterCode() {
       useTouchableWithoutFeedback={!isScanTab}
     >
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar
-          onBack={handleBack}
-          title={t(
-            isScanTab
-              ? 'settings.childAccounts.claim.scanNavTitle'
-              : 'settings.childAccounts.claim.codeNavTitle',
-          )}
-        />
-
-        <View style={styles.toggleWrap}>
-          <Segmented
-            options={[
-              {
-                value: 'code',
-                label: t('settings.childAccounts.claim.codeOption'),
-              },
-              {
-                value: 'scan',
-                label: t('settings.childAccounts.claim.scanOption'),
-              },
-            ]}
-            value={selectedDisplayOption}
-            onChange={selectDisplayOption}
+        <TopHeader>
+          <TopBar
+            onBack={handleBack}
+            title={t(
+              isScanTab
+                ? 'settings.childAccounts.claim.scanNavTitle'
+                : 'settings.childAccounts.claim.codeNavTitle',
+            )}
           />
-        </View>
 
+          <View style={styles.toggleWrap}>
+            <Segmented
+              options={[
+                {
+                  value: 'code',
+                  label: t('settings.childAccounts.claim.codeOption'),
+                },
+                {
+                  value: 'scan',
+                  label: t('settings.childAccounts.claim.scanOption'),
+                },
+              ]}
+              value={selectedDisplayOption}
+              onChange={selectDisplayOption}
+            />
+          </View>
+        </TopHeader>
         {isScanTab ? (
           <View style={styles.content}>
             <ThemeText
@@ -200,7 +205,7 @@ export default function ChildEnterCode() {
           <>
             <CustomScrollView
               style={styles.codeScroll}
-              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.codeScrollContent}
               keyboardShouldPersistTaps="handled"
             >
               <ThemeText
@@ -225,13 +230,15 @@ export default function ChildEnterCode() {
               />
             </CustomScrollView>
 
-            <CustomButton
-              buttonStyles={styles.button}
-              textContent={t('settings.childAccounts.claim.next')}
-              actionFunction={goNext}
-              disabled={!isValid}
-              size={'regular'}
-            />
+            <BottomActions>
+              <CustomButton
+                buttonStyles={styles.button}
+                textContent={t('settings.childAccounts.claim.next')}
+                actionFunction={goNext}
+                disabled={!isValid}
+                size={'regular'}
+              />
+            </BottomActions>
           </>
         )}
       </View>
@@ -242,8 +249,9 @@ export default function ChildEnterCode() {
 const styles = StyleSheet.create({
   container: { ...CENTER, flex: 1 },
   toggleWrap: { width: '100%', marginTop: 12 },
-  content: { flex: 1 },
+  content: { flex: 1, paddingTop: FADE_TOP },
   codeScroll: { flex: 1 },
+  codeScrollContent: { paddingTop: FADE_TOP, paddingBottom: FADE },
   title: {
     letterSpacing: -0.44,
     marginTop: 28,

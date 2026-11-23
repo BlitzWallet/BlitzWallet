@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { ThemeText } from '../../../../functions/CustomElements';
@@ -181,6 +182,7 @@ export default function SwapHistory({ onBack }) {
   } else {
     body = (
       <FlatList
+        renderScrollComponent={props => <CustomScrollView {...props} />}
         style={[styles.list, { backgroundColor: tokens.ground }]}
         contentContainerStyle={styles.listContent}
         data={swapHistory.swaps}

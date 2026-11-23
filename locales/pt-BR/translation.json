@@ -153,7 +153,8 @@
     "german": "Deutsch",
     "french": "Français",
     "swedish": "Svenska",
-    "russian": "Русский"
+    "russian": "Русский",
+    "wolof": "Wolof"
   },
   "weekdays": {
     "Mon": "Segunda-feira",
@@ -958,7 +959,7 @@
         "phoneStepSubtitle": "Digite o número completo sem o código do país (ex.: 2025551234 para (202) 555-1234).",
         "invalidMessageError": "Insira uma mensagem antes de continuar",
         "descriptionStepTitle": "Adicione sua mensagem",
-        "descriptionStepSubtitle": "SMS4Sats requer uma mensagem. Mantenha-a curta e abaixo de 140 caracteres.",
+        "descriptionStepSubtitle": "Para {{phone}}. Mantenha abaixo de 140 caracteres.",
         "descriptionInputPlaceholder": "Digite a mensagem",
         "confirmedSubtitle": "Para {{phone}} · {{amount}}"
       },
@@ -999,7 +1000,7 @@
       "confirmCodePage": {
         "header": "Seu pedido foi iniciado com sucesso",
         "phoneNumberLabel": "Seu número:",
-        "step1": "Clique no ícone de recibo no canto superior direito para ver seu histórico de pedidos",
+        "step1": "Insira este número em {{title}}.",
         "step2": "Use o botão 'Obter código' na página inicial para recuperar seu código de verificação após adicionar o número ao serviço",
         "step3": "Se nenhum código for recebido, seu pagamento será reembolsado automaticamente em 21 minutos",
         "automaticRefund": "Nenhum número estava disponível para este serviço. Seus fundos já foram reembolsados.",
@@ -1194,7 +1195,7 @@
       "failedToTransfer": "Falha ao transferir os fundos da Vaquinha",
       "notFound": "Vaquinha não encontrada",
       "closePoolTitle": "Encerrar esta Vaquinha?",
-      "closePoolWarning": "Todos os fundos serão transferidos para sua conta principal. Esta Vaquinha deixará de aceitar pagamentos e não poderá ser reaberta.",
+      "closePoolWarning": "O valor de {{amount}} vai para sua carteira principal. Esta Vaquinha deixará de aceitar pagamentos e não poderá ser reaberta.",
       "closePool": "Encerrar Vaquinha",
       "goal": "Objetivo: ",
       "payment_one": "{{count}} pagamento",
@@ -1373,7 +1374,11 @@
       "feeInfo": {
         "title": "Taxa e velocidade",
         "backTextToAmount": "{{amount}}",
-        "tenMinutes": "{{numMins}} minutos"
+        "tenMinutes": "{{numMins}} minutos",
+        "changeSpeedTitle": "Alterar velocidade do pagamento",
+        "fast": "Rápida",
+        "medium": "Média",
+        "slow": "Lenta"
       },
       "selectLRC20Token": {
         "title": "Selecionar token",
@@ -1584,6 +1589,7 @@
       "invalidCharactersError": "O nome e a bio não podem conter os caracteres < > { } ` \\",
       "invalidReceiveAddressError": "Digite um endereço de pagamento válido (ex.: usuario@dominio.com)",
       "aboutYou": "Sobre você",
+      "receiveCurrencyPreference": "Preferência de moeda",
       "lightningAddress": "Endereço Blitz",
       "addContactLightningAddress": "Endereço de pagamento",
       "deleteContact": "Excluir contato",
@@ -1603,11 +1609,10 @@
     "remotePaymentCurrencySelect": {
       "title": "Moeda de recebimento",
       "description": "Escolha a moeda padrão de recebimento nos pagamentos de contatos e do seu endereço Blitz",
+      "subAccountDescription": "Escolha como receber pagamentos no seu endereço Blitz",
       "futurePaymentsMessage": "Todos os pagamentos futuros serão recebidos em {{option}}",
-      "warningMessage": "Pagamentos em {{option}} menores do que {{amount}} serão recebidos em Bitcoin.",
-      "changeSelectionError": "{{option}} já está selecionado. Altere sua seleção para atualizar sua configuração.",
-      "arriveAsSats": "Os pagamentos chegam em sats",
-      "arriveAsDollars": "Os pagamentos chegam em dólares"
+      "warningMessage": "Pagamentos abaixo de {{amount}} continuam chegando em Bitcoin.",
+      "changeSelectionError": "{{option}} já está selecionado. Altere sua seleção para atualizar sua configuração."
     },
     "selectCurrencyToSend": {
       "header": "O que você deseja enviar?"
@@ -2543,7 +2548,7 @@
           "editMessage": "Editar moeda de exibição nas configurações do PDV.",
           "itemNamePlaceholder": "Nome do item",
           "pricePlaceholder": "Preço ({{number}})",
-          "updateCurrency": "Atualizar moeda",
+          "updateCurrency": "Salvar em {{currency}}",
           "addItemBTN": "Adicionar item",
           "currencyChangeNote": "Este preço foi definido em {{from}}. Ao salvar, são cobrados {{amount}} em {{to}}."
         },
@@ -2838,7 +2843,7 @@
       },
       "transactions": {
         "title": "Atividade",
-        "noTxHistorySub": "As transações da conta aparecerão aqui."
+        "noTxHistorySub": "Os pagamentos de {{name}} aparecerão aqui quando enviar ou receber um."
       },
       "page": {
         "title": "Conta parental",
@@ -3219,7 +3224,7 @@
           "unclaimed": "Não resgatado",
           "reclaimed": "Reembolsado",
           "noClaimURL": "Nenhum URL de resgate disponível para este Vale-Blitz. Por favor, aguarde até que o presente expire para recuperar seu dinheiro.",
-          "copyLink": "Copiar link",
+          "viewGift": "Ver Vale-Blitz",
           "pastGifts": "Presentes anteriores",
           "noNote": "Sem nota",
           "activeCount": "Ativo · {{count}}",
@@ -3648,6 +3653,7 @@
     "declinePaymentError": "Ocorreu um problema ao recusar este pagamento, tente novamente.",
     "payingContactError": "Não conseguimos obter o endereço de contato, tente novamente.",
     "noUserFoundDeeplinkError": "Não foi possível encontrar nenhum usuário para este perfil.",
+    "duplicateUsernameError": "Há mais de um usuário com este nome de usuário, então não podemos saber qual você quer dizer. Peça para ele mudar o nome de usuário.",
     "cannotAddSelfError": "Você não pode adicionar a si mesmo como um contato.",
     "fullDeeplinkError": "Não foi possível recuperar as informações de contato, tente novamente.",
     "contactNotLoaded": "Contato não carregado. Tente novamente.",

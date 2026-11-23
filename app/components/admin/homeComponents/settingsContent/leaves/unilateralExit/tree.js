@@ -17,6 +17,7 @@ import ThemeIcon from '../../../../../../functions/CustomElements/themeIcon';
 import ListRow from '../../../../../../functions/CustomElements/redesign/ListRow';
 import { saveExitDataFile } from '../../../../../../functions/unilateralExit/exitBackup';
 import { useUnilateralExit } from '../../../../../../functions/unilateralExit/exitEngine';
+import { FADE_TOP } from '../../../../../../functions/CustomElements/redesign/TopFade';
 
 // 'confirmed' | 'ready' | 'timelock' | 'waiting'
 export function txState(tx) {
@@ -226,11 +227,8 @@ export default function UnilateralExitTree() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar title={t('settings.unilateralExit.transactions')} />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <TopBar fade title={t('settings.unilateralExit.transactions')} />
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <ThemeText
             variant="hint"
             content={t('settings.unilateralExit.treeNote')}
@@ -336,7 +334,7 @@ export default function UnilateralExitTree() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  scrollContent: { paddingBottom: 24 },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: 24 },
   note: { marginTop: 8, marginBottom: 20, paddingHorizontal: 4 },
   block: { marginTop: 16, gap: 12 },
   stage: { flexDirection: 'row' },

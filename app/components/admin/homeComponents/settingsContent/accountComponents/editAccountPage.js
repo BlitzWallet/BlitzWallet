@@ -23,6 +23,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AccountProfileImage from '../../accounts/accountProfileImage';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import {
+  AMOUNT_HERO_SIZE,
   CENTER,
   MAIN_ACCOUNT_UUID,
   MAX_WEB_CONTENT_WIDTH,
@@ -62,6 +63,7 @@ import ListCard from '../../../../../functions/CustomElements/redesign/ListCard'
 import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
 import AmountHero from '../../../../../functions/CustomElements/redesign/AmountHero';
 import useAfterTransition from '../../../../../hooks/useAfterTransition';
+import { FADE_TOP } from '../../../../../functions/CustomElements/redesign/TopFade';
 
 const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
 
@@ -418,7 +420,6 @@ export default function EditAccountPage(props) {
             wantedContent: 'LNURLAccountMangement',
             lnurlAddress: lnurlAddress,
             account: selectedAccount,
-            sliderHight: 0.7,
           }),
       },
   ].filter(Boolean);
@@ -544,6 +545,7 @@ export default function EditAccountPage(props) {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={accountInformation.name}
           right={
             (isConnecting ||
@@ -565,8 +567,8 @@ export default function EditAccountPage(props) {
           }
         />
         <CustomScrollView
-          showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps={'handled'}
+          contentContainerStyle={{ paddingTop: FADE_TOP }}
         >
           <View style={styles.avatarContainer}>
             <TouchableOpacity
@@ -625,7 +627,7 @@ export default function EditAccountPage(props) {
                     ...masterInfoObject,
                     userBalanceDenomination: 'sats',
                   }}
-                  amountSize={48}
+                  amountSize={AMOUNT_HERO_SIZE.secondary}
                 />
               </View>
               <View style={styles.pageContainer}>
@@ -647,7 +649,7 @@ export default function EditAccountPage(props) {
                   }}
                   forceCurrency={'USD'}
                   convertAmount={false}
-                  amountSize={48}
+                  amountSize={AMOUNT_HERO_SIZE.secondary}
                 />
               </View>
             </AnimatedPagerView>

@@ -17,6 +17,7 @@ import { Image } from 'expo-image';
 import TextButton from '../../../functions/CustomElements/redesign/TextButton';
 import { ThemeText } from '../../../functions/CustomElements';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { useReducedMotion, enterAnim } from '../../../constants/motion';
 import { LOGIN_LOGO_TOP } from './loginLayout';
 
 // Web login for a wallet locked by a passkey. Unlike PasswordPage there is no
@@ -24,6 +25,7 @@ import { LOGIN_LOGO_TOP } from './loginLayout';
 // authenticator enforces its own lockout), and a glitchy password manager
 // must never be able to wipe a wallet.
 export default function PasskeyLoginPage() {
+  const reduced = useReducedMotion();
   const { theme, tokens } = useGlobalThemeContext();
   const [error, setError] = useState('');
   const [isUnlocking, setIsUnlocking] = useState(false);
@@ -107,7 +109,7 @@ export default function PasskeyLoginPage() {
         style={[styles.logo, tintStyle(theme ? tokens.ink : undefined)]}
       />
       {!!error && (
-        <Animated.View entering={FadeIn.duration(150)}>
+        <Animated.View entering={enterAnim(FadeIn.duration(150), reduced)}>
           <ThemeText
             styles={[styles.errorText, { color: tokens.danger }]}
             content={error}

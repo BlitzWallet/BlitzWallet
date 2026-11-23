@@ -390,8 +390,14 @@ export async function getSingleContact(
       ),
     );
     const querySnapshot = await getDocs(q);
+    if (querySnapshot.size > 1) {
+      const duplicateError = new Error('Multiple users share this username');
+      duplicateError.code = 'DUPLICATE_USERNAME';
+      throw duplicateError;
+    }
     return querySnapshot.docs.map(doc => doc.data());
   } catch (error) {
+    if (error.code === 'DUPLICATE_USERNAME') throw error;
     console.error('Error fetching contact:', error);
     crashlyticsLogReport(error.message);
     return [];

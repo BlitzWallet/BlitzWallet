@@ -1,5 +1,5 @@
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
-import CustomScrollView from '../../../../../../functions/CustomElements/scrollView';
+import HideOnScrollView from '../../../../../../functions/CustomElements/redesign/HideOnScrollView';
 import {
   CustomKeyboardAvoidingView,
   GlobalThemeView,
@@ -19,6 +19,9 @@ import EmptyState from '../../../../../../functions/CustomElements/redesign/Empt
 import ListCard from '../../../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../../../functions/CustomElements/redesign/ListRow';
 import IconButton from '../../../../../../functions/CustomElements/redesign/IconButton';
+import BottomActions from '../../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../../../functions/CustomElements/redesign/TopFade';
 
 export default function AddPOSItemsPage() {
   const { masterInfoObject, toggleMasterInfoObject } =
@@ -164,24 +167,25 @@ export default function AddPOSItemsPage() {
     >
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('settings.posPath.items.addPOSItemsPage.title')}
           shouldDismissKeyboard={true}
         />
-        <View style={styles.search}>
-          <SearchField
-            value={posItemSearch}
-            onChangeText={setPosItemSearch}
-            placeholder={t(
-              'settings.posPath.items.addPOSItemsPage.itemSearchPlaceholder',
-            )}
-            onFocus={() => setIsKeyboardActive(true)}
-            onBlur={() => setIsKeyboardActive(false)}
-            pill
-          />
-        </View>
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
+        <HideOnScrollView
+          topInset={FADE_TOP}
           contentContainerStyle={styles.scrollContent}
+          header={
+            <SearchField
+              value={posItemSearch}
+              onChangeText={setPosItemSearch}
+              placeholder={t(
+                'settings.posPath.items.addPOSItemsPage.itemSearchPlaceholder',
+              )}
+              onFocus={() => setIsKeyboardActive(true)}
+              onBlur={() => setIsKeyboardActive(false)}
+              pill
+            />
+          }
         >
           {formattedElements.length ? (
             <ListCard>{formattedElements}</ListCard>
@@ -195,17 +199,19 @@ export default function AddPOSItemsPage() {
               />
             </View>
           )}
-        </CustomScrollView>
+        </HideOnScrollView>
 
-        <CustomButton
-          actionFunction={() =>
-            navigate.navigate('CustomHalfModal', {
-              wantedContent: 'addPOSItemsHalfModal',
-            })
-          }
-          textContent={t('settings.posPath.items.addPOSItemsPage.ctaBTN')}
-          size={'regular'}
-        />
+        <BottomActions>
+          <CustomButton
+            actionFunction={() =>
+              navigate.navigate('CustomHalfModal', {
+                wantedContent: 'addPOSItemsHalfModal',
+              })
+            }
+            textContent={t('settings.posPath.items.addPOSItemsPage.ctaBTN')}
+            size={'regular'}
+          />
+        </BottomActions>
       </View>
     </CustomKeyboardAvoidingView>
   );
@@ -213,11 +219,9 @@ export default function AddPOSItemsPage() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  search: { marginTop: 16 },
   scrollContent: {
     flexGrow: 1,
-    paddingTop: 16,
-    paddingBottom: 16,
+    paddingBottom: FADE,
   },
   title: { fontSize: 15, lineHeight: 21 },
   sub: { fontSize: 13, lineHeight: 19 },

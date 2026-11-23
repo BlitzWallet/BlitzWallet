@@ -11,6 +11,7 @@ import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../../hooks/themeColors';
 import { FONT } from '../../../constants/theme';
 import Disc from './Disc';
+import { useReducedMotion } from '../../../constants/motion';
 
 const ANIMATION_DURATION = 250;
 
@@ -23,19 +24,28 @@ export default function InfoDropdown({
   const [isExpanded, setIsExpanded] = useState(false);
   const [contentHeight, setContentHeight] = useState(275);
 
+  const reduced = useReducedMotion();
   const expandProgress = useSharedValue(0);
   const chevronRotation = useSharedValue(0);
 
   const toggleExpanded = useCallback(() => {
     const next = !isExpanded;
     setIsExpanded(next);
-    expandProgress.value = withTiming(next ? 1 : 0, {
-      duration: ANIMATION_DURATION,
-    });
-    chevronRotation.value = withTiming(next ? 1 : 0, {
-      duration: ANIMATION_DURATION,
-    });
-  }, [isExpanded]);
+    expandProgress.value = reduced
+      ? next
+        ? 1
+        : 0
+      : withTiming(next ? 1 : 0, {
+          duration: ANIMATION_DURATION,
+        });
+    chevronRotation.value = reduced
+      ? next
+        ? 1
+        : 0
+      : withTiming(next ? 1 : 0, {
+          duration: ANIMATION_DURATION,
+        });
+  }, [isExpanded, reduced]);
 
   const contentStyle = useAnimatedStyle(() => ({
     height: expandProgress.value * contentHeight,
@@ -67,10 +77,7 @@ export default function InfoDropdown({
       </TouchableOpacity>
 
       <Animated.View style={contentStyle}>
-        <CustomScrollView
-          scrollEnabled={false}
-          showsVerticalScrollIndicator={false}
-        >
+        <CustomScrollView scrollEnabled={false}>
           <View
             onLayout={e => {
               console.log(e.nativeEvent.layout.height, 'content height,dd');

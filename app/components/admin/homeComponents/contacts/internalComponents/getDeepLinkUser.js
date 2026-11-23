@@ -53,6 +53,8 @@ export default async function getDeepLinkUser({
     return { didWork: true, reason: '', data: newContact };
   } catch (err) {
     console.log(err);
+    if (err.code === 'DUPLICATE_USERNAME')
+      return { didWork: false, reason: 'errormessages.duplicateUsernameError' };
     return { didWork: false, reason: 'errormessages.fullDeeplinkError' };
   }
 }

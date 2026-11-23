@@ -1,4 +1,5 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { AMOUNT_HERO_SIZE } from '../../../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { ThemeText } from '../../../../../../functions/CustomElements';
 import SheetHeader from '../../../../../../functions/CustomElements/redesign/SheetHeader';
@@ -351,7 +352,7 @@ export default function ConfirmChatGPTPage({
             amount={customSats}
             masterInfoObject={satsMasterInfoObject}
             fiatStats={fiatStats}
-            amountSize={52}
+            amountSize={AMOUNT_HERO_SIZE.sheet}
             mutedValue={!customSats}
           />
           {!!customError && (
@@ -398,7 +399,7 @@ export default function ConfirmChatGPTPage({
             amount={selectedAmountSats}
             masterInfoObject={satsMasterInfoObject}
             fiatStats={fiatStats}
-            amountSize={48}
+            amountSize={AMOUNT_HERO_SIZE.secondary}
           />
         </View>
 

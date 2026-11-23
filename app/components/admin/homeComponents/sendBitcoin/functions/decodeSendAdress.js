@@ -504,8 +504,10 @@ export default async function decodeSendAddress(props) {
   } catch (err) {
     console.error('Decoding send address error:', err);
     goBackFunction(
-      err.message ||
-        t('wallet.sendPages.handlingAddressErrors.unkonwDecodeError'),
+      err.code === 'DUPLICATE_USERNAME'
+        ? t('errormessages.duplicateUsernameError')
+        : err.message ||
+            t('wallet.sendPages.handlingAddressErrors.unkonwDecodeError'),
     );
     return;
   }

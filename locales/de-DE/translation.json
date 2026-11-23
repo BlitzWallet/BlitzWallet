@@ -153,7 +153,8 @@
     "german": "Deutsch",
     "french": "Français",
     "swedish": "Svenska",
-    "russian": "Русский"
+    "russian": "Русский",
+    "wolof": "Wolof"
   },
   "weekdays": {
     "Mon": "Montag",
@@ -958,7 +959,7 @@
         "phoneStepSubtitle": "Geben Sie die vollständige Nummer ohne Ländervorwahl ein (z. B. 2025551234 für (202) 555-1234).",
         "invalidMessageError": "Bitte geben Sie eine Nachricht ein, bevor Sie fortfahren.",
         "descriptionStepTitle": "Ihre Nachricht hinzufügen",
-        "descriptionStepSubtitle": "SMS4Sats erfordert eine Nachricht. Halten Sie sie kurz und unter 140 Zeichen.",
+        "descriptionStepSubtitle": "An {{phone}}. Halten Sie es unter 140 Zeichen.",
         "descriptionInputPlaceholder": "Nachricht eingeben",
         "confirmedSubtitle": "An {{phone}} · {{amount}}"
       },
@@ -999,7 +1000,7 @@
       "confirmCodePage": {
         "header": "Ihre Bestellung wurde erfolgreich gestartet",
         "phoneNumberLabel": "Ihre Nummer:",
-        "step1": "Tippen Sie auf das Beleg-Symbol oben rechts, um Ihren Bestellverlauf anzuzeigen.",
+        "step1": "Geben Sie diese Nummer in {{title}} ein.",
         "step2": "Verwenden Sie die Schaltfläche „Code abrufen“ auf der Startseite, um Ihren Bestätigungscode abzurufen, nachdem Sie die Nummer zum Dienst hinzugefügt haben.",
         "step3": "Falls kein Code empfangen wird, wird Ihre Zahlung nach 21 Minuten automatisch zurückerstattet.",
         "automaticRefund": "Für diesen Dienst war keine Nummer verfügbar. Ihre Gelder wurden bereits zurückerstattet.",
@@ -1194,7 +1195,7 @@
       "failedToTransfer": "Übertragung der Sparpool-Gelder fehlgeschlagen.",
       "notFound": "Sparpool nicht gefunden",
       "closePoolTitle": "Diesen Sparpool schließen?",
-      "closePoolWarning": "Alle Gelder werden an Ihre Haupt-Wallet übertragen. Dieser Sparpool akzeptiert keine weiteren Zahlungen und kann nicht wieder geöffnet werden.",
+      "closePoolWarning": "Alle {{amount}} werden in Ihre Haupt-Wallet übertragen. Der Pool nimmt keine Zahlungen mehr an und kann nicht wieder geöffnet werden.",
       "closePool": "Sparpool schließen",
       "goal": "Ziel: ",
       "payment_one": "{{count}} Zahlung",
@@ -1373,7 +1374,11 @@
       "feeInfo": {
         "title": "Gebühr und Geschwindigkeit",
         "backTextToAmount": "{{amount}}",
-        "tenMinutes": "{{numMins}} Minuten"
+        "tenMinutes": "{{numMins}} Minuten",
+        "changeSpeedTitle": "Zahlungsgeschwindigkeit ändern",
+        "fast": "Schnell",
+        "medium": "Mittel",
+        "slow": "Langsam"
       },
       "selectLRC20Token": {
         "title": "Token auswählen",
@@ -1584,6 +1589,7 @@
       "invalidCharactersError": "Name und Biografie dürfen die Zeichen < > { } ` \\ nicht enthalten.",
       "invalidReceiveAddressError": "Bitte geben Sie eine gültige Lightning-Adresse ein (z. B. benutzer@domain.com).",
       "aboutYou": "Über Sie",
+      "receiveCurrencyPreference": "Währungspräferenz",
       "lightningAddress": "Lightning-Adresse",
       "addContactLightningAddress": "Lightning-Adresse",
       "deleteContact": "Kontakt löschen",
@@ -1603,11 +1609,10 @@
     "remotePaymentCurrencySelect": {
       "title": "Empfangswährung",
       "description": "Wählen Sie, wie Sie Zahlungen von Kontakten und Ihrer Lightning-Adresse erhalten möchten.",
+      "subAccountDescription": "Wählen Sie, wie Sie Zahlungen an Ihre Lightning-Adresse erhalten möchten.",
       "futurePaymentsMessage": "Alle zukünftigen Zahlungen werden in {{option}} empfangen.",
-      "warningMessage": "Bei Auswahl von {{option}} gilt ein Mindestbetrag von {{amount}}. Kleinere Zahlungen werden in Bitcoin empfangen.",
-      "changeSelectionError": "{{option}} ist bereits ausgewählt. Bitte wählen Sie eine andere Option, um die Einstellung zu ändern.",
-      "arriveAsSats": "Zahlungen kommen als Sats an",
-      "arriveAsDollars": "Zahlungen kommen als Dollar an"
+      "warningMessage": "Zahlungen unter {{amount}} kommen weiterhin als Bitcoin an.",
+      "changeSelectionError": "{{option}} ist bereits ausgewählt. Bitte wählen Sie eine andere Option, um die Einstellung zu ändern."
     },
     "selectCurrencyToSend": {
       "header": "Wie möchten Sie senden?"
@@ -2543,7 +2548,7 @@
           "editMessage": "Die Standardwährung können Sie in den POS-Einstellungen ändern.",
           "itemNamePlaceholder": "Artikelname",
           "pricePlaceholder": "Preis ({{number}})",
-          "updateCurrency": "Standardwährung aktualisieren",
+          "updateCurrency": "In {{currency}} speichern",
           "addItemBTN": "Artikel hinzufügen",
           "currencyChangeNote": "Dieser Preis wurde in {{from}} festgelegt. Beim Speichern werden {{amount}} in {{to}} berechnet."
         },
@@ -2838,7 +2843,7 @@
       },
       "transactions": {
         "title": "Aktivität",
-        "noTxHistorySub": "Die Transaktionen des verwalteten Kontos erscheinen hier, sobald eine Transaktion gesendet oder empfangen wurde."
+        "noTxHistorySub": "Die Zahlungen von {{name}} erscheinen hier, sobald eine gesendet oder empfangen wird."
       },
       "page": {
         "title": "Verwaltetes Konto",
@@ -3219,7 +3224,7 @@
           "unclaimed": "Nicht eingelöst",
           "reclaimed": "Zurückgeholt",
           "noClaimURL": "Kein Einlöse-Link für dieses Geschenk verfügbar. Bitte warten Sie, bis das Geschenk abgelaufen ist, um Ihr Geld zurückzuerhalten.",
-          "copyLink": "Link kopieren",
+          "viewGift": "Geschenk ansehen",
           "pastGifts": "Vergangene Geschenke",
           "noNote": "Keine Notiz",
           "activeCount": "Aktiv · {{count}}",
@@ -3648,6 +3653,7 @@
     "declinePaymentError": "Beim Ablehnen dieser Zahlung ist ein Problem aufgetreten. Bitte versuchen Sie es erneut.",
     "payingContactError": "Die Adresse des Kontakts konnte nicht abgerufen werden. Bitte versuchen Sie es erneut.",
     "noUserFoundDeeplinkError": "Für diesen Benutzernamen konnte kein Benutzer gefunden werden.",
+    "duplicateUsernameError": "Mehrere Benutzer verwenden diesen Benutzernamen, daher können wir nicht erkennen, wen Sie meinen. Bitte bitten Sie sie, ihren Benutzernamen zu ändern.",
     "cannotAddSelfError": "Sie können sich nicht selbst als Kontakt hinzufügen.",
     "fullDeeplinkError": "Kontaktinformationen konnten nicht abgerufen werden. Bitte versuchen Sie es erneut.",
     "contactNotLoaded": "Kontakt konnte nicht geladen werden. Bitte versuchen Sie es erneut.",
@@ -4149,8 +4155,8 @@
     "btcSource_base": "Coinbase BTC",
     "btcSource_solana": "Solana BTC",
     "pickNetworkSub": "Wählen Sie das Netzwerk, das der Absender verwendet. Fragen Sie ihn, wenn Sie unsicher sind.",
-    "networkFee": "Netzwerkgebühr",
-    "fromTheAmount": "Vom Betrag",
+    "networkFee": "Gebühr",
+    "fromTheAmount": "Netzwerkgebühren",
     "networkFeeInfo": "Für den Empfang von Bitcoin an diese Adresse fällt eine kleine Netzwerkgebühr an. Die Gebühr wird vom empfangenen Betrag abgezogen, sodass Ihr Guthaben etwas niedriger als der gesendete Betrag ausfallen kann.",
     "arrives": "Kommt an",
     "afterConfirmations": "Nach 3 Bestätigungen",

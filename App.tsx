@@ -7,6 +7,7 @@
 
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useReducedMotion, screenAnimation } from './app/constants/motion';
 import React, {
   JSX,
   useCallback,
@@ -92,7 +93,6 @@ import { KeyboardProvider } from 'react-native-keyboard-controller';
 import HandleLNURLPayments from './context-store/lnurl';
 import { SparkWalletProvider } from './context-store/sparkContext';
 import { ActivitySeenProvider } from './context-store/activitySeen';
-import { DropdownProvider } from './context-store/dropdownContext';
 import * as ExpoSplashScreen from 'expo-splash-screen';
 import * as NavigationBar from 'expo-navigation-bar';
 import {
@@ -145,52 +145,50 @@ function App(): JSX.Element {
           <KeyboardProvider>
             <ToastProvider>
               <GlobalThemeProvider>
-                <DropdownProvider>
-                  <AppStatusProvider>
-                    <AuthStatusProvider>
-                      <KeysContextProvider>
-                        <BTCMapProvider>
-                          <GlobalContactsList>
-                            <GlobalContextProvider>
-                              <ActiveCustodyAccountProvider>
-                                <SparkWalletProvider>
-                                  <ActivitySeenProvider>
-                                    <GLobalNodeContextProider>
-                                      <GlobalAppDataProvider>
-                                        <PushNotificationProvider>
-                                          <LiquidEventProvider>
-                                            <RootstockSwapProvider>
-                                              <ImageCacheProvider>
-                                                <GlobalServerTimeProvider>
-                                                  <FlashnetProvider>
-                                                    <UserBalanceProvider>
-                                                      <AnalyticsNumbersProvider>
-                                                        <SpendAndReplaceProvider>
-                                                          {/* <Suspense
+                <AppStatusProvider>
+                  <AuthStatusProvider>
+                    <KeysContextProvider>
+                      <BTCMapProvider>
+                        <GlobalContactsList>
+                          <GlobalContextProvider>
+                            <ActiveCustodyAccountProvider>
+                              <SparkWalletProvider>
+                                <ActivitySeenProvider>
+                                  <GLobalNodeContextProider>
+                                    <GlobalAppDataProvider>
+                                      <PushNotificationProvider>
+                                        <LiquidEventProvider>
+                                          <RootstockSwapProvider>
+                                            <ImageCacheProvider>
+                                              <GlobalServerTimeProvider>
+                                                <FlashnetProvider>
+                                                  <UserBalanceProvider>
+                                                    <AnalyticsNumbersProvider>
+                                                      <SpendAndReplaceProvider>
+                                                        {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                          <ResetStack />
-                                                        </SpendAndReplaceProvider>
-                                                      </AnalyticsNumbersProvider>
-                                                    </UserBalanceProvider>
-                                                  </FlashnetProvider>
-                                                  {/* </Suspense> */}
-                                                </GlobalServerTimeProvider>
-                                              </ImageCacheProvider>
-                                            </RootstockSwapProvider>
-                                          </LiquidEventProvider>
-                                        </PushNotificationProvider>
-                                      </GlobalAppDataProvider>
-                                    </GLobalNodeContextProider>
-                                  </ActivitySeenProvider>
-                                </SparkWalletProvider>
-                              </ActiveCustodyAccountProvider>
-                            </GlobalContextProvider>
-                          </GlobalContactsList>
-                        </BTCMapProvider>
-                      </KeysContextProvider>
-                    </AuthStatusProvider>
-                  </AppStatusProvider>
-                </DropdownProvider>
+                                                        <ResetStack />
+                                                      </SpendAndReplaceProvider>
+                                                    </AnalyticsNumbersProvider>
+                                                  </UserBalanceProvider>
+                                                </FlashnetProvider>
+                                                {/* </Suspense> */}
+                                              </GlobalServerTimeProvider>
+                                            </ImageCacheProvider>
+                                          </RootstockSwapProvider>
+                                        </LiquidEventProvider>
+                                      </PushNotificationProvider>
+                                    </GlobalAppDataProvider>
+                                  </GLobalNodeContextProider>
+                                </ActivitySeenProvider>
+                              </SparkWalletProvider>
+                            </ActiveCustodyAccountProvider>
+                          </GlobalContextProvider>
+                        </GlobalContactsList>
+                      </BTCMapProvider>
+                    </KeysContextProvider>
+                  </AuthStatusProvider>
+                </AppStatusProvider>
               </GlobalThemeProvider>
             </ToastProvider>
           </KeyboardProvider>
@@ -443,6 +441,7 @@ function ResetStack(): JSX.Element | null {
                     params: {
                       btcAdress: `paylink://${match[1]}`,
                       fromPage: 'paylink',
+                      deeplinkOrigin: true,
                     },
                   },
                 ],
@@ -558,6 +557,7 @@ function ResetStack(): JSX.Element | null {
                     name: 'ConfirmPaymentScreen',
                     params: {
                       btcAdress: paymentUrl,
+                      deeplinkOrigin: true,
                     },
                   },
                 ],
@@ -841,6 +841,7 @@ function ResetStack(): JSX.Element | null {
     setNavigationBar();
   }, [backgroundColor, theme, appState]);
 
+  const reduced = useReducedMotion();
   const screenOptions = useMemo(() => {
     return {
       headerShown: false,
@@ -884,7 +885,10 @@ function ResetStack(): JSX.Element | null {
         <Stack.Screen
           name="Splash"
           component={SplashScreen}
-          options={{ animation: 'fade', gestureEnabled: false }}
+          options={{
+            animation: screenAnimation('fade', reduced),
+            gestureEnabled: false,
+          }}
         />
         <Stack.Screen
           name="SplashReload"
@@ -896,7 +900,7 @@ function ResetStack(): JSX.Element | null {
           component={HomeComponent}
           initialParams={securitySettings}
           options={{
-            animation: 'fade',
+            animation: screenAnimation('fade', reduced),
             gestureEnabled: false,
             contentStyle: {
               backgroundColor: backgroundColor,
@@ -907,19 +911,22 @@ function ResetStack(): JSX.Element | null {
         <Stack.Screen
           name="TabInUse"
           component={TabInUse}
-          options={{ animation: 'fade', gestureEnabled: false }}
+          options={{
+            animation: screenAnimation('fade', reduced),
+            gestureEnabled: false,
+          }}
         />
         <Stack.Screen
           name="WebUpdate"
           component={WebUpdate}
-          options={{ animation: 'slide_from_bottom' }}
+          options={{ animation: screenAnimation('slide_from_bottom', reduced) }}
         />
         <Stack.Screen
           name="ConnectingToNodeLoadingScreen"
           component={ConnectingToNodeLoadingScreen}
           options={{
             gestureEnabled: false,
-            animation: 'fade',
+            animation: screenAnimation('fade', reduced),
             contentStyle: {
               backgroundColor: backgroundColor,
               backfaceVisibility: 'hidden',
@@ -930,7 +937,7 @@ function ResetStack(): JSX.Element | null {
         <Stack.Group
           screenOptions={{
             presentation: 'containedTransparentModal',
-            animation: 'slide_from_bottom',
+            animation: screenAnimation('slide_from_bottom', reduced),
           }}
         >
           {SLIDE_FROM_BOTTOM_SCREENS.map(({ name, component: Component }) => (
@@ -943,7 +950,7 @@ function ResetStack(): JSX.Element | null {
         </Stack.Group>
         <Stack.Group
           screenOptions={{
-            animation: 'slide_from_right',
+            animation: screenAnimation('slide_from_right', reduced),
             presentation: 'card',
           }}
         >
@@ -960,7 +967,7 @@ function ResetStack(): JSX.Element | null {
         </Stack.Group>
         <Stack.Group
           screenOptions={{
-            animation: 'fade',
+            animation: screenAnimation('fade', reduced),
             presentation: 'containedTransparentModal',
           }}
         >

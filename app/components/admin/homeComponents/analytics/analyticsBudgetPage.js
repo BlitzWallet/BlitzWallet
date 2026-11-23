@@ -24,6 +24,7 @@ import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
 import getBudgetStatus from './budgetStatus';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 const CIRCLE_SIZE = 220;
 const STROKE_WIDTH = 12;
@@ -88,6 +89,7 @@ export default function AnalyticsBudgetPage() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('analytics.budget.budget')}
           right={
             <IconButton
@@ -102,7 +104,6 @@ export default function AnalyticsBudgetPage() {
             styles.scrollContent,
             { paddingBottom: bottomPadding },
           ]}
-          showsVerticalScrollIndicator={false}
         >
           {/* Circular progress */}
           <View style={styles.circleContainer}>
@@ -230,7 +231,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  scrollContent: { alignItems: 'center', paddingTop: 20 },
+  scrollContent: { alignItems: 'center', paddingTop: FADE_TOP },
   circleContainer: {
     width: CIRCLE_SIZE,
     height: CIRCLE_SIZE,

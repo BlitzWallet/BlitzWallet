@@ -17,6 +17,7 @@ import { FONT } from '../../constants/theme';
 import { useAppStatus } from '../../../context-store/appStatus';
 import useAdaptiveFontSize from '../../hooks/useAdaptiveFontSIze';
 import { useTheme } from '../../../context-store/theme';
+import { useReducedMotion } from '../../constants/motion';
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
 const BOX_STROKE = '#D8DCE3';
@@ -84,7 +85,8 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
   // Shared values
   const logoOpacity = useSharedValue(0);
   const headingOpacity = useSharedValue(0);
-  const headingY = useSharedValue(24);
+  const reduced = useReducedMotion();
+  const headingY = useSharedValue(reduced ? 0 : 24);
   const btnsOpacity = useSharedValue(0);
 
   const headingStyle = useAnimatedStyle(() => ({
@@ -114,10 +116,9 @@ export default function CreateAccountHome({ navigation: { navigate } }) {
       480,
       withTiming(1, { duration: 520, easing: easeOut }),
     );
-    headingY.value = withDelay(
-      480,
-      withTiming(0, { duration: 520, easing: easeOut }),
-    );
+    headingY.value = reduced
+      ? 0
+      : withDelay(480, withTiming(0, { duration: 520, easing: easeOut }));
 
     btnsOpacity.value = withDelay(
       1000,

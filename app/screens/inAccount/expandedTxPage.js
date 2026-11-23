@@ -1,12 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Keyboard,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Keyboard, StyleSheet, TouchableOpacity, View } from 'react-native';
+import CustomScrollView from '../../functions/CustomElements/scrollView';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { useReducedMotion, enterAnim } from '../../constants/motion';
 import { Image as ExpoImage } from 'expo-image';
 import {
   APPROXIMATE_SYMBOL,
@@ -50,8 +46,8 @@ import ContactAvatar from '../../components/admin/homeComponents/contacts/intern
 import { getTokenIcon } from '../../functions/lrc20/utils';
 import formatDate from '../../functions/formatDate';
 
-// Sheet chrome around the content: grab area (10 + 5) + 34 bottom padding.
-const SHEET_CHROME = 49;
+// Sheet chrome around the content: grab area (10 + 5 + 5) + 34 bottom padding.
+const SHEET_CHROME = 54;
 
 // Was the separate Technical details page; now the "More details" rows.
 function getTechnicalRows(transaction, t) {
@@ -163,6 +159,7 @@ export default function ExpandedTx({
   setContentHeight,
   canEditMemo = true,
 }) {
+  const reduced = useReducedMotion();
   const { decodedAddedContacts } = useGlobalContactsInfo();
   const { cache } = useImageCache();
   const { sparkInformation, tokensImageCache } = useSparkWallet();
@@ -173,6 +170,9 @@ export default function ExpandedTx({
   const { masterInfoObject } = useGlobalContextProvider();
   const { showToast } = useToast();
   const [showMoreDetails, setShowMoreDetails] = useState(false);
+  // Measured sizes, so the toggle can resize the sheet in the same render.
+  const sheetHeightRef = useRef(0);
+  const detailsHeightRef = useRef(0);
   const [isEditingMemo, setIsEditingMemo] = useState(false);
   const [memoText, setMemoText] = useState('');
   const didCancelMemoRef = useRef(false);
@@ -558,7 +558,13 @@ export default function ExpandedTx({
     });
 
     return (
-      <Animated.View entering={FadeIn.duration(200)}>
+      <Animated.View
+        key={String(showMoreDetails)}
+        entering={enterAnim(FadeIn.duration(200), reduced)}
+        onLayout={e => {
+          detailsHeightRef.current = Math.round(e.nativeEvent.layout.height);
+        }}
+      >
         <View style={[styles.solidDivider, { borderColor: tokens.divider }]} />
         {rows}
         {isBulkPayment && !!successfulGroup.length && (
@@ -616,18 +622,17 @@ export default function ExpandedTx({
     : tokens.ink;
 
   return (
-    <ScrollView
+    <CustomScrollView
       ref={scrollRef}
       style={styles.scroll}
-      showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
     >
       <View
-        onLayout={e =>
-          setContentHeight?.(
-            Math.round(e.nativeEvent.layout.height) + SHEET_CHROME,
-          )
-        }
+        onLayout={e => {
+          sheetHeightRef.current =
+            Math.round(e.nativeEvent.layout.height) + SHEET_CHROME;
+          setContentHeight?.(sheetHeightRef.current);
+        }}
       >
         <ThemeText
           styles={styles.title}
@@ -771,7 +776,20 @@ export default function ExpandedTx({
 
         {renderSuccessAction()}
 
-        {showMoreDetails && !isEditingMemo && renderTechnicalRows()}
+        {/* Always mounted (collapsed when hidden) so its height is known
+            before the toggle. */}
+        {!isEditingMemo && (
+          <View
+            style={!showMoreDetails && styles.collapsed}
+            pointerEvents={showMoreDetails ? 'auto' : 'none'}
+            accessibilityElementsHidden={!showMoreDetails}
+            importantForAccessibility={
+              showMoreDetails ? 'auto' : 'no-hide-descendants'
+            }
+          >
+            {renderTechnicalRows()}
+          </View>
+        )}
 
         {isEditingMemo ? (
           <AdaptiveButtonRow
@@ -823,7 +841,16 @@ export default function ExpandedTx({
                   size="regular"
                   tone="secondary"
                   buttonStyles={buttonStyle}
-                  actionFunction={() => setShowMoreDetails(prev => !prev)}
+                  actionFunction={() => {
+                    const next = !showMoreDetails;
+                    if (sheetHeightRef.current) {
+                      setContentHeight?.(
+                        sheetHeightRef.current +
+                          (next ? 1 : -1) * detailsHeightRef.current,
+                      );
+                    }
+                    setShowMoreDetails(next);
+                  }}
                   textContent={moreDetailsLabel}
                 />
               </>
@@ -831,12 +858,14 @@ export default function ExpandedTx({
           </AdaptiveButtonRow>
         )}
       </View>
-    </ScrollView>
+    </CustomScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   scroll: { flex: 1 },
+  // Out of flow but still laid out, so it keeps its real height.
+  collapsed: { position: 'absolute', left: 0, right: 0, opacity: 0 },
   title: {
     marginTop: 14,
     fontSize: 17,

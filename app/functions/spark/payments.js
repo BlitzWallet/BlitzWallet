@@ -41,6 +41,17 @@ const sendError = (response, fallback) =>
     intentId: response.intentId,
   });
 
+// Total on-chain fee (L1 broadcast + user fee) for one speed of a fee quote.
+export const onchainFeeForSpeed = (feeQuote, speed = 'fast') => {
+  const key = { fast: 'Fast', medium: 'Medium', slow: 'Slow' }[
+    String(speed).toLowerCase()
+  ];
+  return (
+    (feeQuote?.[`l1BroadcastFee${key}`]?.originalValue || 0) +
+    (feeQuote?.[`userFee${key}`]?.originalValue || 0)
+  );
+};
+
 export const sparkPaymenWrapper = async ({
   getFee = false,
   address = '',
@@ -112,9 +123,7 @@ export const sparkPaymenWrapper = async ({
           );
         console.log(feeResponse, 'onchain fee quote');
         const data = feeResponse.response;
-        calculatedFee =
-          (data.l1BroadcastFeeFast?.originalValue || 0) +
-          (data.userFeeFast?.originalValue || 0);
+        calculatedFee = onchainFeeForSpeed(data, 'fast');
         tempFeeQuote = data;
       } else if (paymentType === 'lrc20') {
         calculatedFee = 0;
@@ -315,11 +324,9 @@ export const sparkPaymenWrapper = async ({
       // make sure to import exist speed
       // await handleSupportPayment(masterInfoObject, supportFee, mnemonic);
 
-      const feeFromQuote =
-        (feeQuote.l1BroadcastFeeFast?.originalValue || 0) +
-        (feeQuote.userFeeFast?.originalValue || 0);
+      const feeFromQuote = onchainFeeForSpeed(feeQuote, exitSpeed);
       const deductFeeFromAmount =
-        (amountSats + feeFromQuote) * 1.1 >= userBalance;
+        amountSats + Math.ceil(feeFromQuote * 1.1) > userBalance;
 
       const onChainPayResponse = await sendSparkBitcoinPayment({
         onchainAddress: address,

@@ -8,7 +8,10 @@ import { useCallback, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { GlobalThemeView, ThemeText } from '../../../../functions/CustomElements';
+import {
+  GlobalThemeView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
@@ -20,6 +23,7 @@ import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
 import Spinner from '../../../../functions/CustomElements/redesign/Spinner';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 const SERVICE_ROWS = [
   { service: 'contactPayments', key: 'contact' },
@@ -53,7 +57,13 @@ export default function NotificationPreferances() {
     setIsUpdating(false);
     if (!response.didWork)
       navigate.navigate('ErrorScreen', { errorMessage: t(response.error) });
-  }, [openPushNotificationSettings, navigate, t, isUpdating, isRegisteringPush]);
+  }, [
+    openPushNotificationSettings,
+    navigate,
+    t,
+    isUpdating,
+    isRegisteringPush,
+  ]);
 
   const toggleNotificationPreferance = useCallback(
     service => {
@@ -98,11 +108,11 @@ export default function NotificationPreferances() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('screens.inAccount.settingsContent.notifications')}
         />
         <CustomScrollView
           style={styles.scroll}
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
           <ListCard style={styles.firstCard}>
@@ -122,9 +132,7 @@ export default function NotificationPreferances() {
 
           {isEnabled ? (
             <>
-              <SectionHeader
-                title={t('settings.notifications.optionsTitle')}
-              />
+              <SectionHeader title={t('settings.notifications.optionsTitle')} />
               <ListCard dividerInset={0}>
                 {SERVICE_ROWS.map(({ service, key }) => (
                   <ListRow
@@ -158,8 +166,8 @@ export default function NotificationPreferances() {
 const styles = StyleSheet.create({
   content: { alignSelf: 'center', flex: 1 },
   scroll: { flex: 1 },
-  scrollContent: { paddingBottom: 40 },
-  firstCard: { marginTop: 16 },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: 40 },
+  firstCard: { marginTop: 0 },
   rowTitle: { fontSize: 15, lineHeight: 21 },
   openButton: {
     minHeight: 44,

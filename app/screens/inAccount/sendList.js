@@ -17,6 +17,8 @@ import ListRow from '../../functions/CustomElements/redesign/ListRow';
 import SectionHeader from '../../functions/CustomElements/redesign/SectionHeader';
 import ContactAvatarDisc from '../../components/admin/homeComponents/contacts/internalComponents/contactAvatar';
 import { formatDisplayName } from '../../components/admin/homeComponents/contacts/utils/formatListDisplayName';
+import { FADE } from '../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../functions/CustomElements/redesign/TopFade';
 
 export default function SendList() {
   const { t } = useTranslation();
@@ -66,7 +68,9 @@ export default function SendList() {
           />
         }
         title={formatDisplayName(contact) || t('constants.annonName')}
-        sub={contact.isLNURL ? undefined : `@${contact.uniqueName}`}
+        sub={`${
+          contact.isLNURL ? contact.receiveAddress : '@' + contact.uniqueName
+        }`}
         onPress={() =>
           navigate.navigate('SendAndRequestPage', {
             selectedContact: contact,
@@ -99,14 +103,16 @@ export default function SendList() {
       useTouchableWithoutFeedback={true}
     >
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar title={t('constants.send')} />
+        <TopBar fade title={t('constants.send')} />
         {sortedContacts.length ? (
           <CustomScrollView
-            showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={styles.list}
           >
-            <SectionHeader title={t('screens.inAccount.sendList.contacts')} />
+            <SectionHeader
+              first
+              title={t('screens.inAccount.sendList.contacts')}
+            />
             {!!contactElements.length && <ListCard>{contactElements}</ListCard>}
           </CustomScrollView>
         ) : (
@@ -132,6 +138,6 @@ export default function SendList() {
 const styles = StyleSheet.create({
   screen: { paddingBottom: 0 },
   container: { flex: 1, ...CENTER },
-  list: { paddingBottom: 24 },
+  list: { paddingTop: FADE_TOP, paddingBottom: FADE },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 });

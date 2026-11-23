@@ -173,9 +173,23 @@ const MAX_WEB_CONTENT_WIDTH = 800;
 
 const TOPBAR_HEIGHT = 40;
 
+// AmountHero type scale. `primary` is the one loudest amount on a screen
+// (entry or review); `sheet` is that same role inside a half-modal; `secondary`
+// is the 48 pt floor for card/summary amounts and dense screens. Pass these
+// explicitly so a site never inherits a default by accident.
+const AMOUNT_HERO_SIZE = {
+  primary: 60,
+  sheet: 52,
+  secondary: 48,
+};
+
+const CARD_RADIUS = 20;
+
 const BARCODE_FORMATS = ['qr-code'];
 
 export {
+  AMOUNT_HERO_SIZE,
+  CARD_RADIUS,
   COLORS,
   FONT,
   SIZES,

@@ -12,6 +12,7 @@ import Animated, {
   SlideOutLeft,
   SlideOutRight,
 } from 'react-native-reanimated';
+import { useReducedMotion, enterAnim, exitAnim } from '../../../../../constants/motion';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import { SkeletonRow } from '../../../../../functions/CustomElements/redesign/Skeleton';
@@ -54,6 +55,7 @@ export default function OnlineListingsFilterHalfModal({
   categoryOptions = [],
   setIsKeyboardActive,
 }) {
+  const reduced = useReducedMotion();
   const { t } = useTranslation();
   const filterTitle = t('apps.onlineListings.filterTitle').replace(
     /Shops$/,
@@ -160,14 +162,14 @@ export default function OnlineListingsFilterHalfModal({
       {showCountryPicker ? (
         <Animated.View
           key="country-page-fade"
-          entering={FadeIn.duration(PAGE_DURATION)}
-          exiting={FadeOut.duration(PAGE_DURATION)}
+          entering={enterAnim(FadeIn.duration(PAGE_DURATION), reduced)}
+          exiting={exitAnim(FadeOut.duration(PAGE_DURATION), reduced)}
           style={styles.page}
         >
           <Animated.View
             key="country-page-slide"
-            entering={SlideInRight.duration(PAGE_DURATION)}
-            exiting={SlideOutRight.duration(PAGE_DURATION)}
+            entering={reduced ? undefined : SlideInRight.duration(PAGE_DURATION)}
+            exiting={reduced ? undefined : SlideOutRight.duration(PAGE_DURATION)}
             style={styles.page}
           >
             <CountryPickerPage
@@ -185,27 +187,24 @@ export default function OnlineListingsFilterHalfModal({
           key="filter-page-fade"
           entering={
             hasOpenedCountryPicker.current
-              ? FadeIn.duration(PAGE_DURATION)
+              ? enterAnim(FadeIn.duration(PAGE_DURATION), reduced)
               : undefined
           }
-          exiting={FadeOut.duration(PAGE_DURATION)}
+          exiting={exitAnim(FadeOut.duration(PAGE_DURATION), reduced)}
           style={styles.page}
         >
           <Animated.View
             key="filter-page-slide"
             entering={
               hasOpenedCountryPicker.current
-                ? SlideInLeft.duration(PAGE_DURATION)
+                ? reduced ? undefined : SlideInLeft.duration(PAGE_DURATION)
                 : undefined
             }
-            exiting={SlideOutLeft.duration(PAGE_DURATION)}
+            exiting={reduced ? undefined : SlideOutLeft.duration(PAGE_DURATION)}
             style={styles.page}
           >
             <View style={[styles.mainContent]}>
-              <CustomScrollView
-                style={styles.scrollView}
-                showsVerticalScrollIndicator={false}
-              >
+              <CustomScrollView style={styles.scrollView}>
                 <SheetHeader first title={filterTitle} />
 
                 <SectionHeader
@@ -459,9 +458,9 @@ function CountryPickerPage({
       ) : (
         <ListCard style={styles.countryListCard}>
           <FlatList
+            renderScrollComponent={props => <CustomScrollView {...props} />}
             style={styles.countryFlatList}
             keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
             contentContainerStyle={[styles.countryList]}
             ItemSeparatorComponent={CountryListDivider}
             data={filteredCountries}

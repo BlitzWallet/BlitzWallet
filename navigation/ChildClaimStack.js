@@ -5,15 +5,18 @@ import ChildEnterCode from '../app/screens/createAccount/childClaim/childEnterCo
 import ChildEnterPairCode from '../app/screens/createAccount/childClaim/childEnterPairCode';
 import ChildVerifyCode from '../app/screens/createAccount/childClaim/childVerifyCode';
 
+import { useReducedMotion, screenAnimation } from '../app/constants/motion';
+
 const Stack = createNativeStackNavigator();
 
 export default function ChildClaimStack() {
+  const reduced = useReducedMotion();
   return (
     <ChildClaimProvider>
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
-          animation: 'slide_from_right',
+          animation: screenAnimation('slide_from_right', reduced),
           gestureEnabled: false,
         }}
       >

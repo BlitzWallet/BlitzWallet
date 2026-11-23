@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import {
+  AMOUNT_HERO_SIZE,
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   QUICK_PAY_STORAGE_KEY,
@@ -32,6 +33,7 @@ import { lnurlCurrencyToRate } from '../../../../functions/sendBitcoin/lnurlCurr
 import { PROVIDER_COUNTRY_CURRENCY } from '../../../../functions/sendBitcoin/getPhonePaymentAddress';
 import { fiatCurrencies } from '../../../../functions/currencyOptions';
 import NumberInputSendPage from './components/numberInput';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
 import useSendPaymentDetails from './hooks/useSendPaymentDetails';
 import { buildNextParams, descriptionAvailable } from './functions/sendFlow';
 import {
@@ -438,7 +440,7 @@ export default function SendAmountScreen(props) {
             amount={amountText}
             formatAmount={false}
             mutedValue={isEmpty}
-            amountSize={60}
+            amountSize={AMOUNT_HERO_SIZE.primary}
           />
           <ThemeText
             variant="body"
@@ -448,67 +450,69 @@ export default function SendAmountScreen(props) {
           />
         </CustomScrollView>
 
-        {isTokenSelected ? (
-          <ListCard style={styles.payWith}>
-            <ListRow
-              onPress={handleSelectTokenPress}
-              lead={getTokenIcon(
-                [selectedLRC20Asset, seletctedToken],
-                40,
-                tokensImageCache,
-                13,
-              )}
-              title={t('constants.payWith')}
-              titleStyle={{ fontSize: 14, color: tokens.muted }}
-              sub={`${
-                seletctedToken?.tokenMetadata?.tokenTicker || ''
-              } · ${tokenBalance}`}
-              subStyle={{ color: tokens.ink, fontSize: 15 }}
-              showChevron
+        <BottomActions>
+          {isTokenSelected ? (
+            <ListCard style={styles.payWith}>
+              <ListRow
+                onPress={handleSelectTokenPress}
+                lead={getTokenIcon(
+                  [selectedLRC20Asset, seletctedToken],
+                  40,
+                  tokensImageCache,
+                  13,
+                )}
+                title={t('constants.payWith')}
+                titleStyle={{ fontSize: 14, color: tokens.muted }}
+                sub={`${
+                  seletctedToken?.tokenMetadata?.tokenTicker || ''
+                } · ${tokenBalance}`}
+                subStyle={{ color: tokens.ink, fontSize: 15 }}
+                showChevron
+              />
+            </ListCard>
+          ) : (
+            <PaymentMethod
+              determinePaymentMethod={
+                showTokenSelector ? 'BTC' : resolvedPaymentMethod
+              }
+              handleSelectPaymentMethod={
+                showTokenSelector
+                  ? handleSelectTokenPress
+                  : handleSelectPaymentMethod
+              }
+              bitcoinBalance={bitcoinBalance}
+              dollarBalanceToken={dollarBalanceToken}
+              masterInfoObject={masterInfoObject}
+              fiatStats={fiatStats}
+              uiState={lockedAmount ? 'CHOOSE_METHOD' : 'EDIT_AMOUNT'}
+              t={t}
+              showBitcoinCardOnly={
+                !showTokenSelector && !lockedAmount && details.isBTCOnlyPayment
+              }
             />
-          </ListCard>
-        ) : (
-          <PaymentMethod
-            determinePaymentMethod={
-              showTokenSelector ? 'BTC' : resolvedPaymentMethod
-            }
-            handleSelectPaymentMethod={
-              showTokenSelector
-                ? handleSelectTokenPress
-                : handleSelectPaymentMethod
-            }
-            bitcoinBalance={bitcoinBalance}
-            dollarBalanceToken={dollarBalanceToken}
-            masterInfoObject={masterInfoObject}
-            fiatStats={fiatStats}
-            uiState={lockedAmount ? 'CHOOSE_METHOD' : 'EDIT_AMOUNT'}
-            t={t}
-            showBitcoinCardOnly={
-              !showTokenSelector && !lockedAmount && details.isBTCOnlyPayment
-            }
-          />
-        )}
+          )}
 
-        {!lockedAmount && (
-          <NumberInputSendPage
-            paymentInfo={draft}
-            setPaymentInfo={updateDraft}
-            fiatStats={conversionFiatStats}
-            selectedLRC20Asset={selectedLRC20Asset}
-            seletctedToken={seletctedToken}
-            inputDenomination={primaryDisplay.denomination}
-            primaryDisplay={primaryDisplay}
-          />
-        )}
+          {!lockedAmount && (
+            <NumberInputSendPage
+              paymentInfo={draft}
+              setPaymentInfo={updateDraft}
+              fiatStats={conversionFiatStats}
+              selectedLRC20Asset={selectedLRC20Asset}
+              seletctedToken={seletctedToken}
+              inputDenomination={primaryDisplay.denomination}
+              primaryDisplay={primaryDisplay}
+            />
+          )}
 
-        <CustomButton
-          size="regular"
-          buttonStyles={[styles.button, isNextDisabled && styles.buttonEmpty]}
-          disabled={isNextDisabled}
-          useLoading={isPreparing}
-          actionFunction={handleNext}
-          textContent={buttonLabel}
-        />
+          <CustomButton
+            size="regular"
+            buttonStyles={[styles.button, isNextDisabled && styles.buttonEmpty]}
+            disabled={isNextDisabled}
+            useLoading={isPreparing}
+            actionFunction={handleNext}
+            textContent={buttonLabel}
+          />
+        </BottomActions>
       </View>
     </CustomKeyboardAvoidingView>
   );

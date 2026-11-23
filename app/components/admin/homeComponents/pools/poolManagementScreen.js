@@ -22,6 +22,10 @@ import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
 import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
+import TopHeader from '../../../../functions/CustomElements/redesign/TopHeader';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function PoolManagementScreen() {
   const navigate = useNavigation();
@@ -205,7 +209,10 @@ export default function PoolManagementScreen() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.innerContainer, { width: contentWidth }]}>
-        <TopBar title={t('screens.inAccount.settingsContent.pools')} />
+        <TopHeader>
+          <TopBar title={t('screens.inAccount.settingsContent.pools')} />
+          {infoDropdown}
+        </TopHeader>
 
         <FlatList
           data={hasAnyPools ? sections : []}
@@ -222,15 +229,16 @@ export default function PoolManagementScreen() {
               />
             </View>
           }
-          ListHeaderComponent={infoDropdown}
         />
 
-        <CustomButton
-          buttonStyles={styles.createButton}
-          textContent={t('wallet.pools.createPool')}
-          actionFunction={handleCreatePool}
-          size="regular"
-        />
+        <BottomActions>
+          <CustomButton
+            buttonStyles={styles.createButton}
+            textContent={t('wallet.pools.createPool')}
+            actionFunction={handleCreatePool}
+            size="regular"
+          />
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );
@@ -243,7 +251,8 @@ const styles = StyleSheet.create({
   },
   listContent: {
     flexGrow: 1,
-    paddingBottom: 16,
+    paddingTop: FADE_TOP,
+    paddingBottom: FADE,
   },
   // InfoDropdown's 16 bottom margin + 4 = the design's 20.
   firstHeader: { marginTop: 4 },

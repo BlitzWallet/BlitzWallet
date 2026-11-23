@@ -5,7 +5,11 @@ import { useTranslation } from 'react-i18next';
 import { GlobalThemeView } from '../../../../../../functions/CustomElements';
 import CustomScrollView from '../../../../../../functions/CustomElements/scrollView';
 import CustomButton from '../../../../../../functions/CustomElements/button';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../../constants';
+import {
+  AMOUNT_HERO_SIZE,
+  CENTER,
+  MAX_WEB_CONTENT_WIDTH,
+} from '../../../../../../constants';
 import { useKeysContext } from '../../../../../../../context-store/keys';
 import { useGlobalContextProvider } from '../../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../../context-store/nodeContext';
@@ -26,6 +30,9 @@ import {
   SkeletonAmount,
   SkeletonRow,
 } from '../../../../../../functions/CustomElements/redesign/Skeleton';
+import BottomActions from '../../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../../../functions/CustomElements/redesign/TopFade';
 
 export default function UnilateralExitReview(props) {
   const { address, feeRate, mode = 'exit' } = props.route.params;
@@ -162,18 +169,15 @@ export default function UnilateralExitReview(props) {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar title={t(`settings.unilateralExit.${titleKey}`)} />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <TopBar fade title={t(`settings.unilateralExit.${titleKey}`)} />
+        <CustomScrollView contentContainerStyle={styles.scrollPad}>
           {preview && (
             <>
               <View style={styles.hero}>
                 <AmountHero
                   amount={preview.receiveSats}
                   fiatStats={fiatStats}
-                  amountSize={44}
+                  amountSize={AMOUNT_HERO_SIZE.secondary}
                 />
               </View>
               <ListCard dividerInset={0} style={styles.block}>
@@ -216,12 +220,14 @@ export default function UnilateralExitReview(props) {
             </View>
           )}
         </CustomScrollView>
-        <CustomButton
-          disabled={!preview || nothingToExit}
-          textContent={t(`settings.unilateralExit.${buttonKey}`)}
-          actionFunction={confirmStart}
-          size={'regular'}
-        />
+        <BottomActions>
+          <CustomButton
+            disabled={!preview || nothingToExit}
+            textContent={t(`settings.unilateralExit.${buttonKey}`)}
+            actionFunction={confirmStart}
+            size={'regular'}
+          />
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );
@@ -230,6 +236,7 @@ export default function UnilateralExitReview(props) {
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
   scrollContent: { paddingBottom: 24 },
+  scrollPad: { paddingTop: FADE_TOP, paddingBottom: FADE },
   hero: { marginTop: 24 },
   block: { marginTop: 16 },
   spacer: { flex: 1 },

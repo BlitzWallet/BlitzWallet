@@ -102,7 +102,7 @@ jest.mock(
   () => () => null,
 );
 jest.mock(
-  '../app/functions/CustomElements/formattedBalanceInput',
+  '../app/functions/CustomElements/redesign/AmountHero',
   () => () => null,
 );
 

@@ -71,16 +71,8 @@ export default function AccountCard({
           : undefined
       }
       subLines={1}
-      trailing={
-        trailing ??
-        (!!trailingText && (
-          <ThemeText
-            CustomNumberOfLines={1}
-            styles={[styles.trailingText, { color: tokens.muted }]}
-            content={trailingText}
-          />
-        ))
-      }
+      value={trailingText}
+      trailing={'value'}
       showChevron={showChevron && !isLoading}
       chevronSize={18}
     />

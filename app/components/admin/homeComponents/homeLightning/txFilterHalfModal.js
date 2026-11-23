@@ -125,10 +125,7 @@ export default function TxFilterHalfModal({
 
   return (
     <View style={styles.container}>
-      <CustomScrollView
-        showsVerticalScrollIndicator={false}
-        style={styles.scrollView}
-      >
+      <CustomScrollView style={styles.scrollView}>
         {onBack && (
           <IconButton
             icon="ArrowLeft"

@@ -2,6 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import {
+  AMOUNT_HERO_SIZE,
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   MAX_WEB_CONTENT_WIDTH,
@@ -38,6 +39,8 @@ import {
   resolveUsdFiatStats,
   SATS_DISPLAY_CURRENCY,
 } from '../../../../functions/displayCurrency';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
 
 export default function EditReceivePaymentInformation(props) {
   const navigate = useNavigation();
@@ -261,15 +264,6 @@ export default function EditReceivePaymentInformation(props) {
   const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
   const isFiat = primaryDisplay.denomination === 'fiat';
   const shownAmount = amountValue || previousAmountDisplayValue || 0;
-  // The other denomination under the amount (sats under fiat, fiat under sats).
-  const secondaryLine = displayCorrectDenomination({
-    amount: requestedSatAmount,
-    masterInfoObject: {
-      ...masterInfoObject,
-      userBalanceDenomination: isFiat ? 'sats' : 'fiat',
-    },
-    fiatStats,
-  });
 
   return (
     <CustomKeyboardAvoidingView
@@ -301,7 +295,6 @@ export default function EditReceivePaymentInformation(props) {
         />
 
         <CustomScrollView
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.amountScrollContainer,
             { opacity: isKeyboardFocused ? HIDDEN_OPACITY : 1 },
@@ -317,51 +310,48 @@ export default function EditReceivePaymentInformation(props) {
               userBalanceDenomination: primaryDisplay.denomination,
             }}
             mutedValue={!amountValue}
+            amountSize={AMOUNT_HERO_SIZE.primary}
           />
-          {!!requestedSatAmount && (
-            <ThemeText
-              styles={[styles.secondary, { color: tokens.muted }]}
-              content={secondaryLine}
-            />
-          )}
         </CustomScrollView>
 
-        <View style={styles.note}>
-          <UserInput
-            value={paymentDescription}
-            onChangeText={setPaymentDescription}
-            placeholder={t('receive.whatFor')}
-            onFocus={() => setIsKeyboardFocused(true)}
-            onBlur={() => setIsKeyboardFocused(false)}
-            maxLength={150}
-          />
-        </View>
-
-        {!isKeyboardFocused && (
-          <>
-            <CustomNumberKeyboard
-              redesign
-              showDot={isFiat}
-              setInputValue={setAmountValue}
-              usingForBalance={true}
-              fiatStats={conversionFiatStats}
+        <BottomActions>
+          <View style={styles.note}>
+            <UserInput
+              value={paymentDescription}
+              onChangeText={setPaymentDescription}
+              placeholder={t('receive.whatFor')}
+              onFocus={() => setIsKeyboardFocused(true)}
+              onBlur={() => setIsKeyboardFocused(false)}
+              maxLength={150}
             />
+          </View>
 
-            <CustomButton
-              size="regular"
-              buttonStyles={{
-                marginTop: CONTENT_KEYBOARD_OFFSET,
-                opacity: cannotRequest ? HIDDEN_OPACITY : 1,
-              }}
-              actionFunction={handleSubmit}
-              textContent={t(
-                fromPage === 'homepage' || requestChanged
-                  ? 'receive.createInvoice'
-                  : 'constants.back',
-              )}
-            />
-          </>
-        )}
+          {!isKeyboardFocused && (
+            <>
+              <CustomNumberKeyboard
+                redesign
+                showDot={isFiat}
+                setInputValue={setAmountValue}
+                usingForBalance={true}
+                fiatStats={conversionFiatStats}
+              />
+
+              <CustomButton
+                size="regular"
+                buttonStyles={{
+                  marginTop: CONTENT_KEYBOARD_OFFSET,
+                  opacity: cannotRequest ? HIDDEN_OPACITY : 1,
+                }}
+                actionFunction={handleSubmit}
+                textContent={t(
+                  fromPage === 'homepage' || requestChanged
+                    ? 'receive.createInvoice'
+                    : 'constants.back',
+                )}
+              />
+            </>
+          )}
+        </BottomActions>
       </View>
     </CustomKeyboardAvoidingView>
   );
@@ -372,6 +362,7 @@ const styles = StyleSheet.create({
   amountScrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
+    paddingBottom: FADE,
   },
   note: { marginBottom: 12 },
   secondary: {

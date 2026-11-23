@@ -13,7 +13,7 @@ export default function KeyForKeyboard({
   frompage,
   redesign = false,
   fillCell = false,
-  // PIN / pairing pad: 60 high, 26 digits, bare "Clear" text and delete.
+  // PIN / pairing pad: 60 high, 26 digits, bare clear icon and delete.
   pinPad = false,
 }) {
   const { tokens } = useGlobalThemeContext();
@@ -45,7 +45,7 @@ export default function KeyForKeyboard({
       accessibilityLabel={
         num === 'back'
           ? t('constants.delete')
-          : pinPad && num === 'C'
+          : num === 'C'
           ? t('constants.clear')
           : isDot
           ? '.'
@@ -96,10 +96,11 @@ export default function KeyForKeyboard({
               size={pinPad ? 24 : redesign ? 22 : 30}
               iconName={redesign ? 'Delete' : 'ChevronLeft'}
             />
-          ) : pinPad && num === 'C' ? (
-            <ThemeText
-              styles={[styles.clearText, { color: tokens.muted }]}
-              content={t('constants.clear')}
+          ) : num === 'C' ? (
+            <ThemeIcon
+              colorOverride={pinPad ? tokens.muted : tokens.ink}
+              size={pinPad ? 24 : redesign ? 22 : 30}
+              iconName="Trash2"
             />
           ) : (
             <ThemeText
@@ -134,7 +135,6 @@ const styles = StyleSheet.create({
   keyFillCell: { width: '100%', flex: 0, minHeight: 54 },
   keyPinPad: { minHeight: 60 },
   keyTextPinPad: { fontSize: 26, lineHeight: 34 },
-  clearText: { fontSize: 15, lineHeight: 22, includeFontPadding: false },
   keyDot: {
     width: 45,
     height: 45,

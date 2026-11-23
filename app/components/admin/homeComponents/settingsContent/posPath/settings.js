@@ -11,7 +11,6 @@ import {
 import CustomButton from '../../../../../functions/CustomElements/button';
 import openWebBrowser from '../../../../../functions/openWebBrowser';
 import { useTheme } from '../../../../../../context-store/theme';
-import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useTranslation } from 'react-i18next';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import { useImageCache } from '../../../../../../context-store/imageCache';
@@ -25,6 +24,9 @@ import SectionHeader from '../../../../../functions/CustomElements/redesign/Sect
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
+import BottomActions from '../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../../functions/CustomElements/redesign/TopFade';
 
 const RowValue = ({ text, icon }) => {
   const { tokens } = useTheme();
@@ -57,8 +59,6 @@ export default function PosSettingsPage() {
 
   const brandLogoUri = cachedImageData?.localUri || null;
   const brandLogoUpdated = cachedImageData?.updated || null;
-
-  const { bottomPadding } = useGlobalInsets();
 
   const currentCurrency = masterInfoObject?.posSettings?.storeCurrency;
   const posItemsList = masterInfoObject?.posSettings?.items || [];
@@ -130,16 +130,16 @@ export default function PosSettingsPage() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('settings.posPath.settings.title')}
           shouldDismissKeyboard={true}
         />
         <CustomScrollView
           style={styles.scrollView}
           contentContainerStyle={{
-            paddingTop: 16,
-            paddingBottom: bottomPadding,
+            paddingTop: FADE_TOP,
+            paddingBottom: FADE,
           }}
-          showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
           <BrandLogoUploader
@@ -159,7 +159,8 @@ export default function PosSettingsPage() {
               title={t('settings.posPath.settings.storeNameInputDesc')}
               titleStyle={styles.rowTitle}
               minHeight={52}
-              trailing={<RowValue text={storeName} />}
+              value={storeName}
+              trailing="value"
               showChevron={true}
               chevronSize={18}
             />
@@ -173,7 +174,8 @@ export default function PosSettingsPage() {
               title={t('settings.posPath.settings.currency')}
               titleStyle={styles.rowTitle}
               minHeight={52}
-              trailing={<RowValue text={currentCurrency} />}
+              value={currentCurrency}
+              trailing="value"
               showChevron={true}
               chevronSize={18}
             />
@@ -232,15 +234,14 @@ export default function PosSettingsPage() {
               title={t('settings.posPath.settings.tipsToPay')}
               titleStyle={styles.rowTitle}
               minHeight={52}
-              trailing={
-                !!unpaidPeople && (
-                  <RowValue
-                    text={t('settings.posPath.settings.peopleCount', {
+              value={
+                unpaidPeople
+                  ? t('settings.posPath.settings.peopleCount', {
                       count: unpaidPeople,
-                    })}
-                  />
-                )
+                    })
+                  : undefined
               }
+              trailing={unpaidPeople ? 'value' : undefined}
               showChevron={true}
               chevronSize={18}
             />
@@ -256,11 +257,13 @@ export default function PosSettingsPage() {
           </ListCard>
         </CustomScrollView>
 
-        <CustomButton
-          actionFunction={handleOpenPOS}
-          textContent={t('settings.posPath.settings.openPos')}
-          size={'regular'}
-        />
+        <BottomActions>
+          <CustomButton
+            actionFunction={handleOpenPOS}
+            textContent={t('settings.posPath.settings.openPos')}
+            size={'regular'}
+          />
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );

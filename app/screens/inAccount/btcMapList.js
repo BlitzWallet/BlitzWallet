@@ -1,4 +1,5 @@
 import { FlatList, StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../functions/CustomElements/scrollView';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -115,14 +116,12 @@ export default function BTCMapListContent({
         }
         title={item.name || t('screens.btcMap.merchant.noName')}
         sub={t(CATEGORY_META[category].labelKey)}
-        trailing={
-          item.distance != null && (
-            <ThemeText
-              styles={[styles.rowDistance, { color: tokens.muted }]}
-              content={formatDistance(item.distance, distanceUnit)}
-            />
-          )
+        value={
+          item.distance != null
+            ? formatDistance(item.distance, distanceUnit)
+            : undefined
         }
+        trailing={item.distance != null ? 'value' : undefined}
       />
     );
   };
@@ -158,6 +157,7 @@ export default function BTCMapListContent({
 
       <ListCard style={styles.card} dividerInset={72}>
         <FlatList
+          renderScrollComponent={props => <CustomScrollView {...props} />}
           data={data}
           renderItem={renderItem}
           keyExtractor={item => `${item.source}-${item.id}`}

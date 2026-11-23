@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../../../functions/CustomElements/scrollView';
 import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../../../../../context-store/appStatus';
 import { fiatCurrencies } from '../../../../../../functions/currencyOptions';
@@ -76,6 +77,7 @@ export default function POSCurrencySelect({
       />
       <ListCard tone="flush" style={styles.card}>
         <FlatList
+          renderScrollComponent={props => <CustomScrollView {...props} />}
           data={currencies}
           renderItem={renderItem}
           keyExtractor={keyExtractor}

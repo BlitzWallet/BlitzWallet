@@ -26,7 +26,7 @@ import {
   sendSparkLightningPayment,
 } from '../functions/spark';
 import { useActiveCustodyAccount } from '../../context-store/activeAccount';
-import CustomSettingsTopBar from '../functions/CustomElements/settingsTopBar';
+import TopBar from '../functions/CustomElements/redesign/TopBar';
 import Spinner from '../functions/CustomElements/redesign/Spinner';
 
 const HODL_STATUS = {
@@ -354,7 +354,7 @@ export default function SparkHodlInvoiceTest() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <CustomSettingsTopBar />
+      <TopBar />
       <CustomScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.contentContainer}

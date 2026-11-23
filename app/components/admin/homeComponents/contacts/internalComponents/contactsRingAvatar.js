@@ -11,6 +11,7 @@ import Animated, {
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { createHash } from 'react-native-quick-crypto';
 import { COLORS } from '../../../../../constants';
+import { useReducedMotion } from '../../../../../constants/motion';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const SPOKE_COUNTS = [4, 6, 8, 10, 12];
@@ -153,6 +154,7 @@ export default function ContactRingAvatar({
   onToggle,
 }) {
   const { tokens } = useGlobalThemeContext();
+  const reduced = useReducedMotion();
 
   const pubkey = useMemo(
     () => createHash('sha256').update(contactUUID).digest(),
@@ -167,9 +169,9 @@ export default function ContactRingAvatar({
 
   const handlePress = useCallback(() => {
     const next = progress.value > 0.5 ? 0 : 1;
-    progress.value = withSpring(next, SPRING_CONFIG);
+    progress.value = reduced ? next : withSpring(next, SPRING_CONFIG);
     onToggle?.(next === 1);
-  }, [progress, onToggle]);
+  }, [progress, onToggle, reduced]);
 
   // ─── Sizes ────────────────────────────────────────────────────────────────
   const badgeSize = Math.max(14, Math.round(size * 0.32));

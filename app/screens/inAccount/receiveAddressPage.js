@@ -7,6 +7,8 @@ import GlobalThemeView from '../../functions/CustomElements/globalThemeView';
 import CustomScrollView from '../../functions/CustomElements/scrollView';
 import TopBar from '../../functions/CustomElements/redesign/TopBar';
 import Note from '../../functions/CustomElements/redesign/Note';
+import BottomActions from '../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../functions/CustomElements/redesign/BottomFade';
 import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
 import { initializeAddressProcess } from '../../functions/receiveBitcoin/addressGeneration';
 import { shareMessage } from '../../functions/handleShare';
@@ -25,6 +27,7 @@ import {
   ReceiveQrCard,
   shortAddress,
 } from '../../components/admin/homeComponents/receiveBitcoin/receiveParts';
+import { FADE_TOP } from '../../functions/CustomElements/redesign/TopFade';
 
 // No-amount address QR (Receive.dc.html "Bitcoin address", ReceiveMore.dc.html
 // "USDT on Tron", "Tokens"). Params:
@@ -232,18 +235,10 @@ export default function ReceiveAddressPage(props) {
   const address = addressState.generatedAddress;
 
   return (
-    <GlobalThemeView useStandardWidth={false} styles={styles.screen}>
-      <View
-        style={[
-          styles.container,
-          { width: contentWidth, paddingBottom: bottomPadding },
-        ]}
-      >
-        <TopBar title={title} />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scroll}
-        >
+    <GlobalThemeView useStandardWidth={false}>
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar fade title={title} />
+        <CustomScrollView contentContainerStyle={styles.scroll}>
           <ReceiveQrCard
             onPress={openAddressSheet}
             value={address}
@@ -259,26 +254,28 @@ export default function ReceiveAddressPage(props) {
             removeCard
           />
         </CustomScrollView>
-        <View style={styles.warning}>
-          <Note tone="warn" text={warning} />
-        </View>
-        <ReceiveActions
-          value={address}
-          onShare={() => shareMessage({ message: address })}
-        />
+        <BottomActions overlap={false}>
+          <View style={styles.warning}>
+            <Note tone="warn" text={warning} />
+          </View>
+          <ReceiveActions
+            value={address}
+            onShare={() => shareMessage({ message: address })}
+          />
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { paddingBottom: 0 },
   container: { flex: 1, ...CENTER },
   scroll: {
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 24,
+    paddingTop: FADE_TOP,
+    paddingBottom: FADE,
   },
   warning: { marginBottom: 16 },
 });

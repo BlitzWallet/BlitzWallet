@@ -1,6 +1,5 @@
 import { GlobalThemeView } from '../../../../../functions/CustomElements';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
-import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { useNavigation } from '@react-navigation/native';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
@@ -8,8 +7,7 @@ import { useCallback, useMemo } from 'react';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../constants';
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
-import Disc from '../../../../../functions/CustomElements/redesign/Disc';
-import PageHeader from '../../../../../functions/CustomElements/redesign/PageHeader';
+import RemoveConfirmationHeader from '../../../../../functions/CustomElements/redesign/RemoveConfirmationHeader';
 
 export default function RemoveAccountPage(props) {
   const accountId = props?.route?.params?.accountId;
@@ -49,24 +47,20 @@ export default function RemoveAccountPage(props) {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar />
-        <CustomScrollView
-          contentContainerStyle={styles.scrollContainer}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Icon */}
-          <Disc icon={'Trash2'} tone="danger" size={56} iconSize={24} />
-
-          <PageHeader
+        <View style={styles.scrollContainer}>
+          <RemoveConfirmationHeader
             title={`${t(
               'settings.accountComponents.removeAccountPage.title',
             )} ${selectedAccount.name}`}
-            sub={t('settings.accountComponents.removeAccountPage.explanation', {
-              context: selectedAccount?.accountType || 'imported',
-            })}
+            description={t(
+              'settings.accountComponents.removeAccountPage.explanation',
+              {
+                context: selectedAccount?.accountType || 'imported',
+              },
+            )}
           />
-        </CustomScrollView>
+        </View>
 
-        {/* Buttons */}
         <View style={styles.buttonsContainer}>
           <CustomButton
             textContent={t(
@@ -91,10 +85,10 @@ export default function RemoveAccountPage(props) {
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
   scrollContainer: {
-    paddingTop: 20,
+    paddingTop: 24,
     flexGrow: 1,
   },
   buttonsContainer: {
-    gap: 10,
+    gap: 12,
   },
 });

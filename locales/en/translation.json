@@ -153,7 +153,8 @@
     "german": "Deutsch",
     "french": "Français",
     "swedish": "Svenska",
-    "russian": "Русский"
+    "russian": "Русский",
+    "wolof": "Wolof"
   },
   "weekdays": {
     "Mon": "Monday",
@@ -1373,7 +1374,11 @@
       "feeInfo": {
         "title": "Fee and speed",
         "backTextToAmount": "{{amount}}",
-        "tenMinutes": "{{numMins}} minutes"
+        "tenMinutes": "{{numMins}} minutes",
+        "changeSpeedTitle": "Change payment speed",
+        "fast": "Fast",
+        "medium": "Medium",
+        "slow": "Slow"
       },
       "reviewParts": {
         "splitNamesOne": "{{first}}",
@@ -1587,6 +1592,7 @@
       "invalidCharactersError": "Name and bio cannot contain the characters < > { } ` \\",
       "invalidReceiveAddressError": "Please enter a valid Lightning address (e.g. user@domain.com)",
       "aboutYou": "About you",
+      "receiveCurrencyPreference": "Currency preference",
       "lightningAddress": "Lightning address",
       "addContactLightningAddress": "Lightning Address",
       "share": "Share",
@@ -1603,9 +1609,8 @@
     "remotePaymentCurrencySelect": {
       "title": "Receive currency",
       "description": "How payments from contacts and your Lightning address arrive.",
+      "subAccountDescription": "How payments to your Lightning address arrive.",
       "futurePaymentsMessage": "Receive as {{option}}",
-      "arriveAsSats": "Payments arrive as sats",
-      "arriveAsDollars": "Payments arrive as dollars",
       "warningMessage": "Payments under {{amount}} still arrive as Bitcoin.",
       "changeSelectionError": "{{option}} is already selected. Change your selection to update your setting."
     },
@@ -3219,7 +3224,7 @@
           "unclaimed": "Unclaimed",
           "reclaimed": "Reclaimed",
           "noClaimURL": "No claim URL available for this gift. Please wait till the gift is expired to reclaim your money.",
-          "copyLink": "Copy link",
+          "viewGift": "View gift",
           "pastGifts": "Past gifts",
           "noNote": "No note",
           "activeCount": "Active · {{count}}",
@@ -3648,6 +3653,7 @@
     "declinePaymentError": "There was a problem declining this payment. Please try again.",
     "payingContactError": "We were unable to get the contact's address. Please try again.",
     "noUserFoundDeeplinkError": "Unable to find any user for this username.",
+    "duplicateUsernameError": "More than one user has this username, so we can't tell which one you mean. Please ask them to change their username.",
     "cannotAddSelfError": "You cannot add yourself as a contact.",
     "fullDeeplinkError": "Unable to retrieve contact information. Please try again.",
     "contactNotLoaded": "Contact not loaded. Please try again.",
@@ -4149,8 +4155,8 @@
     "btcSource_base": "Coinbase BTC",
     "btcSource_solana": "Solana BTC",
     "pickNetworkSub": "Pick the network the sender is using. Ask them if you’re not sure.",
-    "networkFee": "Network fee",
-    "fromTheAmount": "From the amount",
+    "networkFee": "Fee",
+    "fromTheAmount": "Network fees",
     "networkFeeInfo": "Bitcoin sent to this address costs a small network fee to receive. The fee is taken out of the amount you receive, so your balance may show slightly less than what was sent.",
     "arrives": "Arrives",
     "afterConfirmations": "After 3 confirmations",

@@ -9,6 +9,11 @@ import {
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import CustomScrollView from '../../functions/CustomElements/scrollView';
+import TopHeader from '../../functions/CustomElements/redesign/TopHeader';
+import {
+  FADE_TOP,
+  FADE_TOP_BUFFER,
+} from '../../functions/CustomElements/redesign/TopFade';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import PageTitle from '../../functions/CustomElements/redesign/PageTitle';
@@ -17,12 +22,14 @@ import ListRow from '../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../functions/CustomElements/redesign/Disc';
 import BarChart from '../../functions/CustomElements/redesign/BarChart';
 import {
+  CARD_RADIUS,
   FONT,
   HIDDEN_BALANCE_CLOSE,
   MAX_WEB_CONTENT_WIDTH,
 } from '../../constants';
 import { useReducedMotion } from '../../constants/motion';
 import { TAB_ITEM_HEIGHT } from '../../../navigation/tabs';
+import { useTabScrollToTop } from '../../../navigation/tabs/useTabScrollToTop';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useNodeContext } from '../../../context-store/nodeContext';
@@ -190,7 +197,7 @@ function SpentCard({ weeklySpent, onPress }) {
   );
 }
 
-export default function MoneyTab({ navigation }) {
+export default function MoneyTab() {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { tokens } = useTheme();
@@ -205,14 +212,7 @@ export default function MoneyTab({ navigation }) {
   const [weeklySpent, setWeeklySpent] = useState(null);
   const [rowValues, setRowValues] = useState(null);
 
-  useFocusEffect(
-    useCallback(() => {
-      if (!navigation) return;
-      return navigation.addListener('tabPress', () => {
-        scrollViewRef.current?.scrollTo({ y: 0, animated: true });
-      });
-    }, [navigation]),
-  );
+  useTabScrollToTop(scrollViewRef);
 
   useFocusEffect(
     useCallback(() => {
@@ -313,13 +313,15 @@ export default function MoneyTab({ navigation }) {
   return (
     <GlobalThemeView styles={styles.container} useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
-        <View style={styles.header}>
-          <PageTitle text={t('money.title')} />
-        </View>
+        <TopHeader>
+          <View style={styles.header}>
+            <PageTitle text={t('money.title')} />
+          </View>
+        </TopHeader>
         <CustomScrollView
           ref={scrollViewRef}
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={{
+            paddingTop: FADE_TOP + FADE_TOP_BUFFER,
             paddingBottom: bottomPadding + TAB_ITEM_HEIGHT + 40,
           }}
         >
@@ -336,15 +338,8 @@ export default function MoneyTab({ navigation }) {
                 minHeight={64}
                 paddingVertical={8}
                 lead={<Disc icon={row.icon} size={40} />}
-                trailing={
-                  row.value ? (
-                    <ThemeText
-                      content={row.value}
-                      CustomNumberOfLines={1}
-                      styles={[styles.rowValue, { color: tokens.muted }]}
-                    />
-                  ) : undefined
-                }
+                value={row.value ? row.value : undefined}
+                trailing={row.value ? 'value' : undefined}
                 showChevron
                 chevronSize={18}
                 onPress={() => navigate.navigate(row.route)}
@@ -361,12 +356,10 @@ const styles = StyleSheet.create({
   container: { paddingBottom: 0 },
   content: { alignSelf: 'center', width: '100%', flex: 1 },
   header: {
-    marginTop: 10,
-    marginBottom: 20,
-    minHeight: 45,
+    minHeight: 44,
     justifyContent: 'center',
   },
-  spentCard: { borderRadius: 24, padding: 20 },
+  spentCard: { borderRadius: CARD_RADIUS, padding: 20 },
   spentHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',

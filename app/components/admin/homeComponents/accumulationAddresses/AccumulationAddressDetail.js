@@ -12,11 +12,14 @@ import { useTranslation } from 'react-i18next';
 import ViewShot from 'react-native-view-shot';
 import * as FileSystem from 'expo-file-system/legacy';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { useReducedMotion, enterAnim } from '../../../../constants/motion';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { useToast } from '../../../../../context-store/toastManager';
 import { copyToClipboard } from '../../../../functions';
@@ -46,16 +49,16 @@ import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
 import QrCard from '../../../../functions/CustomElements/redesign/QrCard';
 import Note from '../../../../functions/CustomElements/redesign/Note';
-import {
-  destinationLabel,
-  shortenAddress,
-} from './AccumulationAddressCard';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
+import { destinationLabel, shortenAddress } from './AccumulationAddressCard';
+import useQrSize from '../../../../hooks/useQrSize';
 
 function normalizeFileUri(uri) {
   return uri.startsWith('file://') ? uri : `file://${uri}`;
 }
 
 export default function AccumulationAddressDetail() {
+  const reduced = useReducedMotion();
   const navigate = useNavigation();
   const route = useRoute();
   const { sourceChain, sourceAsset, destinationAsset } = route.params;
@@ -65,6 +68,7 @@ export default function AccumulationAddressDetail() {
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
+  const { qrSize } = useQrSize();
   const { tokens } = GetThemeColors();
   const { addressesForOption, deleteAddress } = useAccumulationAddresses();
   const viewShotRef = useRef(null);
@@ -246,6 +250,7 @@ export default function AccumulationAddressDetail() {
     <GlobalThemeView useStandardWidth>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={`${selected.sourceAsset} → ${destinationLabel(
             selected.destinationAsset,
             t,
@@ -258,22 +263,17 @@ export default function AccumulationAddressDetail() {
             />
           }
         />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           {/* 200 ms cross-fade when another address in the group is picked */}
           <Animated.View
             key={selected.accumulationAddressId}
-            entering={FadeIn.duration(200)}
+            entering={enterAnim(FadeIn.duration(200), reduced)}
           >
             <ViewShot
               ref={viewShotRef}
               options={{ format: 'jpg', quality: 0.9 }}
             >
-              <QrCard
-                value={depositAddress}
-              >
+              <QrCard value={depositAddress} size={qrSize}>
                 <TouchableOpacity
                   disabled={!hasSeveral}
                   onPress={handleSelectAddress}
@@ -323,13 +323,15 @@ export default function AccumulationAddressDetail() {
             )}
           </View>
         </CustomScrollView>
-        <CustomButton
-          buttonStyles={styles.bottomButton}
-          size="regular"
-          textContent={t('screens.accumulationAddresses.detail.reindex')}
-          actionFunction={handleAddressReindex}
-          useLoading={isCheckingBalance}
-        />
+        <BottomActions>
+          <CustomButton
+            buttonStyles={styles.bottomButton}
+            size="regular"
+            textContent={t('screens.accumulationAddresses.detail.reindex')}
+            actionFunction={handleAddressReindex}
+            useLoading={isCheckingBalance}
+          />
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );
@@ -341,8 +343,8 @@ const styles = StyleSheet.create({
     ...CENTER,
   },
   scrollContent: {
-    paddingTop: 20,
-    paddingBottom: 24,
+    paddingTop: FADE_TOP,
+    paddingBottom: FADE,
   },
   addressRow: {
     flexDirection: 'row',

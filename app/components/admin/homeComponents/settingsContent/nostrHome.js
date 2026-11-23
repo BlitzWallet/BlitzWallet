@@ -5,6 +5,7 @@ import { useGlobalContextProvider } from '../../../../../context-store/context';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function NostrHome() {
   const navigate = useNavigation();
@@ -53,6 +54,7 @@ export default function NostrHome() {
 const styles = StyleSheet.create({
   innerContainer: {
     flex: 1,
+    paddingTop: FADE_TOP,
   },
   card: {
     marginTop: 20,

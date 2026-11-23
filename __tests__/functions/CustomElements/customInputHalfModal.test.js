@@ -114,16 +114,6 @@ jest.mock(
 );
 
 jest.mock(
-  '../../../app/functions/CustomElements/formattedBalanceInput',
-  () =>
-    function MockFormattedBalanceInput() {
-      const MockReact = require('react');
-      const { View } = require('react-native');
-      return MockReact.createElement(View, { testID: 'balance-input' });
-    },
-);
-
-jest.mock(
   '../../../app/functions/CustomElements/customNumberKeyboard',
   () =>
     function MockCustomNumberKeyboard() {

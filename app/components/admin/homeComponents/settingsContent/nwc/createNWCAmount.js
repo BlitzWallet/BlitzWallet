@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { CENTER } from '../../../../../constants';
+import { AMOUNT_HERO_SIZE, CENTER } from '../../../../../constants';
 import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import {
   GlobalThemeView,
@@ -277,7 +277,7 @@ export default function CreateNWCAmount(props) {
             amount={localSatAmount}
             fiatStats={conversionFiatStats}
             masterInfoObject={amountHeroMasterInfoObject}
-            amountSize={52}
+            amountSize={AMOUNT_HERO_SIZE.sheet}
             mutedValue={!hasBudget}
           />
           {hasBudget ? (

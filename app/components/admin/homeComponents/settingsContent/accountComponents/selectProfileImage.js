@@ -36,7 +36,10 @@ import AccountProfileImage from '../../accounts/accountProfileImage';
 import { useTranslation } from 'react-i18next';
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import SearchField from '../../../../../functions/CustomElements/redesign/SearchField';
+import HideOnScrollView from '../../../../../functions/CustomElements/redesign/HideOnScrollView';
 import EmptyState from '../../../../../functions/CustomElements/redesign/EmptyState';
+import BottomActions from '../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../../functions/CustomElements/redesign/BottomFade';
 
 // One grid row of 7. Each row is its own slice of the white card (first/last
 // rows round the corners) so the SectionList stays virtualised. `selected` is
@@ -85,7 +88,7 @@ const EmojiRow = memo(({ item, onEmojiSelect, selected, isFirst, isLast }) => {
   );
 });
 
-const EmojiGrid = memo(({ sections, onEmojiSelect, selectedEmoji }) => {
+const EmojiGrid = memo(({ header, sections, onEmojiSelect, selectedEmoji }) => {
   const { t } = useTranslation();
   const renderEmojiRow = useCallback(
     ({ item, index, section }) => (
@@ -110,7 +113,10 @@ const EmojiGrid = memo(({ sections, onEmojiSelect, selectedEmoji }) => {
   );
 
   return (
-    <SectionList
+    <HideOnScrollView
+      ListComponent={SectionList}
+      header={header}
+      topInset={20}
       sections={sections}
       keyExtractor={(item, index) => `row-${index}`}
       renderItem={renderEmojiRow}
@@ -267,6 +273,22 @@ export default function EmojiAvatarSelector(props) {
     });
   }, [filteredSections]);
 
+  const searchField = useMemo(
+    () => (
+      <SearchField
+        placeholder={t(
+          'settings.accountComponents.selectProfileImage.searchPlaceholder',
+        )}
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        onFocus={() => setIsKeyboardActive(true)}
+        onBlur={() => setIsKeyboardActive(false)}
+        pill
+      />
+    ),
+    [searchQuery, t],
+  );
+
   const saveLabel =
     selectedEmoji === initialEmoji
       ? t('constants.back')
@@ -288,26 +310,19 @@ export default function EmojiAvatarSelector(props) {
           selectedEmoji={selectedEmoji}
           onClear={handleClear}
         />
-        <SearchField
-          placeholder={t(
-            'settings.accountComponents.selectProfileImage.searchPlaceholder',
-          )}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          onFocus={() => setIsKeyboardActive(true)}
-          onBlur={() => setIsKeyboardActive(false)}
-          pill
-        />
         <EmojiGrid
+          header={searchField}
           sections={sectionsWithRows}
           onEmojiSelect={handleEmojiSelect}
           selectedEmoji={selectedEmoji}
         />
-        <CustomButton
-          actionFunction={handleSave}
-          textContent={saveLabel}
-          size={'regular'}
-        />
+        <BottomActions>
+          <CustomButton
+            actionFunction={handleSave}
+            textContent={saveLabel}
+            size={'regular'}
+          />
+        </BottomActions>
       </View>
     </CustomKeyboardAvoidingView>
   );
@@ -319,7 +334,7 @@ const styles = StyleSheet.create({
   previewContainer: {
     alignSelf: 'center',
     marginTop: 8,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   previewCircle: {
     width: 104,
@@ -341,7 +356,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   listContent: {
-    paddingBottom: 24,
+    paddingBottom: FADE,
   },
   emojiRow: {
     flexDirection: 'row',

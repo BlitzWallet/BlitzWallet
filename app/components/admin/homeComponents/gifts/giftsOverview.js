@@ -1,6 +1,10 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, RefreshControl, StyleSheet, View } from 'react-native';
-import { CONTENT_KEYBOARD_OFFSET, FONT } from '../../../../constants';
+import {
+  CARD_RADIUS,
+  CONTENT_KEYBOARD_OFFSET,
+  FONT,
+} from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useGifts } from '../../../../../context-store/giftContext';
@@ -11,20 +15,21 @@ import ThemeText from '../../../../functions/CustomElements/textTheme';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
-import { useToast } from '../../../../../context-store/toastManager';
-import { copyToClipboard } from '../../../../functions';
 import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
 import ProgressBar from '../../../../functions/CustomElements/redesign/ProgressBar';
 import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import { AssetDisc } from '../savings/savingsSheetParts';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
 import {
   formatGiftAmount,
   giftAsset,
   giftNumberLabel,
   giftShortDate,
 } from './giftDisplay';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 const DAY = 24 * 60 * 60 * 1000;
 const HOUR = 60 * 60 * 1000;
@@ -40,7 +45,6 @@ export default function GiftsOverview() {
   const { giftsArray, checkForRefunds, updateGiftList } = useGifts();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
-  const { showToast } = useToast();
   const { t } = useTranslation();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -83,8 +87,13 @@ export default function GiftsOverview() {
     };
   }, [giftsArray]);
 
-  const copyLink = gift => {
-    if (gift.claimURL) copyToClipboard(gift.claimURL, showToast);
+  const viewGift = gift => {
+    if (gift.claimURL)
+      navigate.navigate('CustomHalfModal', {
+        wantedContent: 'giftQrCode',
+        claimURL: gift.claimURL,
+        title: titleOf(gift),
+      });
     else
       navigate.navigate('ErrorScreen', {
         errorMessage: t(`${GIFT_T}.noClaimURL`),
@@ -156,7 +165,7 @@ export default function GiftsOverview() {
         styles={[styles.sub, styles.heroNote, mutedStyle]}
       />
       <Pressable
-        onPress={() => copyLink(gift)}
+        onPress={() => viewGift(gift)}
         accessibilityRole="button"
         style={({ pressed }) => [
           styles.copyButton,
@@ -164,8 +173,8 @@ export default function GiftsOverview() {
           pressed && { opacity: 0.6 },
         ]}
       >
-        <ThemeIcon redesign iconName="Copy" size={18} />
-        <ThemeText content={t(`${GIFT_T}.copyLink`)} styles={styles.copyText} />
+        <ThemeIcon redesign iconName="QrCode" size={18} />
+        <ThemeText content={t(`${GIFT_T}.viewGift`)} styles={styles.copyText} />
       </Pressable>
     </View>
   );
@@ -173,16 +182,16 @@ export default function GiftsOverview() {
   const renderCompact = gift => (
     <Pressable
       key={gift.uuid}
-      onPress={() => copyLink(gift)}
+      onPress={() => viewGift(gift)}
       style={({ pressed }) => [
         styles.compact,
         { backgroundColor: tokens.surface },
         pressed && { opacity: 0.6 },
       ]}
     >
-      <View style={styles.compactTop}>
+      <View style={[styles.compactTop, { gap: 0 }]}>
         <AssetDisc asset={giftAsset(gift)} />
-        <View style={styles.flex}>
+        <View style={[styles.flex, { marginHorizontal: 12 }]}>
           <ThemeText content={titleOf(gift)} styles={styles.title} />
           <ThemeText
             content={`${
@@ -196,7 +205,7 @@ export default function GiftsOverview() {
           />
         </View>
         <ThemeText content={amountOf(gift)} styles={styles.amount} />
-        <ThemeIcon redesign iconName="Copy" size={16} />
+        <ThemeIcon redesign iconName="ChevronRight" size={16} />
       </View>
       <ProgressBar
         value={progressOf(gift)}
@@ -242,7 +251,6 @@ export default function GiftsOverview() {
           style={styles.flex}
           contentContainerStyle={styles.scrollContent}
           refreshControl={refreshControl}
-          showsVerticalScrollIndicator={false}
         >
           {active.length === 1 && renderHero(active[0])}
           {active.length > 1 && (
@@ -276,22 +284,24 @@ export default function GiftsOverview() {
         </View>
       )}
 
-      <View style={styles.buttonGroup}>
-        <CustomButton
-          actionFunction={() => navigate.navigate('CreateGift')}
-          textContent={t(`${GIFT_T}.createGift`)}
-          size={'regular'}
-        />
-        <CustomButton
-          actionFunction={() =>
-            navigate.navigate('CustomHalfModal', {
-              wantedContent: 'ClaimGiftHomeHalfModal',
-            })
-          }
-          textContent={t('screens.inAccount.giftPages.claimHome.claim')}
-          tone={'secondary'}
-        />
-      </View>
+      <BottomActions>
+        <View style={styles.buttonGroup}>
+          <CustomButton
+            actionFunction={() => navigate.navigate('CreateGift')}
+            textContent={t(`${GIFT_T}.createGift`)}
+            size={'regular'}
+          />
+          <CustomButton
+            actionFunction={() =>
+              navigate.navigate('CustomHalfModal', {
+                wantedContent: 'ClaimGiftHomeHalfModal',
+              })
+            }
+            textContent={t('screens.inAccount.giftPages.claimHome.claim')}
+            tone={'secondary'}
+          />
+        </View>
+      </BottomActions>
     </View>
   );
 }
@@ -300,12 +310,12 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   flex: { flex: 1 },
   emptyContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  scrollContent: { flexGrow: 1, paddingTop: 4, paddingBottom: 16 },
+  scrollContent: { flexGrow: 1, paddingTop: FADE_TOP, paddingBottom: FADE },
   buttonGroup: {
     gap: 10,
     marginTop: CONTENT_KEYBOARD_OFFSET,
   },
-  hero: { borderRadius: 24, padding: 20, marginTop: 20 },
+  hero: { borderRadius: CARD_RADIUS, padding: 20, marginTop: 20 },
   heroTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   heroAmount: {
     fontFamily: FONT.Title_Medium,
@@ -341,7 +351,7 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   compactList: { gap: 8 },
-  compact: { borderRadius: 20, padding: 16 },
+  compact: { borderRadius: CARD_RADIUS, padding: 16 },
   compactTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   compactBar: { marginTop: 12 },
   manyNote: { marginTop: 12, marginHorizontal: 4 },

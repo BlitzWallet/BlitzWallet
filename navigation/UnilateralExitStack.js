@@ -7,14 +7,17 @@ import UnilateralExitPayFee from '../app/components/admin/homeComponents/setting
 import UnilateralExitTracker from '../app/components/admin/homeComponents/settingsContent/leaves/unilateralExit/tracker';
 import UnilateralExitTree from '../app/components/admin/homeComponents/settingsContent/leaves/unilateralExit/tree';
 
+import { useReducedMotion, screenAnimation } from '../app/constants/motion';
+
 const Stack = createNativeStackNavigator();
 
 export default function UnilateralExitStack() {
+  const reduced = useReducedMotion();
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        animation: 'slide_from_right',
+        animation: screenAnimation('slide_from_right', reduced),
         presentation: 'card',
       }}
     >

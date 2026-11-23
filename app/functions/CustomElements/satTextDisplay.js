@@ -14,6 +14,8 @@ import formatTokensLabel from '../lrc20/formatTokensLabel';
 import numberConverter from '../numberConverter';
 import { useMemo } from 'react';
 import truncateToTwoDecimals from '../truncateNumber';
+import isFiatDustAmount from '../isFiatDustAmount';
+import DustChevron from './redesign/DustChevron';
 
 export default function FormattedSatText({
   balance = 0,
@@ -50,9 +52,28 @@ export default function FormattedSatText({
     ? showCustomCurrencyLabel.currency
     : masterInfoObject.fiatCurrency || 'USD';
 
+  // Fiat above zero but under one cent reads "‹ 0.01" instead of "0.00".
+  const isDust =
+    !useCustomLabel &&
+    isFiatDustAmount({
+      amount: balance,
+      denomination: localBalanceDenomination,
+      fiatStats,
+      convertAmount: !useBalance,
+    });
+  const customNumber = Number(balance);
+  const isTokenDust =
+    useCustomLabel &&
+    !!showCustomCurrencyLabel &&
+    customNumber > 0 &&
+    customNumber < 0.01;
+  const flatStyles = StyleSheet.flatten(styles);
+
   const formattedBalance = useMemo(
     () =>
-      useBalance
+      isDust
+        ? formatBalanceAmount('0.01', false, masterInfoObject)
+        : useBalance
         ? balance
         : formatBalanceAmount(
             numberConverter(
@@ -65,6 +86,7 @@ export default function FormattedSatText({
             masterInfoObject,
           ),
     [
+      isDust,
       balance,
       useBalance,
       localBalanceDenomination,
@@ -90,6 +112,14 @@ export default function FormattedSatText({
   const showSats =
     localBalanceDenomination === 'sats' ||
     localBalanceDenomination === 'hidden';
+  const dustChevron = (isDust || isTokenDust) && (
+    <DustChevron
+      key="dust"
+      fontSize={flatStyles?.fontSize}
+      fontFamily={flatStyles?.fontFamily}
+      color={flatStyles?.color}
+    />
+  );
 
   const shouldShowAmount =
     neverHideBalance ||
@@ -119,11 +149,12 @@ export default function FormattedSatText({
     if (showCustomCurrencyLabel) {
       children = [
         frontText && renderText(frontText),
+        dustChevron,
         renderText(
           `${
             isSymbolInFront && showSymbol ? currencySymbol : ''
           }${formatBalanceAmount(
-            truncateToTwoDecimals(balance),
+            truncateToTwoDecimals(isTokenDust ? 0.01 : balance),
             true,
             masterInfoObject,
           )}${!isSymbolInFront && showSymbol ? currencySymbol : ''}${
@@ -165,6 +196,7 @@ export default function FormattedSatText({
     // Fiat
     children = [
       frontText && renderText(frontText),
+      dustChevron,
       renderText(
         `${isSymbolInFront && showSymbol ? currencySymbol : ''}${
           currencyOptions[1]
@@ -177,7 +209,14 @@ export default function FormattedSatText({
   }
 
   return (
-    <View style={{ ...localStyles.textContainer, ...containerStyles }}>
+    <View
+      style={{
+        ...localStyles.textContainer,
+        // DustChevron is positioned from the text baseline.
+        ...(dustChevron && { alignItems: 'baseline' }),
+        ...containerStyles,
+      }}
+    >
       {children.filter(Boolean)}
     </View>
   );

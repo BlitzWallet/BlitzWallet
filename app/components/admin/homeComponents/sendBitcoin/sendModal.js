@@ -20,6 +20,7 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { ThemeText } from '../../../../functions/CustomElements';
 import UserInput from '../../../../functions/CustomElements/redesign/UserInput';
 import CustomButton from '../../../../functions/CustomElements/button';
+import BottomFade from '../../../../functions/CustomElements/redesign/BottomFade';
 import { hasStringAsync } from 'expo-clipboard';
 import useSendInputSubmit from './hooks/useSendInputSubmit';
 
@@ -34,6 +35,7 @@ export default function SendModal({
   const { bottomPadding } = useGlobalInsets();
   const [manualInput, setManualInput] = useState('');
   const [showPasteButton, setShowPasteButton] = useState(true);
+  const [panelHeight, setPanelHeight] = useState(0);
   const { submit, paste, inputError, clearError } = useSendInputSubmit(
     preSelectedPaymentMethod,
   );
@@ -85,75 +87,81 @@ export default function SendModal({
   );
 
   return (
-    <View
-      style={[
-        styles.panel,
-        { backgroundColor: tokens.surface, paddingBottom: bottomPadding },
-      ]}
-    >
-      <View style={{ width: contentWidth }}>
-        <View style={styles.buttons}>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() =>
-              navigate.navigate('SendBTC', { preSelectedPaymentMethod })
-            }
-          >
-            <ThemeIcon size={22} redesign iconName={'ScanLine'} />
-            <ThemeText styles={styles.text} content={t('constants.scan')} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() =>
-              navigate.navigate('GiftsStack', { screen: 'CreateGift' })
-            }
-          >
-            <ThemeIcon size={22} redesign iconName={'Gift'} />
-            <ThemeText styles={styles.text} content={t('constants.gift')} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={onPhonePress}>
-            <ThemeIcon size={22} redesign iconName={'Phone'} />
-            <ThemeText
-              styles={styles.text}
-              content={t('screens.inAccount.sendList.phone')}
+    <>
+      {panelHeight > 0 && (
+        <BottomFade height={panelHeight} blockTouches={false} />
+      )}
+      <View
+        onLayout={e => setPanelHeight(e.nativeEvent.layout.height)}
+        style={[
+          styles.panel,
+          { backgroundColor: tokens.surface, paddingBottom: bottomPadding },
+        ]}
+      >
+        <View style={{ width: contentWidth }}>
+          <View style={styles.buttons}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() =>
+                navigate.navigate('SendBTC', { preSelectedPaymentMethod })
+              }
+            >
+              <ThemeIcon size={22} redesign iconName={'ScanLine'} />
+              <ThemeText styles={styles.text} content={t('constants.scan')} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() =>
+                navigate.navigate('GiftsStack', { screen: 'CreateGift' })
+              }
+            >
+              <ThemeIcon size={22} redesign iconName={'Gift'} />
+              <ThemeText styles={styles.text} content={t('constants.gift')} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={onPhonePress}>
+              <ThemeIcon size={22} redesign iconName={'Phone'} />
+              <ThemeText
+                styles={styles.text}
+                content={t('screens.inAccount.sendList.phone')}
+              />
+            </TouchableOpacity>
+          </View>
+          <View>
+            <UserInput
+              value={manualInput}
+              onChangeText={handleChangeText}
+              onSubmitEditing={handleSubmit}
+              forceSheet={true}
+              placeholder={t(
+                showPasteButton
+                  ? 'screens.inAccount.sendList.placeholder'
+                  : 'screens.inAccount.sendList.placeholderEmpty',
+              )}
+              right={
+                <Animated.View
+                  style={pasteStyle}
+                  pointerEvents={showAction ? 'auto' : 'none'}
+                >
+                  <CustomButton
+                    textContent={t(
+                      hasText ? 'constants.next' : 'constants.paste',
+                    )}
+                    size={'small'}
+                    actionFunction={hasText ? handleSubmit : paste}
+                  />
+                </Animated.View>
+              }
             />
-          </TouchableOpacity>
-        </View>
-        <View>
-          <UserInput
-            value={manualInput}
-            onChangeText={handleChangeText}
-            onSubmitEditing={handleSubmit}
-            forceSheet={true}
-            placeholder={t(
-              showPasteButton
-                ? 'screens.inAccount.sendList.placeholder'
-                : 'screens.inAccount.sendList.placeholderEmpty',
+            {!!inputError && (
+              <ThemeText
+                styles={[styles.error, { color: tokens.danger }]}
+                content={inputError}
+              />
             )}
-            right={
-              <Animated.View
-                style={pasteStyle}
-                pointerEvents={showAction ? 'auto' : 'none'}
-              >
-                <CustomButton
-                  textContent={t(
-                    hasText ? 'constants.next' : 'constants.paste',
-                  )}
-                  size={'small'}
-                  actionFunction={hasText ? handleSubmit : paste}
-                />
-              </Animated.View>
-            }
-          />
-          {!!inputError && (
-            <ThemeText
-              styles={[styles.error, { color: tokens.danger }]}
-              content={inputError}
-            />
-          )}
+          </View>
         </View>
       </View>
-    </View>
+    </>
   );
 }
 
@@ -165,20 +173,23 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 28,
     ...SHADOWS.small,
     paddingTop: 20,
+    zIndex: 10,
   },
   buttons: {
+    width: '100%',
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
+    alignItems: 'flex-start',
     gap: 20,
     marginBottom: 15,
   },
   button: {
+    flex: 1,
     alignItems: 'center',
     gap: 5,
   },
   text: {
     fontSize: SIZES.smedium,
+    textAlign: 'center',
   },
   error: {
     fontSize: SIZES.smedium,

@@ -37,6 +37,9 @@ import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import IconButton from '../../../../../functions/CustomElements/redesign/IconButton';
 import TextButton from '../../../../../functions/CustomElements/redesign/TextButton';
 import Spinner from '../../../../../functions/CustomElements/redesign/Spinner';
+import BottomActions from '../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../../functions/CustomElements/redesign/TopFade';
 
 const NIP5_DOMAIN = '@blitzwalletapp.com';
 const MAX_NAME_LENGTH = 60;
@@ -218,13 +221,14 @@ export default function Nip5VerificationPage() {
     >
       <View style={{ flex: 1, width: contentWidth, ...CENTER }}>
         <TopBar
+          fade
           title={t('settings.nip5.title')}
           shouldDismissKeyboard={true}
           right={<IconButton icon={'Info'} onPress={openInfo} />}
         />
         <CustomScrollView
-          showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps={'handled'}
+          contentContainerStyle={styles.scrollContent}
         >
           <View style={styles.preview}>
             <ThemeText
@@ -338,29 +342,31 @@ export default function Nip5VerificationPage() {
           )}
         </CustomScrollView>
         {!focusedInput && (
-          <View style={styles.bottomButtons}>
-            {showSaveButton && (
-              <CustomButton
-                size="regular"
-                useLoading={isLoading}
-                disabled={!canSave}
-                actionFunction={saveNip5Information}
-                textContent={t('settings.nip5.saveAddress')}
-              />
-            )}
-            {!!name && (
-              <TextButton
-                textStyle={{
-                  color: tokens.danger,
-                }}
-                disabled={isLoading}
-                onPress={removeNip5Information}
-                text={t('settings.nip5.removeAddress')}
-                align="center"
-                accessibilityLabel={t('settings.nip5.removeAddress')}
-              />
-            )}
-          </View>
+          <BottomActions>
+            <View style={styles.bottomButtons}>
+              {showSaveButton && (
+                <CustomButton
+                  size="regular"
+                  useLoading={isLoading}
+                  disabled={!canSave}
+                  actionFunction={saveNip5Information}
+                  textContent={t('settings.nip5.saveAddress')}
+                />
+              )}
+              {!!name && (
+                <TextButton
+                  textStyle={{
+                    color: tokens.danger,
+                  }}
+                  disabled={isLoading}
+                  onPress={removeNip5Information}
+                  text={t('settings.nip5.removeAddress')}
+                  align="center"
+                  accessibilityLabel={t('settings.nip5.removeAddress')}
+                />
+              )}
+            </View>
+          </BottomActions>
         )}
       </View>
     </CustomKeyboardAvoidingView>
@@ -371,6 +377,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     position: 'relative',
   },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: FADE },
   preview: {
     marginTop: 28,
     alignItems: 'center',

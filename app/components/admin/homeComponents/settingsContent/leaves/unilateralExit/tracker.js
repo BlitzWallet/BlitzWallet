@@ -9,10 +9,12 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
+import { useReducedMotion } from '../../../../../../constants/motion';
 import { GlobalThemeView } from '../../../../../../functions/CustomElements';
 import CustomScrollView from '../../../../../../functions/CustomElements/scrollView';
 import CustomButton from '../../../../../../functions/CustomElements/button';
 import {
+  AMOUNT_HERO_SIZE,
   CENTER,
   FONT,
   MAX_WEB_CONTENT_WIDTH,
@@ -24,7 +26,7 @@ import {
   useGlobalThemeContext,
   useTheme,
 } from '../../../../../../../context-store/theme';
-import LottieView from 'lottie-react-native';
+import MotionLottie from '../../../../../../functions/CustomElements/MotionLottie';
 import { getConfirmTxAnimation } from '../../../../../../functions/lottieAnimations';
 import { useToast } from '../../../../../../../context-store/toastManager';
 import TopBar from '../../../../../../functions/CustomElements/redesign/TopBar';
@@ -48,6 +50,9 @@ import {
 } from '../../../../../../functions/unilateralExit/exitEngine';
 import { exitGraph, txState } from './tree';
 import { useFeeAddressBalance } from './feeSheet';
+import BottomActions from '../../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../../../functions/CustomElements/redesign/TopFade';
 
 const PHASE_KEYS = {
   sending: 'phaseSending',
@@ -147,11 +152,8 @@ export default function UnilateralExitTracker() {
     return (
       <GlobalThemeView useStandardWidth={true}>
         <View style={[styles.container, { width: contentWidth }]}>
-          <CustomScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.doneContent}
-          >
-            <LottieView
+          <CustomScrollView contentContainerStyle={styles.doneContent}>
+            <MotionLottie
               source={getConfirmTxAnimation(theme, darkModeType)}
               renderMode="SOFTWARE"
               autoPlay={true}
@@ -177,11 +179,13 @@ export default function UnilateralExitTracker() {
               </View>
             )}
           </CustomScrollView>
-          <CustomButton
-            textContent={t('settings.unilateralExit.doneButton')}
-            actionFunction={goBack}
-            size={'regular'}
-          />
+          <BottomActions>
+            <CustomButton
+              textContent={t('settings.unilateralExit.doneButton')}
+              actionFunction={goBack}
+              size={'regular'}
+            />
+          </BottomActions>
         </View>
       </GlobalThemeView>
     );
@@ -190,11 +194,8 @@ export default function UnilateralExitTracker() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar title={t('settings.unilateralExit.title')} />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <TopBar fade title={t('settings.unilateralExit.title')} />
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.hero}>
             <ThemeText
               variant="hint"
@@ -204,7 +205,7 @@ export default function UnilateralExitTracker() {
             <AmountHero
               amount={view.amountSats}
               fiatStats={fiatStats}
-              amountSize={44}
+              amountSize={AMOUNT_HERO_SIZE.secondary}
             />
           </View>
           <>
@@ -348,10 +349,12 @@ export default function UnilateralExitTracker() {
 
 function Pulse({ color }) {
   const opacity = useSharedValue(1);
+  const reducedMotion = useReducedMotion();
   useEffect(() => {
+    if (reducedMotion) return; // solid dot; the step text shows progress
     opacity.value = withRepeat(withTiming(0.3, { duration: 800 }), -1, true);
     return () => cancelAnimation(opacity);
-  }, []);
+  }, [reducedMotion]);
   const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
   return (
     <Animated.View style={[styles.pulse, { backgroundColor: color }, style]} />
@@ -360,7 +363,7 @@ function Pulse({ color }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  scrollContent: { paddingBottom: 24 },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: 24 },
   hero: { marginTop: 24 },
   block: { marginTop: 16, gap: 12 },
   center: { textAlign: 'center' },
@@ -391,7 +394,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
+    paddingTop: 16,
+    paddingBottom: FADE,
   },
   lottie: { width: 125, height: 125 },
   doneText: {

@@ -15,6 +15,8 @@ import AddContactsPage from './addContactsPage';
 import ContactRingAvatar from './internalComponents/contactsRingAvatar';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
+import TopHeader from '../../../../functions/CustomElements/redesign/TopHeader';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 // Memoized shared header component. Contacts with a user id get the ID image
 // as a badge that swaps with the photo when tapped (ContactRingAvatar).
@@ -138,19 +140,21 @@ export default function ExpandedAddContactsPage(props) {
   return (
     <GlobalThemeView styles={themeBottomPadding} useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <MemoizedNavBar
-          onBack={handleBack}
-          selectedContact={selectedContact}
-          isContactAdded={isContactAdded}
-          handleFavortie={handleFavortie}
-          handleSettings={handleSettings}
-        />
+        <TopHeader>
+          <MemoizedNavBar
+            onBack={handleBack}
+            selectedContact={selectedContact}
+            isContactAdded={isContactAdded}
+            handleFavortie={handleFavortie}
+            handleSettings={handleSettings}
+          />
+        </TopHeader>
         <CustomScrollView
           contentContainerStyle={{
+            paddingTop: FADE_TOP,
             paddingBottom: isContactAdded ? bottomPadding : 0,
             flexGrow: 1,
           }}
-          showsVerticalScrollIndicator={false}
           scrollEnabled={isContactAdded && !!contactTransactions.length}
         >
           <SharedHeader

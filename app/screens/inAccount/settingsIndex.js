@@ -11,7 +11,6 @@ import { useNavigation } from '@react-navigation/native';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MAX_WEB_CONTENT_WIDTH } from '../../constants';
-import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useAppStatus } from '../../../context-store/appStatus';
 import { supportedLanguagesList } from '../../../locales/localeslist';
@@ -22,6 +21,7 @@ import ListCard from '../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../functions/CustomElements/redesign/ListRow';
 import SectionHeader from '../../functions/CustomElements/redesign/SectionHeader';
 import Disc from '../../functions/CustomElements/redesign/Disc';
+import { FADE_TOP } from '../../functions/CustomElements/redesign/TopFade';
 
 const PREFERENCES_ROWS = [
   {
@@ -215,28 +215,14 @@ export default function SettingsIndex() {
           }
           tone={danger ? 'danger' : 'default'}
           onPress={() => handleSettingsRowPress(row)}
-          trailing={
-            danger ? undefined : (
-              <View style={styles.inlineTrailing}>
-                {!!value && (
-                  <ThemeText
-                    content={value}
-                    styles={[styles.inlineValue, { color: tokens.muted }]}
-                  />
-                )}
-                <ThemeIcon
-                  redesign
-                  iconName="ChevronRight"
-                  size={18}
-                  colorOverride={tokens.muted}
-                />
-              </View>
-            )
-          }
+          value={value}
+          trailing={!danger && value ? 'value' : undefined}
+          showChevron={!danger}
+          chevronSize={18}
         />
       );
     },
-    [getInlineValue, handleSettingsRowPress, t, tokens.muted],
+    [getInlineValue, handleSettingsRowPress, t],
   );
 
   const renderSection = useCallback(
@@ -266,10 +252,9 @@ export default function SettingsIndex() {
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
       <View style={[styles.content, { width: contentWidth }]}>
-        <TopBar title={t('settings.index.settingsHead')} />
+        <TopBar fade title={t('settings.index.settingsHead')} />
         <CustomScrollView
           style={styles.scroll}
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
           {renderSection(
@@ -317,12 +302,10 @@ const styles = StyleSheet.create({
   globalContainer: { paddingBottom: 0 },
   content: { alignSelf: 'center', flex: 1 },
   scroll: { flex: 1 },
-  scrollContent: { paddingTop: 0, paddingBottom: 24 },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: 24 },
   section: { width: '100%' },
   cardSpacing: { marginTop: 24 },
   rowTitle: { fontSize: 15, lineHeight: 21 },
-  inlineTrailing: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  inlineValue: { fontSize: 14, lineHeight: 19, includeFontPadding: false },
   footer: {
     marginTop: 20,
     flexDirection: 'row',

@@ -32,6 +32,11 @@ import { FONT } from '../../constants/theme';
 import { exportTransactionsCsv } from '../../components/admin/homeComponents/exportTransactions/exportTracker';
 import TxFilterHalfModal from '../../components/admin/homeComponents/homeLightning/txFilterHalfModal';
 import useAfterTransition from '../../hooks/useAfterTransition';
+import TopHeader from '../../functions/CustomElements/redesign/TopHeader';
+import {
+  FADE_TOP,
+  FADE_TOP_BUFFER,
+} from '../../functions/CustomElements/redesign/TopFade';
 
 const EMPTY_FILTER = { directions: [], dateRange: null, types: [] };
 const NS = 'screens.inAccount.viewAllTxPage';
@@ -202,6 +207,7 @@ export default function ViewAllTxPage() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t(`${NS}.title`)}
           right={
             <>
@@ -296,21 +302,22 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 160,
   },
-  listContent: { paddingBottom: 24 },
-  skeleton: { marginTop: 22 },
+  listContent: { paddingTop: FADE_TOP, paddingBottom: 24 },
+  skeleton: { marginTop: FADE_TOP },
   squareTop: { borderTopLeftRadius: 0, borderTopRightRadius: 0 },
   squareBottom: { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 },
   middleRow: { borderRadius: 0 },
-  first: { marginTop: 22 },
-  firstFiltered: { marginTop: 8 },
+  first: { marginTop: 0 },
+  firstFiltered: { marginTop: 0 },
   filterBar: {
-    marginTop: 18,
+    marginTop: FADE_TOP + FADE_TOP_BUFFER,
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'center',
     justifyContent: 'space-between',
     rowGap: 2,
     columnGap: 12,
+    marginBottom: 10,
   },
   filterText: {
     fontFamily: FONT.Title_Regular,

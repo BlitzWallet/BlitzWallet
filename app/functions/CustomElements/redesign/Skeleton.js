@@ -1,20 +1,18 @@
 import { View } from 'react-native';
-import { useReducedMotion } from 'react-native-reanimated';
 import { useTheme } from '../../../../context-store/theme';
 import SkeletonPlaceholder from '../skeletonView';
 
 // Themed shimmer over a layout of plain Views: leaf Views become `skel`
 // bars, Views with children stay transparent layout. One mask and one
-// 1.2 s loop per Skeleton, static under reduced motion (SHARED §1.4).
+// 1.2 s loop per Skeleton, static under reduced motion (skeletonView).
 // Use plain style objects (no arrays): the mask reads width/height from them.
 export default function Skeleton({ children, color }) {
   const { tokens } = useTheme();
-  const reducedMotion = useReducedMotion();
   return (
     <SkeletonPlaceholder
       backgroundColor={color || tokens.skel}
       highlightColor={tokens.surface}
-      speed={reducedMotion ? 0 : 1200}
+      speed={1200}
     >
       {children}
     </SkeletonPlaceholder>

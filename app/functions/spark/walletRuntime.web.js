@@ -171,6 +171,11 @@ function makeHandle(entry) {
         await call(() =>
           withTimeout(sdk.syncWallet({}), timeoutMs, 'syncWallet'),
         );
+        // Server mode has no background processor, so the SDK never emits
+        // Synced: emit it here so balance subscribers re-read after a sync.
+        if (entry.mode === 'server') {
+          for (const cb of entry.listeners) cb({ type: 'synced' });
+        }
         return { timedOut: false };
       } catch (e) {
         if (e?.requiresReload) throw e;

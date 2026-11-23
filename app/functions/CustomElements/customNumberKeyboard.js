@@ -222,7 +222,7 @@ export default function CustomNumberKeyboard({
 }
 
 const styles = StyleSheet.create({
-  keyboardContainer: { width: '100%', maxWidth: 400, ...CENTER },
+  keyboardContainer: { width: '100%', ...CENTER },
   keyboardContainerRedesign: { gap: 8 },
   keyboardRowRedesign: { gap: 8 },
   pinPadGap: { gap: 10 },

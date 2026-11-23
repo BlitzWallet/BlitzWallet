@@ -177,6 +177,16 @@ export async function executeAccountTransfer({
       },
     ]).catch(err => console.log('error saving account transfer', err));
 
+    // Server-mode (derived) wallets never sync on their own, so a screen
+    // showing either side would not see the transfer. Sync whichever wallets
+    // are live; the from-wallet opened here is disposed below, so skip it.
+    for (const identity of [
+      toAccountIdentityPubKey,
+      !openedFromHere && accountIdentifyPubKey,
+    ]) {
+      if (identity) peek(identity)?.sync();
+    }
+
     return { didWork: true, response: sendingResponse.response };
   } finally {
     if (openedFromHere) await disposeSparkWallet(fromMnemonic);

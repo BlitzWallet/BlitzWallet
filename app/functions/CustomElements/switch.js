@@ -9,6 +9,7 @@ import Animated, {
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { makeShadow } from '../../constants/theme';
+import { useReducedMotion } from '../../constants/motion';
 
 // 52 × 32 track, 28 knob (I.13). Controlled via `stateValue`; the legacy
 // `page` path still writes masterInfoObject for un-migrated screens.
@@ -35,10 +36,15 @@ const CustomToggleSwitch = ({
   const localIsOn =
     stateValue !== undefined && stateValue !== null ? stateValue : isOn;
 
+  const reduced = useReducedMotion();
   const animatedValue = useSharedValue(localIsOn ? 1 : 0);
 
   useEffect(() => {
-    animatedValue.value = withTiming(localIsOn ? 1 : 0, { duration: 200 });
+    animatedValue.value = reduced
+      ? localIsOn
+        ? 1
+        : 0
+      : withTiming(localIsOn ? 1 : 0, { duration: 200 });
   }, [localIsOn]);
 
   const toggleSwitch = () => {

@@ -2,12 +2,12 @@ import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   useWindowDimensions,
   View,
 } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import {
   GlobalThemeView,
   ThemeText,
@@ -20,6 +20,9 @@ import {
 import CustomButton from '../../../../functions/CustomElements/button';
 import GetThemeColors from '../../../../hooks/themeColors';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 const GOAL_EMOJIS = [
   '💵',
@@ -50,9 +53,8 @@ export default function SavingsGoalEmoji() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar title={t('savings.goalEmoji.screenTitle')} />
-
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <TopBar fade title={t('savings.goalEmoji.screenTitle')} />
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <ThemeText
             variant={'title'}
             styles={styles.title}
@@ -89,16 +91,18 @@ export default function SavingsGoalEmoji() {
               );
             })}
           </View>
-        </ScrollView>
+        </CustomScrollView>
 
-        <CustomButton
-          buttonStyles={styles.button}
-          actionFunction={() =>
-            navigate.navigate('SavingsGoalDescribe', { emoji: selectedEmoji })
-          }
-          textContent={t('savings.goalEmoji.continueButton')}
-          size={'regular'}
-        />
+        <BottomActions>
+          <CustomButton
+            buttonStyles={styles.button}
+            actionFunction={() =>
+              navigate.navigate('SavingsGoalDescribe', { emoji: selectedEmoji })
+            }
+            textContent={t('savings.goalEmoji.continueButton')}
+            size={'regular'}
+          />
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );
@@ -109,6 +113,7 @@ const styles = StyleSheet.create({
     flex: 1,
     ...CENTER,
   },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: FADE },
   title: {
     marginTop: 20,
   },

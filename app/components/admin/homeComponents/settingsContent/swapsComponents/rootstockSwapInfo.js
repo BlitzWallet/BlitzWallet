@@ -141,7 +141,6 @@ export default function RootstockSwapInfo({ swap, handleBackPressFunction }) {
   return (
     <CustomScrollView
       style={styles.scroll}
-      showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.scrollContent}
     >
       <View style={styles.hero}>

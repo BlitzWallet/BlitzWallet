@@ -1,24 +1,22 @@
 import { StyleSheet, View } from 'react-native';
-import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
-import { useCallback, useMemo } from 'react';
-import { ThemeText } from '../../../../../functions/CustomElements';
-import { useAppStatus } from '../../../../../../context-store/appStatus';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useToast } from '../../../../../../context-store/toastManager';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { copyToClipboard } from '../../../../../functions';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import { useTranslation } from 'react-i18next';
-import { COLORS, CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
+import { CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import QrCard from '../../../../../functions/CustomElements/redesign/QrCard';
 import TextButton from '../../../../../functions/CustomElements/redesign/TextButton';
-import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
-import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
 import { shareMessage } from '../../../../../functions/handleShare';
 
-export default function LNURLAccountMangement({ account, lnurlAddress }) {
-  const { screenDimensions } = useAppStatus();
+export default function LNURLAccountMangement({
+  account,
+  lnurlAddress,
+  setContentHeight,
+}) {
   const { showToast } = useToast();
   const { masterInfoObject } = useGlobalContextProvider();
   const { t } = useTranslation();
@@ -34,8 +32,6 @@ export default function LNURLAccountMangement({ account, lnurlAddress }) {
     return entry ? entry[0] : null;
   }, [masterInfoObject.accountsLnurl, account?.uuid]);
 
-  const qrSize = Math.min(Math.round(screenDimensions.width * 0.6), 240);
-
   const isMain = !accountsLnurlId;
 
   const handleCopy = useCallback(() => {
@@ -50,39 +46,19 @@ export default function LNURLAccountMangement({ account, lnurlAddress }) {
     });
   }, [lnurlAddress, globalContactsInformation?.myProfile?.uniqueName]);
 
+  useEffect(() => {
+    setContentHeight(500);
+  }, []);
+
   return (
     <View style={styles.container}>
-      <SheetHeader
-        title={t(
-          'settings.accountComponents.editAccountPage.lightningAddressLabel',
-        )}
-        first={true}
-      />
-      <CustomScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
+      <View style={styles.scrollContent}>
         <QrCard
           value={lnurlAddress}
-          size={qrSize}
           onPress={handleCopy}
           accessibilityLabel={t('wallet.halfModal.copyAddress')}
-        >
-          <View style={[styles.addressRow, { width: qrSize }]}>
-            <ThemeText
-              CustomNumberOfLines={2}
-              styles={[styles.addressText, { color: COLORS.lightModeText }]}
-              content={lnurlAddress}
-            />
-            <ThemeIcon
-              redesign
-              size={16}
-              iconName={'Copy'}
-              colorOverride={COLORS.lightModeText}
-            />
-          </View>
-        </QrCard>
-      </CustomScrollView>
+        />
+      </View>
 
       <CustomButton
         buttonStyles={styles.mainButton}
@@ -115,20 +91,8 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     alignItems: 'center',
-  },
-  addressRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
-    marginTop: 12,
-  },
-  addressText: {
-    fontSize: 13,
-    lineHeight: 18,
-    flexShrink: 1,
-    textAlign: 'center',
-    includeFontPadding: false,
+    marginVertical: 10,
   },
   mainButton: { width: '100%', marginTop: CONTENT_KEYBOARD_OFFSET },
 });

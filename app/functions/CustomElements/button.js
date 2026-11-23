@@ -41,6 +41,12 @@ export default function CustomButton({
       ? tokens.ink
       : tokens.onAccent
     : null;
+  // Dimmed (disabled, or a caller passing opacity < 1) = solid colour mixed
+  // toward the backdrop, not opacity: opacity lets content behind show through.
+  const backdrop = isSheet ? tokens.surface : tokens.ground;
+  const callerOpacity = StyleSheet.flatten(buttonStyles)?.opacity;
+  const dim =
+    callerOpacity < 1 ? callerOpacity : redesign && disabled ? 0.5 : null;
 
   const memorizedContainerStyles = useMemo(() => {
     // Base styles with theme color
@@ -49,7 +55,6 @@ export default function CustomButton({
           ...styles.pill,
           ...PILL_SIZES[size || 'regular'],
           backgroundColor: fill,
-          opacity: disabled ? 0.5 : 1,
           ...(icon && styles.withIcon),
         }
       : {
@@ -58,25 +63,32 @@ export default function CustomButton({
         };
     if (typeof progress === 'number') baseStyles.overflow = 'hidden';
 
-    if (!buttonStyles) {
-      return baseStyles;
-    }
+    const merged = !buttonStyles
+      ? baseStyles
+      : Array.isArray(buttonStyles)
+      ? buttonStyles.reduce(
+          (acc, style) => ({
+            ...acc,
+            ...(style || {}),
+          }),
+          baseStyles,
+        )
+      : {
+          ...baseStyles,
+          ...buttonStyles,
+        };
 
-    if (Array.isArray(buttonStyles)) {
-      return buttonStyles.reduce(
-        (acc, style) => ({
-          ...acc,
-          ...(style || {}),
-        }),
-        baseStyles,
-      );
+    if (dim == null) return merged;
+    // Colours we can't mix (rgba, named) keep plain opacity.
+    if (!isHex(merged.backgroundColor) || !isHex(backdrop)) {
+      return { ...merged, opacity: dim };
     }
-
     return {
-      ...baseStyles,
-      ...buttonStyles,
+      ...merged,
+      opacity: 1,
+      backgroundColor: mixHex(merged.backgroundColor, backdrop, dim),
     };
-  }, [buttonStyles, redesign, size, fill, disabled, progress, icon]);
+  }, [buttonStyles, redesign, size, fill, dim, backdrop, progress, icon]);
 
   const memorizedTextStyles = useMemo(() => {
     // Base styles with theme color
@@ -87,25 +99,41 @@ export default function CustomButton({
           color: theme ? tokens.ground : tokens.ink,
         };
 
-    if (!textStyles) {
-      return baseStyles;
-    }
+    const merged = !textStyles
+      ? baseStyles
+      : Array.isArray(textStyles)
+      ? textStyles.reduce(
+          (acc, style) => ({
+            ...acc,
+            ...(style || {}),
+          }),
+          baseStyles,
+        )
+      : {
+          ...baseStyles,
+          ...textStyles,
+        };
 
-    if (Array.isArray(textStyles)) {
-      return textStyles.reduce(
-        (acc, style) => ({
-          ...acc,
-          ...(style || {}),
-        }),
-        baseStyles,
-      );
+    // Only when the container was mixed (it already fades text otherwise).
+    if (
+      dim == null ||
+      memorizedContainerStyles.opacity !== 1 ||
+      !isHex(merged.color)
+    ) {
+      return merged;
     }
-
-    return {
-      ...baseStyles,
-      ...textStyles,
-    };
-  }, [theme, darkModeType, tokens, textStyles, redesign, label]);
+    return { ...merged, color: mixHex(merged.color, backdrop, dim) };
+  }, [
+    theme,
+    darkModeType,
+    tokens,
+    textStyles,
+    redesign,
+    label,
+    dim,
+    backdrop,
+    memorizedContainerStyles,
+  ]);
 
   return (
     <TouchableOpacity
@@ -171,6 +199,23 @@ export default function CustomButton({
         </>
       )}
     </TouchableOpacity>
+  );
+}
+
+const isHex = c => typeof c === 'string' && /^#[0-9a-f]{6}$/i.test(c);
+
+// Solid equivalent of colour `a` at `alpha` opacity over `b` (#RRGGBB).
+function mixHex(a, b, alpha) {
+  const ch = (h, i) => parseInt(h.slice(i, i + 2), 16);
+  return (
+    '#' +
+    [1, 3, 5]
+      .map(i =>
+        Math.round(ch(a, i) * alpha + ch(b, i) * (1 - alpha))
+          .toString(16)
+          .padStart(2, '0'),
+      )
+      .join('')
   );
 }
 

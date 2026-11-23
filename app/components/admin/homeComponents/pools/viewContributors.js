@@ -18,6 +18,7 @@ import SectionHeader from '../../../../functions/CustomElements/redesign/Section
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import formatDate from '../../../../functions/formatDate';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function ViewContibutors(props) {
   const pool = props.route?.params?.pool;
@@ -45,6 +46,7 @@ export default function ViewContibutors(props) {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('wallet.pools.viewActivityTitle')}
           right={
             <IconButton
@@ -54,28 +56,24 @@ export default function ViewContibutors(props) {
             />
           }
         />
-
-        <SectionHeader
-          first={true}
-          title={t('wallet.pools.activityInfoHeader', {
-            count: contributions.length,
-            numPeople: contributions.length,
-            contributionAmount: displayCorrectDenomination({
-              amount: pool.currentAmount,
-              masterInfoObject,
-              fiatStats,
-            }),
-            totalAmount: displayCorrectDenomination({
-              amount: pool.goalAmount,
-              masterInfoObject,
-              fiatStats,
-            }),
-          })}
-        />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
+          <SectionHeader
+            first={true}
+            title={t('wallet.pools.activityInfoHeader', {
+              count: contributions.length,
+              numPeople: contributions.length,
+              contributionAmount: displayCorrectDenomination({
+                amount: pool.currentAmount,
+                masterInfoObject,
+                fiatStats,
+              }),
+              totalAmount: displayCorrectDenomination({
+                amount: pool.goalAmount,
+                masterInfoObject,
+                fiatStats,
+              }),
+            })}
+          />
           <ListCard>
             {contributers.map((item, index) => {
               if (!item) return null;
@@ -145,7 +143,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
   scrollContent: {
     flexGrow: 1,
-    paddingTop: 10,
+    paddingTop: FADE_TOP,
   },
   amountLabel: {
     includeFontPadding: false,

@@ -27,9 +27,11 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import { useReducedMotion, enterAnim } from '../../../constants/motion';
 import { LOGIN_LOGO_TOP } from './loginLayout';
 
 export default function BiometricsLogin() {
+  const reduced = useReducedMotion();
   const { appState, isAppFocused } = useAppStatus();
   const { t } = useTranslation();
   const { setAccountMnemonic } = useKeysContext();
@@ -249,7 +251,7 @@ export default function BiometricsLogin() {
         />
       </Animated.View>
       {showRemoveOption && (
-        <Animated.View entering={FadeIn} style={styles.removeButton}>
+        <Animated.View entering={enterAnim(FadeIn, reduced)} style={styles.removeButton}>
           <IconButton
             onPress={promptBiometricRemoval}
             icon={'Trash2'}

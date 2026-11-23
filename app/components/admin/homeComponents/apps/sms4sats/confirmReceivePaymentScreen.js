@@ -3,7 +3,7 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { getConfirmTxAnimation } from '../../../../../functions/lottieAnimations';
-import LottieView from 'lottie-react-native';
+import MotionLottie from '../../../../../functions/CustomElements/MotionLottie';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { useNavigation } from '@react-navigation/native';
@@ -68,12 +68,11 @@ export default function ConfirmSMSReceivePage(props) {
             alignItems: 'center',
             justifyContent: 'center',
           }}
-          showsVerticalScrollIndicator={false}
         >
           <View onLayout={handleContentLayout}>
             {/* Animation Section */}
             <View style={styles.animationContainer}>
-              <LottieView
+              <MotionLottie
                 ref={animationRef}
                 source={confirmAnimation}
                 renderMode="SOFTWARE"

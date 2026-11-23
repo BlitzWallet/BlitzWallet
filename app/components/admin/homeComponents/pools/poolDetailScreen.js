@@ -45,6 +45,7 @@ import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
 import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
 import formatDate from '../../../../functions/formatDate';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 const MAX_VISIBLE_ACTIVITY = 3;
 
@@ -331,6 +332,7 @@ export default function PoolDetailScreen(props) {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={pool?.poolTitle || t('wallet.pools.pool')}
           right={
             isCreator && (
@@ -362,7 +364,6 @@ export default function PoolDetailScreen(props) {
         />
         <CustomScrollView
           refreshControl={refreshControl}
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
           {/* ── Section 1: Hero — Progress Ring ── */}
@@ -543,6 +544,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
   scrollContent: {
     flexGrow: 1,
+    paddingTop: FADE_TOP,
   },
   centerComponenet: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 

@@ -116,7 +116,6 @@ export default function BTCMapMerchantContent({
     <View style={styles.content}>
       <CustomScrollView
         style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
         contentContainerStyle={{ flexGrow: 1 }}
       >
         <View style={styles.hero}>

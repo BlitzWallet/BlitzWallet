@@ -5,7 +5,11 @@ import { useNavigation } from '@react-navigation/native';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
-import CurrencyIcon from '../../../../../functions/CustomElements/redesign/CurrencyIcon';
+import CurrencyIcon, {
+  ASSET_ICON_ROW,
+  ASSET_ROW_HEIGHT,
+  assetDividerInset,
+} from '../../../../../functions/CustomElements/redesign/CurrencyIcon';
 import { useUserBalanceContext } from '../../../../../../context-store/userBalanceContext';
 import { formatBalanceAmount } from '../../../../../functions';
 import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
@@ -72,10 +76,10 @@ export default function SelectPaymentMethod({
     <View style={styles.innerContainer}>
       <SheetHeader first title={headerText} sub={sub} />
 
-      <ListCard>
+      <ListCard dividerInset={assetDividerInset(ASSET_ICON_ROW)}>
         <PickRow
-          lead={<CurrencyIcon size={44} isBitcoin />}
-          minHeight={76}
+          lead={<CurrencyIcon size={ASSET_ICON_ROW} isBitcoin />}
+          minHeight={ASSET_ROW_HEIGHT}
           title={t('constants.bitcoin_upper')}
           sub={t('constants.amountAvailable', {
             amount: displayCorrectDenomination({
@@ -98,8 +102,8 @@ export default function SelectPaymentMethod({
           }
         />
         <PickRow
-          lead={<CurrencyIcon size={44} />}
-          minHeight={76}
+          lead={<CurrencyIcon size={ASSET_ICON_ROW} />}
+          minHeight={ASSET_ROW_HEIGHT}
           title={t('constants.dollars_upper')}
           sub={t('constants.amountAvailable', {
             amount: displayCorrectDenomination({

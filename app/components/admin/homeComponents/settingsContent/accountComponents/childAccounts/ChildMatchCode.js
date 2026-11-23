@@ -20,6 +20,9 @@ import ChildLinkError from './childLinkError';
 import PairingExpiryClock from './pairingExpiryClock';
 import SasPatternGrid from './SasPatternGrid';
 import useHandleBackPressNew from '../../../../../../hooks/useHandleBackPressNew';
+import BottomActions from '../../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../../../functions/CustomElements/redesign/TopFade';
 
 export default function ChildMatchCode() {
   const navigate = useNavigation();
@@ -71,14 +74,12 @@ export default function ChildMatchCode() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('settings.childAccounts.pairing.sasNavTitle')}
           onBack={handleNoMatch}
           right={<PairingExpiryClock />}
         />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.contentContainer}
-        >
+        <CustomScrollView contentContainerStyle={styles.contentContainer}>
           <PageHeader
             title={t('settings.childAccounts.pairing.sasTitle')}
             sub={t('settings.childAccounts.pairing.sasSubtitle')}
@@ -92,20 +93,22 @@ export default function ChildMatchCode() {
             content={t('settings.childAccounts.pairing.sasHint')}
           />
         </CustomScrollView>
-        <View style={styles.footer}>
-          <CustomButton
-            size="regular"
-            useLoading={status === 'granting'}
-            textContent={t('constants.confirm')}
-            actionFunction={handleConfirm}
-          />
-          <CustomButton
-            size="regular"
-            tone="secondary"
-            textContent={t('settings.childAccounts.dontMatch')}
-            actionFunction={handleNoMatch}
-          />
-        </View>
+        <BottomActions>
+          <View style={styles.footer}>
+            <CustomButton
+              size="regular"
+              useLoading={status === 'granting'}
+              textContent={t('constants.confirm')}
+              actionFunction={handleConfirm}
+            />
+            <CustomButton
+              size="regular"
+              tone="secondary"
+              textContent={t('settings.childAccounts.dontMatch')}
+              actionFunction={handleNoMatch}
+            />
+          </View>
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );
@@ -113,7 +116,7 @@ export default function ChildMatchCode() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  contentContainer: { flexGrow: 1, paddingBottom: 20 },
+  contentContainer: { flexGrow: 1, paddingTop: FADE_TOP, paddingBottom: FADE },
   grid: { marginTop: 20 },
   hint: {
     textAlign: 'center',

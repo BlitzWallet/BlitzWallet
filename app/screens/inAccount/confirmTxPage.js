@@ -1,10 +1,10 @@
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
-import { FONT } from '../../constants';
+import { AMOUNT_HERO_SIZE, FONT } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useEffect, useRef, useState } from 'react';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
-import LottieView from 'lottie-react-native';
+import MotionLottie from '../../functions/CustomElements/MotionLottie';
 import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
 import AmountHero from '../../functions/CustomElements/redesign/AmountHero';
 import useContentWidth from '../../functions/CustomElements/redesign/useContentWidth';
@@ -34,6 +34,8 @@ import {
 import openWebBrowser from '../../functions/openWebBrowser';
 import { getNormalizedWebsiteUrl } from '../../functions/getNormalizedWebsiteUrl';
 import TextButton from '../../functions/CustomElements/redesign/TextButton';
+import BottomActions from '../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../functions/CustomElements/redesign/BottomFade';
 
 export default function ConfirmTxPage(props) {
   const { sparkInformation } = useSparkWallet();
@@ -168,7 +170,7 @@ export default function ConfirmTxPage(props) {
           style={styles.scroll}
           contentContainerStyle={styles.contentContainer}
         >
-          <LottieView
+          <MotionLottie
             ref={animationRef}
             source={errorAnimation}
             renderMode="SOFTWARE"
@@ -181,19 +183,21 @@ export default function ConfirmTxPage(props) {
             content={t('screens.inAccount.confirmTxPage.statusUnknownMessage')}
           />
         </CustomScrollView>
-        <View style={[styles.footer, { width: contentWidth }]}>
-          <CustomButton
-            size="regular"
-            actionFunction={() => {
-              requestAnimationFrame(() => {
+        <BottomActions style={styles.actions}>
+          <View style={[styles.footer, { width: contentWidth }]}>
+            <CustomButton
+              size="regular"
+              actionFunction={() => {
                 requestAnimationFrame(() => {
-                  navigate.popToTop();
+                  requestAnimationFrame(() => {
+                    navigate.popToTop();
+                  });
                 });
-              });
-            }}
-            textContent={buttonText}
-          />
-        </View>
+              }}
+              textContent={buttonText}
+            />
+          </View>
+        </BottomActions>
       </GlobalThemeView>
     );
   }
@@ -205,7 +209,7 @@ export default function ConfirmTxPage(props) {
           style={styles.scroll}
           contentContainerStyle={styles.contentContainer}
         >
-          <LottieView
+          <MotionLottie
             ref={animationRef}
             source={didSucceed ? confirmAnimation : errorAnimation}
             renderMode="SOFTWARE"
@@ -218,19 +222,21 @@ export default function ConfirmTxPage(props) {
             content={t('screens.inAccount.confirmTxPage.bulkSuccess')}
           />
         </CustomScrollView>
-        <View style={[styles.footer, { width: contentWidth }]}>
-          <CustomButton
-            size="regular"
-            actionFunction={() => {
-              requestAnimationFrame(() => {
+        <BottomActions style={styles.actions}>
+          <View style={[styles.footer, { width: contentWidth }]}>
+            <CustomButton
+              size="regular"
+              actionFunction={() => {
                 requestAnimationFrame(() => {
-                  navigate.popToTop();
+                  requestAnimationFrame(() => {
+                    navigate.popToTop();
+                  });
                 });
-              });
-            }}
-            textContent={t('constants.continue')}
-          />
-        </View>
+              }}
+              textContent={t('constants.continue')}
+            />
+          </View>
+        </BottomActions>
       </GlobalThemeView>
     );
   }
@@ -241,7 +247,7 @@ export default function ConfirmTxPage(props) {
         style={styles.scroll}
         contentContainerStyle={styles.contentContainer}
       >
-        <LottieView
+        <MotionLottie
           ref={animationRef}
           source={didSucceed ? confirmAnimation : errorAnimation}
           renderMode="SOFTWARE"
@@ -261,7 +267,7 @@ export default function ConfirmTxPage(props) {
                   displayTokenTicker,
                 })}
                 formatAmount={false}
-                amountSize={56}
+                amountSize={AMOUNT_HERO_SIZE.primary}
               />
             ) : (
               <FormattedSatText
@@ -333,139 +339,147 @@ export default function ConfirmTxPage(props) {
           </TouchableOpacity>
         )}
       </CustomScrollView>
-      <View style={[styles.footer, { width: contentWidth }]}>
-        <CustomButton
-          size="regular"
-          tone={didSucceed ? undefined : 'secondary'}
-          actionFunction={() => {
-            // This will go to whatever the base homsecreen is set to
-            requestAnimationFrame(() => {
+      <BottomActions style={styles.actions}>
+        <View style={[styles.footer, { width: contentWidth }]}>
+          <CustomButton
+            size="regular"
+            tone={didSucceed ? undefined : 'secondary'}
+            actionFunction={() => {
+              // This will go to whatever the base homsecreen is set to
               requestAnimationFrame(() => {
-                navigate.popToTop();
+                requestAnimationFrame(() => {
+                  navigate.popToTop();
+                });
               });
-            });
-          }}
-          textContent={buttonText}
-        />
-
-        {!didSucceed && !isLNURLAuth && (
-          <TextButton
-            onPress={() =>
-              navigate.push('CustomHalfModal', {
-                wantedContent: 'contactUs',
-                emailSubject: t(
-                  'screens.inAccount.confirmTxPage.failedPaymentSupportSubject',
-                ),
-                emailBody: String(errorMessage),
-                copyBody: true,
-              })
-            }
-            text={t('screens.inAccount.confirmTxPage.sendReport')}
-            align="center"
+            }}
+            textContent={buttonText}
           />
-        )}
 
-        {didSucceed && successActionUrl && (
-          <CustomButton
-            textStyles={[styles.linkText, { color: tokens.link }]}
-            buttonStyles={{
-              width: '100%',
-              paddingHorizontal: 15,
-              backgroundColor: 'unset',
-            }}
-            actionFunction={async () => {
-              openWebBrowser({ navigate, link: successActionUrl });
-            }}
-            textContent={t('screens.inAccount.confirmTxPage.lud9SuccessAction')}
-          />
-        )}
+          {!didSucceed && !isLNURLAuth && (
+            <TextButton
+              onPress={() =>
+                navigate.push('CustomHalfModal', {
+                  wantedContent: 'contactUs',
+                  emailSubject: t(
+                    'screens.inAccount.confirmTxPage.failedPaymentSupportSubject',
+                  ),
+                  emailBody: String(errorMessage),
+                  copyBody: true,
+                })
+              }
+              text={t('screens.inAccount.confirmTxPage.sendReport')}
+              align="center"
+            />
+          )}
 
-        {showAddContact && (
-          <CustomButton
-            textStyles={[styles.linkText, { color: tokens.link }]}
-            buttonStyles={{
-              width: '100%',
-              paddingHorizontal: 15,
-              backgroundColor: 'unset',
-            }}
-            loadingColor={tokens.link}
-            useLoading={isAddingContact}
-            disabled={isAddingContact}
-            actionFunction={async () => {
-              if (isAddingContact) return;
-              if (isBlitzAddress) {
-                setIsAddingContact(true);
-                try {
-                  const username = lnurlAddress.split('@')[0];
-                  const results = await getSingleContact(username);
-                  if (!results.length) {
+          {didSucceed && successActionUrl && (
+            <CustomButton
+              textStyles={[styles.linkText, { color: tokens.link }]}
+              buttonStyles={{
+                width: '100%',
+                paddingHorizontal: 15,
+                backgroundColor: 'unset',
+              }}
+              actionFunction={async () => {
+                openWebBrowser({ navigate, link: successActionUrl });
+              }}
+              textContent={t(
+                'screens.inAccount.confirmTxPage.lud9SuccessAction',
+              )}
+            />
+          )}
+
+          {showAddContact && (
+            <CustomButton
+              textStyles={[styles.linkText, { color: tokens.link }]}
+              buttonStyles={{
+                width: '100%',
+                paddingHorizontal: 15,
+                backgroundColor: 'unset',
+              }}
+              loadingColor={tokens.link}
+              useLoading={isAddingContact}
+              disabled={isAddingContact}
+              actionFunction={async () => {
+                if (isAddingContact) return;
+                if (isBlitzAddress) {
+                  setIsAddingContact(true);
+                  try {
+                    const username = lnurlAddress.split('@')[0];
+                    const results = await getSingleContact(username);
+                    if (!results.length) {
+                      setIsAddingContact(false);
+                      return;
+                    }
+                    const user = results[0];
+                    await getCachedProfileImage(user.contacts.myProfile.uuid);
+                    const newContact = {
+                      name: user.contacts.myProfile.name || '',
+                      bio: user.contacts.myProfile.bio || '',
+                      uniqueName: user.contacts.myProfile.uniqueName || '',
+                      uuid: user.contacts.myProfile.uuid,
+                      isFavorite: false,
+                      transactions: [],
+                      unlookedTransactions: 0,
+                      isAdded: true,
+                    };
+                    navigate.replace('ExpandedAddContactsPage', { newContact });
+                  } catch (err) {
                     setIsAddingContact(false);
-                    return;
+                    if (err.code === 'DUPLICATE_USERNAME')
+                      navigate.navigate('ErrorScreen', {
+                        errorMessage: t('errormessages.duplicateUsernameError'),
+                      });
                   }
-                  const user = results[0];
-                  await getCachedProfileImage(user.contacts.myProfile.uuid);
+                } else {
+                  const uuid = customUUID();
+                  if (!uuid) return;
                   const newContact = {
-                    name: user.contacts.myProfile.name || '',
-                    bio: user.contacts.myProfile.bio || '',
-                    uniqueName: user.contacts.myProfile.uniqueName || '',
-                    uuid: user.contacts.myProfile.uuid,
+                    name: lnurlAddress.split('@')[0],
+                    bio: '',
+                    uniqueName: '',
                     isFavorite: false,
                     transactions: [],
                     unlookedTransactions: 0,
+                    receiveAddress: lnurlAddress,
                     isAdded: true,
+                    isLNURL: true,
+                    profileImage: '',
+                    uuid,
                   };
                   navigate.replace('ExpandedAddContactsPage', { newContact });
-                } catch (_) {
-                  setIsAddingContact(false);
                 }
-              } else {
-                const uuid = customUUID();
-                if (!uuid) return;
+              }}
+              textContent={t('contacts.contactsPage.addContactButton')}
+            />
+          )}
+
+          {showAddBlitzContact && (
+            <CustomButton
+              textStyles={[styles.linkText, { color: tokens.link }]}
+              buttonStyles={{
+                width: '100%',
+                paddingHorizontal: 15,
+                backgroundColor: 'unset',
+              }}
+              actionFunction={() => {
                 const newContact = {
-                  name: lnurlAddress.split('@')[0],
-                  bio: '',
-                  uniqueName: '',
+                  name: blitzContactInfo.name || '',
+                  bio: blitzContactInfo.bio || '',
+                  uniqueName: blitzContactInfo.uniqueName || '',
+                  uuid: blitzContactInfo.uuid,
                   isFavorite: false,
                   transactions: [],
                   unlookedTransactions: 0,
-                  receiveAddress: lnurlAddress,
                   isAdded: true,
-                  isLNURL: true,
-                  profileImage: '',
-                  uuid,
                 };
                 navigate.replace('ExpandedAddContactsPage', { newContact });
-              }
-            }}
-            textContent={t('contacts.contactsPage.addContactButton')}
-          />
-        )}
-
-        {showAddBlitzContact && (
-          <CustomButton
-            textStyles={[styles.linkText, { color: tokens.link }]}
-            buttonStyles={{
-              width: '100%',
-              paddingHorizontal: 15,
-              backgroundColor: 'unset',
-            }}
-            actionFunction={() => {
-              const newContact = {
-                name: blitzContactInfo.name || '',
-                bio: blitzContactInfo.bio || '',
-                uniqueName: blitzContactInfo.uniqueName || '',
-                uuid: blitzContactInfo.uuid,
-                isFavorite: false,
-                transactions: [],
-                unlookedTransactions: 0,
-                isAdded: true,
-              };
-              navigate.replace('ExpandedAddContactsPage', { newContact });
-            }}
-            textContent={t('contacts.contactsPage.addContactButton')}
-          />
-        )}
-      </View>
+              }}
+              textContent={t('contacts.contactsPage.addContactButton')}
+            />
+          )}
+        </View>
+      </BottomActions>
     </GlobalThemeView>
   );
 }
@@ -481,7 +495,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
-    paddingVertical: 16,
+    paddingTop: 16,
+    paddingBottom: FADE,
   },
   lottie: { width: 125, height: 125 },
   hero: { marginTop: 12, alignItems: 'center' },
@@ -501,6 +516,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 8,
   },
+  actions: { alignItems: 'center' },
   footer: { paddingTop: 8, rowGap: 4 },
   linkText: {
     fontFamily: FONT.Title_Regular,

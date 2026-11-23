@@ -10,6 +10,7 @@ import {
 import { ThemeText } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
 import {
+  AMOUNT_HERO_SIZE,
   STARTING_INDEX_FOR_SAVINGS_DERIVE,
   USDB_TOKEN_ID,
 } from '../../../../constants';
@@ -799,11 +800,7 @@ export default function WithdrawFromSavingsHalfModal({
 
   const closeOrBack =
     step.length > 1 ? goBack : () => handleBackPressFunction();
-  const backBar = (
-    <View style={styles.backBar}>
-      <TopBar onBack={closeOrBack} />
-    </View>
-  );
+  const backBar = <TopBar onBack={closeOrBack} />;
 
   // ─── balanceType: Bitcoin rewards or goal money ───────────────────────────
   const renderBalanceType = () => {
@@ -928,12 +925,8 @@ export default function WithdrawFromSavingsHalfModal({
         lead={<EmojiDisc emoji={emoji} />}
         title={title}
         titleStyle={styles.rowTitle}
-        trailing={
-          <ThemeText
-            styles={[styles.rowValue, { color: tokens.muted }]}
-            content={amount}
-          />
-        }
+        value={amount}
+        trailing="value"
         minHeight={64}
         showChevron={true}
         onPress={onPress}
@@ -944,10 +937,7 @@ export default function WithdrawFromSavingsHalfModal({
       <>
         {backBar}
         <SheetHeader title={t('savings.withdraw.chooseGoalTitle')} />
-        <CustomScrollView
-          style={styles.list}
-          showsVerticalScrollIndicator={false}
-        >
+        <CustomScrollView style={styles.list}>
           <ListCard tone="flush">
             {/* Withdraw All — drains the entire savings wallet in one action */}
             {shouldShowWithdrawlAll &&
@@ -1046,7 +1036,7 @@ export default function WithdrawFromSavingsHalfModal({
             forceCurrency={primaryDisplay.forceCurrency}
             convertAmount={false}
             mutedValue={!Number(amountValue)}
-            amountSize={52}
+            amountSize={AMOUNT_HERO_SIZE.sheet}
           />
           <ThemeText
             styles={[styles.hint, { color: tokens.muted }]}
@@ -1171,7 +1161,10 @@ export default function WithdrawFromSavingsHalfModal({
           sub={confirmDescription}
         />
         <View style={styles.confirmAmount}>
-          <AmountHero {...withdrawAmountProps} amountSize={52} />
+          <AmountHero
+            {...withdrawAmountProps}
+            amountSize={AMOUNT_HERO_SIZE.sheet}
+          />
         </View>
         <CustomButton
           buttonStyles={styles.bottomButton}
@@ -1261,21 +1254,12 @@ const styles = StyleSheet.create({
     flex: 1,
     overflow: 'hidden',
   },
-  backBar: {
-    marginTop: 8,
-  },
   list: {
     flexGrow: 0,
   },
   rowTitle: {
     fontSize: 15,
     lineHeight: 21,
-  },
-  rowValue: {
-    fontSize: 14,
-    lineHeight: 20,
-    fontVariant: ['tabular-nums'],
-    includeFontPadding: false,
   },
   disabledRow: {
     opacity: 0.45,

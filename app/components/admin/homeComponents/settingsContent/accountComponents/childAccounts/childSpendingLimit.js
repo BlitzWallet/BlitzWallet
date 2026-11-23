@@ -4,7 +4,11 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useRef, useState } from 'react';
 import CustomButton from '../../../../../../functions/CustomElements/button';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../../constants';
+import {
+  AMOUNT_HERO_SIZE,
+  CENTER,
+  MAX_WEB_CONTENT_WIDTH,
+} from '../../../../../../constants';
 import TopBar from '../../../../../../functions/CustomElements/redesign/TopBar';
 import PageHeader from '../../../../../../functions/CustomElements/redesign/PageHeader';
 import { useGlobalContextProvider } from '../../../../../../../context-store/context';
@@ -27,7 +31,8 @@ import { privateKeyFromSeedWords } from '../../../../../../functions/nostrCompat
 import { encriptMessage } from '../../../../../../functions/messaging/encodingAndDecodingMessages';
 import { crashlyticsRecordErrorReport } from '../../../../../../functions/crashlyticsLogs';
 import CustomNumberKeyboard from '../../../../../../functions/CustomElements/customNumberKeyboard';
-import FormattedBalanceInput from '../../../../../../functions/CustomElements/formattedBalanceInput';
+import AmountHero from '../../../../../../functions/CustomElements/redesign/AmountHero';
+import formatBalanceAmount from '../../../../../../functions/formatNumber';
 
 export default function ChildSpendingLimit(props) {
   const navigate = useNavigation();
@@ -221,12 +226,16 @@ export default function ChildSpendingLimit(props) {
           sub={t('settings.childAccounts.spendingLimit.subtitle')}
         />
         <View style={styles.amount}>
-          <FormattedBalanceInput
-            maxWidth={0.9}
-            amountValue={limit}
-            inputDenomination={'sats'}
-            forceCurrency={null}
-            forceFiatStats={null}
+          <AmountHero
+            // Limit is always typed in sats: format as typed, no conversion.
+            amount={formatBalanceAmount(limit || 0, false, masterInfoObject)}
+            convertAmount={false}
+            masterInfoObject={{
+              ...masterInfoObject,
+              userBalanceDenomination: 'sats',
+            }}
+            mutedValue={!limit}
+            amountSize={AMOUNT_HERO_SIZE.primary}
           />
         </View>
         <CustomNumberKeyboard

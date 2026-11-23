@@ -2,6 +2,7 @@ import MaskedView from '@react-native-masked-view/masked-view';
 import {Dimensions, Fragment, StyleSheet, View} from 'react-native';
 import {LinearGradient} from 'expo-linear-gradient';
 import {SKELETON_ANIMATION_SPEED} from '../../constants';
+import {useReducedMotion} from '../../constants/motion';
 import {Children, useEffect, useMemo, useState} from 'react';
 import Animated, {
   useSharedValue,
@@ -25,8 +26,12 @@ const SkeletonPlaceholder = ({
   shimmerWidth,
 }) => {
   const [layout, setLayout] = useState();
+  const reducedMotion = useReducedMotion();
   const progress = useSharedValue(0);
-  const isAnimationReady = Boolean(speed && layout?.width && layout?.height);
+  // Reduced motion: no shimmer, bars stay at their base colour.
+  const isAnimationReady = Boolean(
+    speed && !reducedMotion && layout?.width && layout?.height,
+  );
 
   useEffect(() => {
     if (!isAnimationReady) return;

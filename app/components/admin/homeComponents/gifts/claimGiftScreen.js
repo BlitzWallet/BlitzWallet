@@ -10,6 +10,7 @@ import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import CustomButton from '../../../../functions/CustomElements/button';
 import {
+  AMOUNT_HERO_SIZE,
   FONT,
   STARTING_INDEX_FOR_GIFTS_DERIVE,
   USDB_TOKEN_ID,
@@ -643,7 +644,10 @@ export default function ClaimGiftScreen({
               )}
             />
           ) : (
-            <AmountHero {...giftAmountProps} amountSize={40} />
+            <AmountHero
+              {...giftAmountProps}
+              amountSize={AMOUNT_HERO_SIZE.secondary}
+            />
           )}
         </View>
         <ThemeText

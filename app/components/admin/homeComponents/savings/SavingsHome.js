@@ -8,7 +8,11 @@ import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import {
+  AMOUNT_HERO_SIZE,
+  CENTER,
+  MAX_WEB_CONTENT_WIDTH,
+} from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import CircularProgress from '../pools/circularProgress';
 import { fromMicros, mergeAndSortSavingsActivity } from './utils';
@@ -30,6 +34,7 @@ import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
 import useAfterTransition from '../../../../hooks/useAfterTransition';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function SavingsHome() {
   const navigate = useNavigation();
@@ -62,7 +67,11 @@ export default function SavingsHome() {
   const combinedTransactions = useMemo(
     () =>
       isReady
-        ? mergeAndSortSavingsActivity(allSavingsTransactions, interestPayouts, t)
+        ? mergeAndSortSavingsActivity(
+            allSavingsTransactions,
+            interestPayouts,
+            t,
+          )
         : [],
     [allSavingsTransactions, interestPayouts, t, isReady],
   );
@@ -126,6 +135,7 @@ export default function SavingsHome() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('savings.home.title')}
           right={
             <IconButton
@@ -138,10 +148,7 @@ export default function SavingsHome() {
             />
           }
         />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.heroCard}>
             <ThemeText
               styles={[styles.balanceLabel, { color: tokens.muted }]}
@@ -156,7 +163,7 @@ export default function SavingsHome() {
               }}
               forceCurrency="USD"
               convertAmount={false}
-              amountSize={48}
+              amountSize={AMOUNT_HERO_SIZE.secondary}
             />
           </View>
 
@@ -257,6 +264,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
+    paddingTop: FADE_TOP,
     paddingBottom: 20,
   },
   heroCard: {

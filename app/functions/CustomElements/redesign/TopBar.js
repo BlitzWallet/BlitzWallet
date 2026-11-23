@@ -1,16 +1,21 @@
 import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { CONTENT_KEYBOARD_OFFSET, FONT } from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
 import ThemeText from '../textTheme';
 import IconButton from './IconButton';
 import { useInSheet } from './sheetSurface';
 import { KeyboardController } from 'react-native-keyboard-controller';
+import TopHeader from './TopHeader';
 
 // Back (44) · centred title 17/500, wraps to 2 lines · right slot.
 // `showBack={false}` keeps the slot (title stays centred) but hides the button.
-export default function TopBar({
+// `fade`: the scroll view below slides SOLID under the bar and its content
+// dissolves out at the bar's bottom edge. Give that scroll content
+// paddingTop: FADE_TOP. Pages only; ignored in sheets.
+
+function TopBarInner({
   title,
   onBack,
   right,
@@ -22,6 +27,7 @@ export default function TopBar({
   const { tokens } = useTheme();
   const inSheet = useInSheet();
   const lastBackPressRef = useRef(0);
+  const [rightWidth, setRightWidth] = useState(44);
 
   // Same double-tap guard as CustomSettingsTopBar.
   const handleBack = useCallback(async () => {
@@ -41,7 +47,11 @@ export default function TopBar({
       ]}
     >
       <View
-        style={[styles.side, !showBack && styles.hidden]}
+        style={[
+          styles.side,
+          { minWidth: rightWidth },
+          !showBack && styles.hidden,
+        ]}
         pointerEvents={showBack ? 'auto' : 'none'}
         importantForAccessibility={showBack ? 'auto' : 'no-hide-descendants'}
         accessibilityElementsHidden={!showBack}
@@ -58,8 +68,58 @@ export default function TopBar({
         content={title || ''}
         styles={styles.title}
       />
-      <View style={[styles.side, styles.right]}>{right}</View>
+      <View
+        style={[styles.side, styles.right]}
+        onLayout={e => {
+          // Android snaps widths to its pixel grid by position, so this
+          // flips ~0.4px each pass (44.19 ↔ 43.81) and feeds back through the
+          // left minWidth forever. Ignore sub-pixel changes.
+          const w = e.nativeEvent.layout.width;
+          setRightWidth(prev => (Math.abs(prev - w) < 1 ? prev : w));
+        }}
+      >
+        {right}
+      </View>
     </View>
+  );
+}
+
+export default function TopBar({
+  title,
+  onBack,
+  right,
+  scrolled = false,
+  shouldDismissKeyboard = false,
+  showBack = true,
+  fade = false,
+}) {
+  const inSheet = useInSheet();
+  const showFade = fade && !inSheet;
+
+  if (showFade) {
+    return (
+      <TopHeader>
+        <TopBarInner
+          title={title}
+          onBack={onBack}
+          right={right}
+          scrolled={scrolled}
+          shouldDismissKeyboard={shouldDismissKeyboard}
+          showBack={showBack}
+        />
+      </TopHeader>
+    );
+  }
+
+  return (
+    <TopBarInner
+      title={title}
+      onBack={onBack}
+      right={right}
+      scrolled={scrolled}
+      shouldDismissKeyboard={shouldDismissKeyboard}
+      showBack={showBack}
+    />
   );
 }
 
@@ -70,11 +130,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  // Equal-share sides keep the title centred (pattern from settingsTopBar.js).
+  // Sides size to their content and never shrink; only the title shrinks.
   side: {
-    flexGrow: 1,
     flexShrink: 0,
-    flexBasis: 0,
     minWidth: 44,
     flexDirection: 'row',
     alignItems: 'center',
@@ -91,7 +149,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     lineHeight: 20,
     textAlign: 'center',
-    flexShrink: 1,
+    flex: 1,
     minWidth: 0,
     marginHorizontal: 8,
     includeFontPadding: false,

@@ -16,6 +16,9 @@ import { useChildClaim } from '../../../../context-store/childClaimContext';
 import ClaimLinkError from './claimLinkError';
 import SasPatternGrid from '../../../components/admin/homeComponents/settingsContent/accountComponents/childAccounts/SasPatternGrid';
 import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
+import BottomActions from '../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../functions/CustomElements/redesign/TopFade';
 
 export default function ChildVerifyCode() {
   const navigate = useNavigation();
@@ -44,11 +47,8 @@ export default function ChildVerifyCode() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar onBack={handleNoMatch} />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.contentContainer}
-        >
+        <TopBar fade onBack={handleNoMatch} />
+        <CustomScrollView contentContainerStyle={styles.contentContainer}>
           <PageHeader
             large
             title={t('settings.childAccounts.claim.sasTitle')}
@@ -63,20 +63,22 @@ export default function ChildVerifyCode() {
             content={t('settings.childAccounts.claim.sasHint')}
           />
         </CustomScrollView>
-        <View style={styles.footer}>
-          <CustomButton
-            size="regular"
-            useLoading={status === 'awaiting'}
-            textContent={t('constants.confirm')}
-            actionFunction={confirmMatch}
-          />
-          <CustomButton
-            size="regular"
-            tone="secondary"
-            textContent={t('settings.childAccounts.dontMatch')}
-            actionFunction={handleNoMatch}
-          />
-        </View>
+        <BottomActions>
+          <View style={styles.footer}>
+            <CustomButton
+              size="regular"
+              useLoading={status === 'awaiting'}
+              textContent={t('constants.confirm')}
+              actionFunction={confirmMatch}
+            />
+            <CustomButton
+              size="regular"
+              tone="secondary"
+              textContent={t('settings.childAccounts.dontMatch')}
+              actionFunction={handleNoMatch}
+            />
+          </View>
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );
@@ -84,7 +86,7 @@ export default function ChildVerifyCode() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  contentContainer: { flexGrow: 1, paddingBottom: 20 },
+  contentContainer: { flexGrow: 1, paddingTop: FADE_TOP, paddingBottom: FADE },
   grid: { marginTop: 28 },
   hint: {
     textAlign: 'center',

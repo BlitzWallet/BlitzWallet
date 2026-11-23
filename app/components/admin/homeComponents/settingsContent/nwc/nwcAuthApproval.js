@@ -14,7 +14,11 @@ import CustomButton from '../../../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import CustomNumberKeyboard from '../../../../../functions/CustomElements/customNumberKeyboard';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
-import { CENTER, CONTENT_KEYBOARD_OFFSET } from '../../../../../constants';
+import {
+  AMOUNT_HERO_SIZE,
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+} from '../../../../../constants';
 import { SIZES } from '../../../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
@@ -32,7 +36,10 @@ import {
 } from '../../../../../functions/displayCurrency';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { saveNWCAccount } from '../../../../../functions/nwc';
-import { parseNWCAuthRequest } from '../../../../../functions/nwc/walletAuth';
+import {
+  parseNWCAuthRequest,
+  isSafeReturnTo,
+} from '../../../../../functions/nwc/walletAuth';
 import NostrWalletConnectNoNotifications from './noNotifications';
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
 import ResultAnimation from '../../../../../functions/CustomElements/redesign/ResultAnimation';
@@ -209,8 +216,13 @@ export default function NWCAuthApproval({
     }
   };
 
-  // Only reachable from the success page, never after a decline or error.
-  const returnToApp = () => Linking.openURL(request.returnTo).catch(() => {});
+  // Only reachable from the success page, never after a decline or error. The
+  // target is re-checked here too: this screen must never hand an arbitrary
+  // scheme to the OS, or open this app's own payment links (walletAuth.js).
+  const returnToApp = () => {
+    if (!isSafeReturnTo(request.returnTo)) return handleBackPressFunction();
+    Linking.openURL(request.returnTo).catch(() => {});
+  };
 
   const toggleOptional = key =>
     setEnabledOptional(prev => ({ ...prev, [key]: !prev[key] }));
@@ -230,10 +242,7 @@ export default function NWCAuthApproval({
     <View style={styles.container}>
       {!!request && (
         <AnimatedStep active={currentPage === 'request'} direction={direction}>
-          <CustomScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContent}
-          >
+          <CustomScrollView contentContainerStyle={styles.scrollContent}>
             <View style={styles.header}>
               <Disc icon={'Plug'} size={64} iconSize={28} />
 
@@ -277,18 +286,14 @@ export default function NWCAuthApproval({
                 <ListRow
                   title={t('settings.nwc.authRequest.limitTitle')}
                   titleStyle={styles.rowLabel}
-                  trailing={
-                    <ThemeText
-                      styles={[styles.limitValue, { color: tokens.muted }]}
-                      content={
-                        limit
-                          ? `${formatAmount(limit.amount)} ${t(
-                              `settings.nwc.authRequest.period.${limit.option.toLowerCase()}`,
-                            )}`
-                          : t('timeLabels.noLimit')
-                      }
-                    />
+                  value={
+                    limit
+                      ? `${formatAmount(limit.amount)} ${t(
+                          `settings.nwc.authRequest.period.${limit.option.toLowerCase()}`,
+                        )}`
+                      : t('timeLabels.noLimit')
                   }
+                  trailing="value"
                   showChevron={true}
                   onPress={() => goTo('limit')}
                 />
@@ -506,7 +511,7 @@ function LimitStep({ appName, limit, onBack, onDone }) {
           amount={localSatAmount}
           fiatStats={conversionFiatStats}
           masterInfoObject={amountHeroMasterInfoObject}
-          amountSize={52}
+          amountSize={AMOUNT_HERO_SIZE.sheet}
           mutedValue={!hasBudget}
         />
         {hasBudget ? (
@@ -595,10 +600,6 @@ const styles = StyleSheet.create({
   spendingLimit: { marginTop: 10 },
   rowLabel: {
     fontSize: 15,
-    includeFontPadding: false,
-  },
-  limitValue: {
-    fontSize: SIZES.smedium,
     includeFontPadding: false,
   },
   primaryButton: {

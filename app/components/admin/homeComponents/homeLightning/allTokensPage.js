@@ -9,11 +9,12 @@ import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import SearchField from '../../../../functions/CustomElements/redesign/SearchField';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
-import CustomScrollView from '../../../../functions/CustomElements/scrollView';
+import HideOnScrollView from '../../../../functions/CustomElements/redesign/HideOnScrollView';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { getWalletTokens } from '../../../../functions/lrc20/utils';
 import TokenRow from './tokenRow';
 import useAfterTransition from '../../../../hooks/useAfterTransition';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function AllTokensPage() {
   const { sparkInformation } = useSparkWallet();
@@ -45,17 +46,19 @@ export default function AllTokensPage() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar title={t('wallet.homeLightning.balancePage.allTokens')} />
-        <SearchField
-          pill
-          value={search}
-          onChangeText={setSearch}
-          placeholder={t('wallet.homeLightning.balancePage.searchTokens')}
-          containerStyles={styles.search}
-        />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
+        <TopBar fade title={t('wallet.homeLightning.balancePage.allTokens')} />
+        <HideOnScrollView
+          topInset={FADE_TOP}
           keyboardShouldPersistTaps="handled"
+          header={
+            <SearchField
+              pill
+              value={search}
+              onChangeText={setSearch}
+              placeholder={t('wallet.homeLightning.balancePage.searchTokens')}
+              containerStyles={styles.search}
+            />
+          }
         >
           {!isReady ? null : tokens.length ? (
             <ListCard dividerInset={68} style={styles.card}>
@@ -70,15 +73,15 @@ export default function AllTokensPage() {
               styles={styles.empty}
             />
           )}
-        </CustomScrollView>
+        </HideOnScrollView>
       </View>
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, ...CENTER, paddingTop: 7 },
-  search: { marginTop: 24, marginBottom: 16, width: '100%' },
+  container: { flex: 1, ...CENTER },
+  search: { marginTop: 24, width: '100%' },
   card: { paddingVertical: 4, marginBottom: 20 },
   empty: { textAlign: 'center', marginTop: 24 },
 });

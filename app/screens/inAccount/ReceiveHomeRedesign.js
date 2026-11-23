@@ -17,6 +17,8 @@ import EmptyState from '../../functions/CustomElements/redesign/EmptyState';
 import { useNavigation } from '@react-navigation/native';
 import ReceiveModal from '../../components/admin/homeComponents/receiveBitcoin/ReceiveModal';
 import { formatDisplayName } from '../../components/admin/homeComponents/contacts/utils/formatListDisplayName';
+import { FADE } from '../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../functions/CustomElements/redesign/TopFade';
 
 // Receive (Receive.dc.html): request from a contact first, then the
 // "another wallet or exchange" panel. A contact opens the contact Request
@@ -83,6 +85,7 @@ export default function ReceiveHomeRedesign() {
     <GlobalThemeView useStandardWidth={false} styles={styles.screen}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('constants.receive')}
           right={
             <IconButton
@@ -97,10 +100,9 @@ export default function ReceiveHomeRedesign() {
         {sortedContacts.length ? (
           <CustomScrollView
             keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.list}
           >
-            <SectionHeader title={t('receive.requestFromContact')} />
+            <SectionHeader first title={t('receive.requestFromContact')} />
             {!!contactElements.length && <ListCard>{contactElements}</ListCard>}
           </CustomScrollView>
         ) : (
@@ -128,6 +130,6 @@ export default function ReceiveHomeRedesign() {
 const styles = StyleSheet.create({
   screen: { paddingBottom: 0 },
   container: { flex: 1, ...CENTER },
-  list: { paddingBottom: 24 },
+  list: { paddingTop: FADE_TOP, paddingBottom: FADE },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 });

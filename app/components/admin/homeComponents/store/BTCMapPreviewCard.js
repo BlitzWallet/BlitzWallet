@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { FONT, ICONS, SIZES } from '../../../../constants';
+import { CARD_RADIUS, FONT, ICONS, SIZES } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
@@ -130,9 +130,9 @@ export default function BTCMapPreviewCard() {
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 28,
+    borderRadius: CARD_RADIUS,
     overflow: 'hidden',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   mapArea: {
     height: 320,

@@ -32,8 +32,8 @@ export default function RemoveBudgetHalfModal({
     <View
       style={styles.container}
       onLayout={e =>
-        // Sheet chrome: grab area (10 + 5) + 34 bottom padding.
-        setContentHeight(Math.round(e.nativeEvent.layout.height) + 49)
+        // Sheet chrome: grab area (10 + 5 + 5) + 34 bottom padding.
+        setContentHeight(Math.round(e.nativeEvent.layout.height) + 54)
       }
     >
       <Disc icon={'Trash2'} tone="danger" size={56} iconSize={24} />

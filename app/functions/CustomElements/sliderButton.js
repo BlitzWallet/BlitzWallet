@@ -21,6 +21,7 @@ import { SwipeThumb } from './swipeButton/swipeThumb';
 import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../context-store/appStatus';
 import RedesignSwipe from './swipeButton/redesignSwipe';
+import { useReducedMotion } from '../../constants/motion';
 
 const containerStyles = StyleSheet.create({
   container: {
@@ -73,6 +74,7 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
   const { t } = useTranslation();
   const titleText = title || t('constants.slideToConfirm');
 
+  const reduced = useReducedMotion();
   const containerAnimatedWidth = useSharedValue(layoutWidth);
   const textOpacity = useSharedValue(1);
   const textTranslateX = useSharedValue(0);
@@ -105,7 +107,7 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
     prevPoint.current = progress;
 
     const shouldAnimate = jumpDistance > 0.1;
-    const duration = shouldAnimate ? 200 : 0;
+    const duration = shouldAnimate && !reduced ? 200 : 0;
 
     textOpacity.value = withTiming(1 - progress, {
       duration,
@@ -119,7 +121,9 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
 
   const reset = () => {
     scheduleOnRN(setShowLoadingIcon, false);
-    containerAnimatedWidth.value = withTiming(layoutWidth, { duration: 200 });
+    containerAnimatedWidth.value = reduced
+      ? layoutWidth
+      : withTiming(layoutWidth, { duration: 200 });
     loadingAnimationOpacity.value = withTiming(0, { duration: 200 });
   };
 
@@ -128,7 +132,9 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
     const thumbSize = height + 3 + 2;
     scheduleOnRN(setShowLoadingIcon, true);
 
-    containerAnimatedWidth.value = withTiming(thumbSize, { duration: 200 });
+    containerAnimatedWidth.value = reduced
+      ? thumbSize
+      : withTiming(thumbSize, { duration: 200 });
     loadingAnimationOpacity.value = withTiming(1, { duration: 200 });
 
     if (!shouldDisplaySuccessState && shouldResetAfterSuccess) {

@@ -17,6 +17,7 @@ import ListCard from '../../../../../functions/CustomElements/redesign/ListCard'
 import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
 import { SkeletonRow } from '../../../../../functions/CustomElements/redesign/Skeleton';
 import SupportMessage from './supportMessage';
+import { FADE_TOP } from '../../../../../functions/CustomElements/redesign/TopFade';
 
 export default function RoostockSwapsPage() {
   const [swapList, setSwapList] = useState(null);
@@ -54,7 +55,7 @@ export default function RoostockSwapsPage() {
 
   if (swapList === null) {
     return (
-      <ListCard dividerInset={0} style={styles.card}>
+      <ListCard dividerInset={0} style={[styles.card, { marginTop: FADE_TOP }]}>
         {[0, 1, 2, 3, 4, 5].map(key => (
           <SkeletonRow key={key} lead={0} title={110} sub={200} trailing={90} />
         ))}
@@ -68,7 +69,6 @@ export default function RoostockSwapsPage() {
   return (
     <CustomScrollView
       style={styles.container}
-      showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.scrollContent}
     >
       <ListCard dividerInset={0} style={styles.card}>
@@ -127,8 +127,8 @@ export default function RoostockSwapsPage() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scrollContent: { paddingBottom: 24 },
-  card: { marginTop: 16 },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: 24 },
+  card: { marginTop: 0 },
   amount: {
     fontFamily: FONT.Title_Regular,
     fontSize: 15,

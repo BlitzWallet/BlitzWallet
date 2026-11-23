@@ -1,6 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import {
+  AMOUNT_HERO_SIZE,
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   MAX_WEB_CONTENT_WIDTH,
@@ -109,7 +110,7 @@ export default function AnalyticsCreateBudgetPage() {
               ...masterInfoObject,
               userBalanceDenomination: primaryDisplay.denomination,
             }}
-            amountSize={60}
+            amountSize={AMOUNT_HERO_SIZE.primary}
             mutedValue={!localSatAmount}
           />
           <ThemeText

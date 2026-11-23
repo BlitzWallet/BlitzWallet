@@ -1,4 +1,4 @@
-import LottieView from 'lottie-react-native';
+import MotionLottie from '../../../../functions/CustomElements/MotionLottie';
 import {
   GlobalThemeView,
   ThemeText,
@@ -9,7 +9,11 @@ import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import {
+  AMOUNT_HERO_SIZE,
+  CENTER,
+  MAX_WEB_CONTENT_WIDTH,
+} from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 
 export default function ConfirmPaymentRequset(props) {
@@ -26,7 +30,7 @@ export default function ConfirmPaymentRequset(props) {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <View style={styles.content}>
-          <LottieView
+          <MotionLottie
             autoPlay={true}
             source={confirmAnimation}
             renderMode="SOFTWARE"
@@ -47,6 +51,7 @@ export default function ConfirmPaymentRequset(props) {
             fiatStats={fiatStats}
             forceCurrency={forceCurrency}
             masterInfoObject={masterInfoObject}
+            amountSize={AMOUNT_HERO_SIZE.secondary}
           />
           <ThemeText
             styles={{ marginTop: 8 }}

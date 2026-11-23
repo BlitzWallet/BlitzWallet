@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import { GlobalThemeView } from '../../../../functions/CustomElements';
 import {
+  AMOUNT_HERO_SIZE,
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   MAX_WEB_CONTENT_WIDTH,
@@ -125,6 +126,7 @@ export default function CreateGift(props) {
           <AmountHero
             amount={localSatAmount}
             fiatStats={conversionFiatStats}
+            amountSize={AMOUNT_HERO_SIZE.primary}
             masterInfoObject={{
               ...masterInfoObject,
               userBalanceDenomination: primaryDisplay.denomination,

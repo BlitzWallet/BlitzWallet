@@ -10,15 +10,18 @@ import SavingsRemoveGoalConfirm from '../app/components/admin/homeComponents/sav
 import SavingsGoalRemovedSuccess from '../app/components/admin/homeComponents/savings/SavingsGoalRemovedSuccess';
 import SavingsGoalDetails from '../app/components/admin/homeComponents/savings/SavingsGoalDetails';
 
+import { useReducedMotion, screenAnimation } from '../app/constants/motion';
+
 const Stack = createNativeStackNavigator();
 
 export default function SavingsStack() {
+  const reduced = useReducedMotion();
   return (
     <SavingsProvider>
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
-          animation: 'slide_from_right',
+          animation: screenAnimation('slide_from_right', reduced),
           presentation: 'card',
         }}
       >

@@ -15,6 +15,7 @@ import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import KeyValueRow from '../../../../functions/CustomElements/redesign/KeyValueRow';
 import TextButton from '../../../../functions/CustomElements/redesign/TextButton';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function BlitzFeeInformation() {
   const { masterInfoObject } = useGlobalContextProvider();
@@ -50,11 +51,11 @@ export default function BlitzFeeInformation() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('screens.inAccount.settingsContent.blitz fee details')}
         />
         <CustomScrollView
           style={styles.scroll}
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
           <ThemeText
@@ -93,12 +94,11 @@ export default function BlitzFeeInformation() {
 const styles = StyleSheet.create({
   content: { alignSelf: 'center', flex: 1 },
   scroll: { flex: 1 },
-  scrollContent: { paddingBottom: 40 },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: 40 },
   intro: {
     fontSize: 15,
     lineHeight: 22,
     includeFontPadding: false,
-    marginTop: 16,
     marginHorizontal: 4,
   },
   card: { marginTop: 20 },

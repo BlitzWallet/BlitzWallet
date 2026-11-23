@@ -10,7 +10,7 @@ import {
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import { ThemeText } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { APPROXIMATE_SYMBOL } from '../../../../constants';
+import { AMOUNT_HERO_SIZE, APPROXIMATE_SYMBOL } from '../../../../constants';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { fromMicros } from './utils';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
@@ -361,20 +361,13 @@ export default function AddMoneyToSavingsHalfModal({
     handleBackPressFunction();
   };
 
-  const backBar = (
-    <View style={styles.backBar}>
-      <TopBar onBack={goBack} />
-    </View>
-  );
+  const backBar = <TopBar onBack={goBack} />;
 
   // ─── chooseGoal ───────────────────────────────────────────────────────────
   const renderChooseGoal = () => (
     <>
       <SheetHeader title={t('savings.addMoney.chooseGoalTitle')} first={true} />
-      <CustomScrollView
-        style={styles.list}
-        showsVerticalScrollIndicator={false}
-      >
+      <CustomScrollView style={styles.list}>
         <ListCard tone="flush">
           {/* General savings — always shown so users can deposit without a goal */}
           <ListRow
@@ -559,7 +552,7 @@ export default function AddMoneyToSavingsHalfModal({
             forceCurrency={primaryDisplay.forceCurrency}
             convertAmount={false}
             mutedValue={!Number(amountValue)}
-            amountSize={52}
+            amountSize={AMOUNT_HERO_SIZE.sheet}
           />
           <ThemeText
             styles={[styles.hint, { color: tokens.muted }]}
@@ -654,7 +647,7 @@ export default function AddMoneyToSavingsHalfModal({
             }}
             forceCurrency="USD"
             convertAmount={false}
-            amountSize={52}
+            amountSize={AMOUNT_HERO_SIZE.sheet}
           />
           {selectedSource !== 'dollar' && (
             <ThemeText
@@ -781,9 +774,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     overflow: 'hidden',
-  },
-  backBar: {
-    marginTop: 8,
   },
   list: {
     flexGrow: 0,

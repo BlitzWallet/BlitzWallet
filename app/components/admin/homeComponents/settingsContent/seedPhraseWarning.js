@@ -16,6 +16,12 @@ import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
 import ConsentRow from '../../../../functions/CustomElements/redesign/ConsentRow';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
+import {
+  FADE_TOP,
+  FADE_TOP_BUFFER,
+} from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function SeedPhraseWarning(props) {
   const routeMnemonic = props?.route?.params?.mnemonic || props?.mnemonic;
@@ -73,7 +79,6 @@ export default function SeedPhraseWarning(props) {
       <CustomScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
       >
         <ThemeText
           styles={[styles.title, { color: tokens.ink }]}
@@ -97,20 +102,22 @@ export default function SeedPhraseWarning(props) {
         </ListCard>
       </CustomScrollView>
 
-      <View style={styles.footer}>
-        <ConsentRow
-          checked={termsAccepted}
-          onPress={() => setTermsAccepted(value => !value)}
-          text={t('settings.seedPhrase.warning.checkbox')}
-        />
-        <CustomButton
-          size="regular"
-          tone="primary"
-          disabled={!termsAccepted}
-          textContent={t('settings.seedPhrase.warning.continueButton')}
-          actionFunction={handleContinue}
-        />
-      </View>
+      <BottomActions overlap={false}>
+        <View style={styles.footer}>
+          <ConsentRow
+            checked={termsAccepted}
+            onPress={() => setTermsAccepted(value => !value)}
+            text={t('settings.seedPhrase.warning.checkbox')}
+          />
+          <CustomButton
+            size="regular"
+            tone="primary"
+            disabled={!termsAccepted}
+            textContent={t('settings.seedPhrase.warning.continueButton')}
+            actionFunction={handleContinue}
+          />
+        </View>
+      </BottomActions>
     </View>
   );
 
@@ -121,7 +128,7 @@ export default function SeedPhraseWarning(props) {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.standalone, { width: contentWidth }]}>
-        <TopBar title="" />
+        <TopBar fade title="" />
         {body}
       </View>
     </GlobalThemeView>
@@ -132,7 +139,10 @@ const styles = StyleSheet.create({
   body: { flex: 1 },
   standalone: { flex: 1, alignSelf: 'center' },
   scroll: { flex: 1 },
-  scrollContent: { paddingTop: 16, paddingBottom: 24 },
+  scrollContent: {
+    paddingTop: FADE_TOP + FADE_TOP_BUFFER,
+    paddingBottom: FADE,
+  },
   title: {
     fontFamily: FONT.Title_Medium,
     fontSize: 28,

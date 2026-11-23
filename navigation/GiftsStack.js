@@ -8,15 +8,18 @@ import GiftConfirmation from '../app/components/admin/homeComponents/gifts/giftC
 import AdvancedGiftClaim from '../app/components/admin/homeComponents/gifts/advancedClaimMode';
 import ReclaimGift from '../app/components/admin/homeComponents/gifts/reclaimGift';
 
+import { useReducedMotion, screenAnimation } from '../app/constants/motion';
+
 const Stack = createNativeStackNavigator();
 
 export default function GiftsStack() {
+  const reduced = useReducedMotion();
   return (
     <GiftProvider>
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
-          animation: 'slide_from_right',
+          animation: screenAnimation('slide_from_right', reduced),
           presentation: 'card',
         }}
       >

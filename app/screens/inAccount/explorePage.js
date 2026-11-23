@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { useReducedMotion, enterAnim } from '../../constants/motion';
 import { Stop } from 'react-native-svg';
 import CustomScrollView from '../../functions/CustomElements/scrollView';
 import { BLITZ_GOAL_USER_COUNT, MAX_WEB_CONTENT_WIDTH } from '../../constants';
@@ -34,8 +35,10 @@ import ProgressBar from '../../functions/CustomElements/redesign/ProgressBar';
 import IconButton from '../../functions/CustomElements/redesign/IconButton';
 import EmptyState from '../../functions/CustomElements/redesign/EmptyState';
 import formatDate from '../../functions/formatDate';
+import { FADE_TOP } from '../../functions/CustomElements/redesign/TopFade';
 
 export default function ExploreUsers() {
+  const reduced = useReducedMotion();
   const navigate = useNavigation();
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const [timeFrame, setTimeFrame] = useState('day');
@@ -201,6 +204,7 @@ export default function ExploreUsers() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('screens.inAccount.settingsContent.blitz stats')}
           right={
             hasData && (
@@ -215,7 +219,7 @@ export default function ExploreUsers() {
         {isLoading ? (
           // Same layout as the loaded page: static text, the progress track,
           // chart card and day labels are real; only the numbers are bars.
-          <View style={styles.scroll}>
+          <View style={[styles.scroll, { paddingTop: FADE_TOP }]}>
             <ThemeText
               content={t('screens.inAccount.explorePage.title')}
               styles={[styles.label, { color: tokens.muted }]}
@@ -258,7 +262,6 @@ export default function ExploreUsers() {
         ) : (
           <CustomScrollView
             style={styles.scroll}
-            showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.scrollContent}
           >
             <ThemeText
@@ -309,7 +312,7 @@ export default function ExploreUsers() {
               })}
             >
               {chartWidth > 0 && (
-                <Animated.View key={timeFrame} entering={FadeIn.duration(200)}>
+                <Animated.View key={timeFrame} entering={enterAnim(FadeIn.duration(200), reduced)}>
                   <LineChart.Provider
                     yGutter={0}
                     data={chartData}
@@ -375,7 +378,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scroll: { flex: 1 },
-  scrollContent: { paddingBottom: 40 },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: 40 },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   label: {
     fontSize: 14,

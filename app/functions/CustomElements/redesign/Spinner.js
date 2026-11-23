@@ -9,6 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import Svg, { Circle } from 'react-native-svg';
 import { useTheme } from '../../../../context-store/theme';
+import { ReduceMotion } from '../../../constants/motion';
 
 // The one indeterminate loader (D085): rotating ~30 % arc on a track.
 // large = 56/5 (pages, sheets), small = 20/2.5 (buttons, rows, inline).
@@ -38,9 +39,15 @@ export default function Spinner({
   const rotation = useSharedValue(0);
   useEffect(() => {
     rotation.value = withRepeat(
-      withTiming(360, { duration: 900, easing: Easing.linear }),
+      withTiming(360, {
+        duration: 900,
+        easing: Easing.linear,
+        reduceMotion: ReduceMotion.Never,
+      }),
       -1,
       false,
+      undefined,
+      ReduceMotion.Never,
     );
     return () => cancelAnimation(rotation);
   }, [rotation]);

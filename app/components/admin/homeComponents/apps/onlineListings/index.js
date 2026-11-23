@@ -33,8 +33,10 @@ import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import IconButton from '../../../../../functions/CustomElements/redesign/IconButton';
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import SearchField from '../../../../../functions/CustomElements/redesign/SearchField';
+import HideOnScrollView from '../../../../../functions/CustomElements/redesign/HideOnScrollView';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import useContentWidth from '../../../../../functions/CustomElements/redesign/useContentWidth';
+import { FADE_TOP } from '../../../../../functions/CustomElements/redesign/TopFade';
 
 const DEFAULT_FILTER = {
   categories: [],
@@ -265,6 +267,7 @@ export default function ViewOnlineListings({ removeUserLocal }) {
               <View style={styles.skeletonSearch} />
             </View>
           </Skeleton>
+          <View style={styles.skeletonSpace} />
           {[0, 1, 2, 3].map(key => (
             <ListCard key={key} style={styles.card}>
               <Skeleton>
@@ -295,6 +298,7 @@ export default function ViewOnlineListings({ removeUserLocal }) {
     >
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('apps.onlineListings.topBarLabel')}
           onBack={() => keyboardNavigate(() => navigate.popTo('HomeAdmin'))}
           right={
@@ -346,8 +350,10 @@ export default function ViewOnlineListings({ removeUserLocal }) {
             </>
           }
         />
-
-        <FlatList
+        <HideOnScrollView
+          ListComponent={FlatList}
+          header={renderListHeader}
+          topInset={FADE_TOP}
           data={businesses}
           showsVerticalScrollIndicator={false}
           keyExtractor={keyExtractor}
@@ -357,8 +363,6 @@ export default function ViewOnlineListings({ removeUserLocal }) {
             styles.listContent,
             { paddingBottom: bottomPadding },
           ]}
-          stickyHeaderIndices={[0]}
-          ListHeaderComponent={renderListHeader}
           ListEmptyComponent={emptyComponent}
           renderItem={renderItem}
         />
@@ -398,6 +402,7 @@ const BusinessCard = React.memo(({ item, t }) => {
           <ThemeText content={item.name?.trim()} styles={styles.title} />
           {!!item.description && (
             <ThemeText
+              CustomNumberOfLines={3}
               content={item.description}
               styles={[styles.desc, { color: tokens.muted }]}
             />
@@ -447,8 +452,6 @@ const styles = StyleSheet.create({
   stickySearchHeader: {
     width: '100%',
     alignSelf: 'center',
-    paddingTop: 16,
-    paddingBottom: 12,
   },
   listContent: {
     paddingTop: 0,
@@ -512,7 +515,12 @@ const styles = StyleSheet.create({
   skeletonTitle: { width: 150, height: 16, borderRadius: 8 },
   skeletonDesc: { width: 220, height: 14, borderRadius: 7, marginTop: 8 },
   skeletonPill: { width: 70, height: 28, borderRadius: 14 },
-  skeletonSearch: { width: '100%', height: 52, borderRadius: 26 },
+  skeletonSearch: {
+    width: '100%',
+    height: 52,
+    borderRadius: 26,
+  },
+  skeletonSpace: { height: 10, width: '100%' },
   skeletonLink: { width: 110, height: 14, borderRadius: 7 },
   filterButton: {
     position: 'relative',

@@ -57,18 +57,22 @@ export default async function writeAndShareFileToFilesystem(
     // PromiseAlreadySettledException (uncatchable from JS). The share sheet
     // still lets users "Save to Files"/Downloads.
     if (await Sharing.isAvailableAsync()) {
-      await Sharing.shareAsync(fileUri, {
-        mimeType: fileType,
-        dialogTitle: fileName,
-      });
+      await withShareTouchBlock(() =>
+        Sharing.shareAsync(fileUri, {
+          mimeType: fileType,
+          dialogTitle: fileName,
+        }),
+      );
       return {success: true, error: null};
     }
 
-    await Share.share({
-      title: `${fileName}`,
-      url: `${fileUri}`,
-      type: fileType,
-    });
+    await withShareTouchBlock(() =>
+      Share.share({
+        title: `${fileName}`,
+        url: `${fileUri}`,
+        type: fileType,
+      }),
+    );
     return {success: true, error: null};
   } catch (e) {
     console.log('saving to filesystem error', e);

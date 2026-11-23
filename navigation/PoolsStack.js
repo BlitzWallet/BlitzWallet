@@ -3,9 +3,12 @@ import {PoolProvider} from '../context-store/poolContext';
 import PoolManagementScreen from '../app/components/admin/homeComponents/pools/poolManagementScreen';
 import PoolDetailScreen from '../app/components/admin/homeComponents/pools/poolDetailScreen';
 
+import { useReducedMotion, screenAnimation } from '../app/constants/motion';
+
 const Stack = createNativeStackNavigator();
 
 export default function PoolsStack() {
+  const reduced = useReducedMotion();
   return (
     <PoolProvider>
       <Stack.Navigator screenOptions={{headerShown: false}}>
@@ -17,7 +20,7 @@ export default function PoolsStack() {
         <Stack.Screen
           name="PoolDetailScreen"
           component={PoolDetailScreen}
-          options={{animation: 'slide_from_right', presentation: 'card'}}
+          options={{animation: screenAnimation('slide_from_right', reduced), presentation: 'card'}}
         />
       </Stack.Navigator>
     </PoolProvider>

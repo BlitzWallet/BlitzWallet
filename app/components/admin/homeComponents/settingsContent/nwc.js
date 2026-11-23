@@ -23,6 +23,9 @@ import displayCorrectDenomination from '../../../../functions/displayCorrectDeno
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
 import DiscText from '../../../../functions/CustomElements/redesign/DiscText';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function NosterWalletConnect({ route }) {
   const navigate = useNavigation();
@@ -62,10 +65,7 @@ export default function NosterWalletConnect({ route }) {
 
   return (
     <CustomPageWrapper>
-      <CustomScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+      <CustomScrollView contentContainerStyle={styles.scrollContent}>
         {savedNWCAccountsList.length > 0 ? (
           <View style={styles.accountsList}>
             <ListCard>
@@ -133,16 +133,18 @@ export default function NosterWalletConnect({ route }) {
           </View>
         )}
       </CustomScrollView>
-      <CustomButton
-        actionFunction={() => {
-          navigate.navigate('CreateNWCName');
-        }}
-        buttonStyles={{
-          marginTop: CONTENT_KEYBOARD_OFFSET,
-        }}
-        size={'regular'}
-        textContent={t('settings.nwc.addAccount')}
-      />
+      <BottomActions>
+        <CustomButton
+          actionFunction={() => {
+            navigate.navigate('CreateNWCName');
+          }}
+          buttonStyles={{
+            marginTop: CONTENT_KEYBOARD_OFFSET,
+          }}
+          size={'regular'}
+          textContent={t('settings.nwc.addAccount')}
+        />
+      </BottomActions>
     </CustomPageWrapper>
   );
 }
@@ -155,7 +157,7 @@ function CustomPageWrapper({ children }) {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.contentContianer, { width: contentWidth }]}>
-        <TopBar title={t('settings.nwc.pageTitle')} />
+        <TopBar fade title={t('settings.nwc.pageTitle')} />
         {children}
       </View>
     </GlobalThemeView>
@@ -169,8 +171,8 @@ const styles = StyleSheet.create({
   },
 
   scrollContent: {
-    paddingTop: 24,
-    paddingBottom: 20,
+    paddingTop: FADE_TOP,
+    paddingBottom: FADE,
     flexGrow: 1,
   },
   accountsList: {

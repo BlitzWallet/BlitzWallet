@@ -35,11 +35,14 @@ import IconButton from '../../../../functions/CustomElements/redesign/IconButton
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
 import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
 import AdaptiveButtonRow from '../../../../functions/CustomElements/adaptiveButtonRow';
 import CustomButton from '../../../../functions/CustomElements/button';
 import ContactAvatar from './internalComponents/contactAvatar';
 import { formatDisplayName } from './utils/formatListDisplayName';
 import formatDate from '../../../../functions/formatDate';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 const MAX_TRANSACTIONS = 50;
 
@@ -325,6 +328,7 @@ export default function ExpandedContactsPage(props) {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           right={
             <View style={styles.topBar}>
               <IconButton
@@ -343,7 +347,6 @@ export default function ExpandedContactsPage(props) {
             </View>
           }
         />
-
         {!selectedContact ? (
           <FullLoadingScreen
             text={t('contacts.expandedContactPage.loadingContactError')}
@@ -351,7 +354,6 @@ export default function ExpandedContactsPage(props) {
           />
         ) : (
           <CustomScrollView
-            showsVerticalScrollIndicator={false}
             style={styles.flex}
             contentContainerStyle={styles.listContent}
           >
@@ -359,65 +361,66 @@ export default function ExpandedContactsPage(props) {
             {history}
           </CustomScrollView>
         )}
-
-        <AdaptiveButtonRow
-          pill
-          labels={[requestText, payText]}
-          containerStyle={styles.buttonContainer}
-        >
-          {({ buttonStyle }) => (
-            <>
-              <CustomButton
-                buttonStyles={buttonStyle}
-                enableElipsis={false}
-                textContent={requestText}
-                actionFunction={() => {
-                  if (selectedContact.isLNURL) {
-                    navigate.navigate('ErrorScreen', {
-                      errorMessage: t(
-                        'contacts.expandedContactPage.requestLNURLError',
-                      ),
+        <BottomActions>
+          <AdaptiveButtonRow
+            pill
+            labels={[requestText, payText]}
+            containerStyle={styles.buttonContainer}
+          >
+            {({ buttonStyle }) => (
+              <>
+                <CustomButton
+                  buttonStyles={buttonStyle}
+                  enableElipsis={false}
+                  textContent={requestText}
+                  actionFunction={() => {
+                    if (selectedContact.isLNURL) {
+                      navigate.navigate('ErrorScreen', {
+                        errorMessage: t(
+                          'contacts.expandedContactPage.requestLNURLError',
+                        ),
+                      });
+                      return;
+                    }
+                    if (!isConnectedToTheInternet) {
+                      navigate.navigate('ErrorScreen', {
+                        errorMessage: t('errormessages.nointernet'),
+                      });
+                      return;
+                    }
+                    navigate.navigate('SendAndRequestPage', {
+                      selectedContact: selectedContact,
+                      paymentType: 'request',
+                      imageData,
                     });
-                    return;
-                  }
-                  if (!isConnectedToTheInternet) {
-                    navigate.navigate('ErrorScreen', {
-                      errorMessage: t('errormessages.nointernet'),
+                  }}
+                  size={'regular'}
+                  tone={'secondary'}
+                />
+                <CustomButton
+                  buttonStyles={buttonStyle}
+                  enableElipsis={false}
+                  textContent={payText}
+                  actionFunction={() => {
+                    if (!isConnectedToTheInternet) {
+                      navigate.navigate('ErrorScreen', {
+                        errorMessage: t('errormessages.nointernet'),
+                      });
+                      return;
+                    }
+                    navigate.navigate('SendAndRequestPage', {
+                      selectedContact: selectedContact,
+                      paymentType: 'send',
+                      imageData,
+                      endReceiveType: 'BTC',
                     });
-                    return;
-                  }
-                  navigate.navigate('SendAndRequestPage', {
-                    selectedContact: selectedContact,
-                    paymentType: 'request',
-                    imageData,
-                  });
-                }}
-                size={'regular'}
-                tone={'secondary'}
-              />
-              <CustomButton
-                buttonStyles={buttonStyle}
-                enableElipsis={false}
-                textContent={payText}
-                actionFunction={() => {
-                  if (!isConnectedToTheInternet) {
-                    navigate.navigate('ErrorScreen', {
-                      errorMessage: t('errormessages.nointernet'),
-                    });
-                    return;
-                  }
-                  navigate.navigate('SendAndRequestPage', {
-                    selectedContact: selectedContact,
-                    paymentType: 'send',
-                    imageData,
-                    endReceiveType: 'BTC',
-                  });
-                }}
-                size={'regular'}
-              />
-            </>
-          )}
-        </AdaptiveButtonRow>
+                  }}
+                  size={'regular'}
+                />
+              </>
+            )}
+          </AdaptiveButtonRow>
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );
@@ -438,7 +441,7 @@ const styles = StyleSheet.create({
     marginTop: CONTENT_KEYBOARD_OFFSET,
   },
   flex: { flex: 1 },
-  listContent: { paddingBottom: 16 },
+  listContent: { paddingTop: FADE_TOP, paddingBottom: FADE },
   header: { alignItems: 'center', marginTop: 8 },
   avatar: { ...CENTER },
   nameText: {

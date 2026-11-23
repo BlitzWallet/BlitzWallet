@@ -1,11 +1,12 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useRef } from 'react';
 import { View, StyleSheet, Platform, useWindowDimensions } from 'react-native';
 import CustomScrollView from '../../functions/CustomElements/scrollView';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { GlobalThemeView } from '../../functions/CustomElements';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { MAX_WEB_CONTENT_WIDTH } from '../../constants';
 import { TAB_ITEM_HEIGHT } from '../../../navigation/tabs';
+import { useTabScrollToTop } from '../../../navigation/tabs/useTabScrollToTop';
 import BTCMapPreviewCard from '../../components/admin/homeComponents/store/BTCMapPreviewCard';
 import { useGlobalAppData } from '../../../context-store/appData';
 import PageTitle from '../../functions/CustomElements/redesign/PageTitle';
@@ -13,8 +14,13 @@ import { useTranslation } from 'react-i18next';
 import ListCard from '../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../functions/CustomElements/redesign/Disc';
+import TopHeader from '../../functions/CustomElements/redesign/TopHeader';
+import {
+  FADE_TOP,
+  FADE_TOP_BUFFER,
+} from '../../functions/CustomElements/redesign/TopFade';
 
-export default function AppStore({ navigation }) {
+export default function AppStore() {
   const navigate = useNavigation();
   const { bottomPadding } = useGlobalInsets();
   const { decodedChatGPT, decodedMessages } = useGlobalAppData();
@@ -40,26 +46,18 @@ export default function AppStore({ navigation }) {
     Platform.OS === 'android' ||
     Platform.OS === 'web';
 
-  useFocusEffect(
-    useCallback(() => {
-      if (!navigation) return;
-      return navigation?.addListener('tabPress', () => {
-        if (scrollViewRef.current) {
-          scrollViewRef.current.scrollTo({ y: 0, animated: true });
-        }
-      });
-    }, [navigation]),
-  );
+  useTabScrollToTop(scrollViewRef);
 
   return (
     <GlobalThemeView styles={styles.container} useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
-        <View style={styles.header}>
-          <PageTitle text={t('apps.appList.title')} />
-        </View>
+        <TopHeader>
+          <View style={styles.header}>
+            <PageTitle text={t('apps.appList.title')} />
+          </View>
+        </TopHeader>
         <CustomScrollView
           ref={scrollViewRef}
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.scrollContent,
             { paddingBottom: bottomPadding + TAB_ITEM_HEIGHT + 40 },
@@ -149,13 +147,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    marginTop: 10,
-    marginBottom: 20,
-    minHeight: 45,
+    minHeight: 44,
     justifyContent: 'center',
   },
-  card: { marginTop: 16 },
+  card: { marginTop: 12 },
   container: { paddingBottom: 0 },
 
-  scrollContent: { flexGrow: 1, width: '100%' },
+  scrollContent: {
+    flexGrow: 1,
+    width: '100%',
+    paddingTop: FADE_TOP + FADE_TOP_BUFFER,
+  },
 });

@@ -113,6 +113,7 @@ export default function SettingsContentIndex(props) {
         <GlobalThemeView useStandardWidth={true}>
           <View style={[styles.largeDeviceWrapper, { width: contentWidth }]}>
             <TopBar
+              fade
               title={
                 selectedPage?.toLowerCase() === 'backup wallet'
                   ? ''

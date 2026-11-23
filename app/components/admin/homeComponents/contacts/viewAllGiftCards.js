@@ -24,6 +24,7 @@ import { CENTER } from '../../../../constants';
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { formatDisplayName } from './utils/formatListDisplayName';
 import formatDate from '../../../../functions/formatDate';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 function formatCardDate(timestamp) {
   return formatDate(timestamp, 'day');
@@ -174,6 +175,7 @@ export default function ViewAllGiftCards() {
     <GlobalThemeView useStandardWidth={true} styles={styles.page}>
       <View style={[styles.inner, { width: INSET_WINDOW_WIDTH }, CENTER]}>
         <TopBar
+          fade
           title={t('contacts.internalComponents.viewAllGiftCards.header')}
         />
         {!giftCardsList || giftCardsList.length === 0 ? (
@@ -188,9 +190,8 @@ export default function ViewAllGiftCards() {
           </View>
         ) : (
           <CustomScrollView
-            showsVerticalScrollIndicator={false}
             contentContainerStyle={{
-              paddingTop: 20,
+              paddingTop: FADE_TOP,
               paddingBottom: 20,
             }}
           >

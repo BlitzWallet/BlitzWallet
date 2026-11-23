@@ -1,5 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import { FlatList, StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../../../../../functions/CustomElements';
 import { getAIModels } from '../contants/modelCache';
 import { useTranslation } from 'react-i18next';
@@ -81,6 +82,7 @@ export default function SwitchGenerativeAIModel({
       {filteredList.length ? (
         <ListCard style={styles.list}>
           <FlatList
+            renderScrollComponent={props => <CustomScrollView {...props} />}
             data={filteredList}
             renderItem={listItem}
             keyExtractor={item => item.id}

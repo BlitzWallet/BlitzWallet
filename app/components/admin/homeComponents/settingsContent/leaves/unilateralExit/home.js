@@ -34,6 +34,9 @@ import {
   saveExitDataFile,
 } from '../../../../../../functions/unilateralExit/exitBackup';
 import IconButton from '../../../../../../functions/CustomElements/redesign/IconButton';
+import BottomActions from '../../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../../../functions/CustomElements/redesign/TopFade';
 
 const NEEDS = [
   { icon: 'Wallet', key: 'needFeesPlain' },
@@ -153,13 +156,11 @@ export default function UnilateralExitHome(props) {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('settings.unilateralExit.title')}
           right={<IconButton icon={'Ellipsis'} onPress={openActions} />}
         />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <ThemeText
             styles={styles.title}
             content={t('settings.unilateralExit.homeTitle')}
@@ -248,19 +249,21 @@ export default function UnilateralExitHome(props) {
             </View>
           )}
         </CustomScrollView>
-        <View style={styles.footer}>
-          <ConsentRow
-            checked={termsAccepted}
-            onPress={() => setTermsAccepted(value => !value)}
-            text={t('settings.unilateralExit.consent')}
-          />
-          <CustomButton
-            textContent={t('constants.continue')}
-            actionFunction={() => navigate.navigate('UnilateralExitAddress')}
-            size={'regular'}
-            disabled={!termsAccepted || !accountMnemoinc}
-          />
-        </View>
+        <BottomActions>
+          <View style={styles.footer}>
+            <ConsentRow
+              checked={termsAccepted}
+              onPress={() => setTermsAccepted(value => !value)}
+              text={t('settings.unilateralExit.consent')}
+            />
+            <CustomButton
+              textContent={t('constants.continue')}
+              actionFunction={() => navigate.navigate('UnilateralExitAddress')}
+              size={'regular'}
+              disabled={!termsAccepted || !accountMnemoinc}
+            />
+          </View>
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );
@@ -268,7 +271,7 @@ export default function UnilateralExitHome(props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  scrollContent: { paddingTop: 16, paddingBottom: 24 },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: FADE },
   title: {
     fontFamily: FONT.Title_Medium,
     fontSize: 28,

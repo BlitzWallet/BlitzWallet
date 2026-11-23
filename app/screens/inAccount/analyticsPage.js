@@ -8,7 +8,12 @@ import {
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import CustomScrollView from '../../functions/CustomElements/scrollView';
-import { CENTER, FONT, MAX_WEB_CONTENT_WIDTH } from '../../constants';
+import {
+  CARD_RADIUS,
+  CENTER,
+  FONT,
+  MAX_WEB_CONTENT_WIDTH,
+} from '../../constants';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import AnalyticsKinds from '../../components/admin/homeComponents/analytics/analyticsKinds';
@@ -32,6 +37,7 @@ import formatDate from '../../functions/formatDate';
 import buildSpendingChart from '../../functions/analytics/spendingChart';
 import { ANALYTICS_TIMEFRAMES } from '../../functions/analytics/periods';
 import IconButton from '../../functions/CustomElements/redesign/IconButton';
+import { FADE_TOP } from '../../functions/CustomElements/redesign/TopFade';
 
 const CHART_HEIGHT = 120;
 // Timeframes with a period before them that is worth comparing against.
@@ -108,6 +114,7 @@ export default function AnalyticsPage() {
     <GlobalThemeView styles={{ paddingBottom: 0 }} useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('analytics.home.title')}
           right={
             !isEmpty && (
@@ -117,8 +124,10 @@ export default function AnalyticsPage() {
         />
         <CustomScrollView
           style={styles.scroll}
-          contentContainerStyle={{ paddingBottom: bottomPadding }}
-          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingTop: FADE_TOP,
+            paddingBottom: bottomPadding,
+          }}
         >
           {isEmpty ? (
             <View style={styles.empty}>
@@ -316,7 +325,7 @@ const styles = StyleSheet.create({
   },
   datePillText: { fontSize: 13, lineHeight: 18, includeFontPadding: false },
   empty: { paddingVertical: 48 },
-  heroCard: { marginTop: 8, borderRadius: 24, padding: 20 },
+  heroCard: { marginTop: 8, borderRadius: CARD_RADIUS, padding: 20 },
   heroAmount: {
     marginTop: 2,
     fontFamily: FONT.Title_Medium,
@@ -329,8 +338,8 @@ const styles = StyleSheet.create({
   heroSkeleton: { marginTop: 6, gap: 10 },
   chart: { marginTop: 20 },
   muted: { fontSize: 13, lineHeight: 18, includeFontPadding: false },
-  card: { borderRadius: 20, padding: 20 },
-  budgetCard: { borderRadius: 24, padding: 20 },
+  card: { borderRadius: CARD_RADIUS, padding: 20 },
+  budgetCard: { borderRadius: CARD_RADIUS, padding: 20 },
   budgetSkeleton: { gap: 12 },
   budgetSkeletonTitle: { width: 180, height: 18, borderRadius: 9 },
   budgetSkeletonPill: { width: 90, height: 24, borderRadius: 12 },

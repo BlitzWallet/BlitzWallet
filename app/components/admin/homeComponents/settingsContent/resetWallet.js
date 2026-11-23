@@ -1,22 +1,18 @@
 import { StyleSheet, View } from 'react-native';
 import { useRef, useState } from 'react';
 import RNRestart from 'react-native-restart-newarch';
-import { ThemeText } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import factoryResetWallet from '../../../../functions/factoryResetWallet';
-import { FONT } from '../../../../constants';
-import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import Disc from '../../../../functions/CustomElements/redesign/Disc';
 import ConsentRow from '../../../../functions/CustomElements/redesign/ConsentRow';
+import RemoveConfirmationHeader from '../../../../functions/CustomElements/redesign/RemoveConfirmationHeader';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function ResetPage() {
   const [wantsToReset, setWantsToReset] = useState(false);
   const [isWiping, setIsWiping] = useState(false);
   const isWipingRef = useRef(false);
-  const { tokens } = useGlobalThemeContext();
   const navigate = useNavigation();
   const { t } = useTranslation();
 
@@ -41,22 +37,10 @@ export default function ResetPage() {
 
   return (
     <View style={styles.container}>
-      <CustomScrollView
-        style={styles.scroll}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <Disc icon="Trash2" size={56} iconSize={24} tone="danger" />
-        <ThemeText
-          styles={[styles.title, { color: tokens.ink }]}
-          content={t('settings.resetWallet.title')}
-        />
-        <ThemeText
-          variant="body"
-          styles={[styles.description, { color: tokens.muted }]}
-          content={t('settings.resetWallet.dataDeleteDesc')}
-        />
-      </CustomScrollView>
+      <RemoveConfirmationHeader
+        title={t('settings.resetWallet.title')}
+        description={t('settings.resetWallet.dataDeleteDesc')}
+      />
 
       <View style={styles.footer}>
         <ConsentRow
@@ -78,22 +62,9 @@ export default function ResetPage() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  scroll: { flex: 1 },
-  scrollContent: { paddingTop: 24, paddingBottom: 24 },
-  title: {
-    fontFamily: FONT.Title_Medium,
-    fontSize: 28,
-    lineHeight: 34,
-    letterSpacing: -0.56,
-    includeFontPadding: false,
-    marginTop: 16,
-  },
-  description: {
-    marginTop: 8,
-  },
+  container: { flex: 1, marginTop: FADE_TOP + 24 },
   footer: {
     gap: 12,
-    paddingTop: 12,
+    marginTop: 'auto',
   },
 });

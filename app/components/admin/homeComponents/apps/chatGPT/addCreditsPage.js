@@ -12,6 +12,9 @@ import QuestionDiscoveryGrid from './questionDiscoveryGrid';
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import PageTitle from '../../../../../functions/CustomElements/redesign/PageTitle';
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
+import BottomActions from '../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../../functions/CustomElements/redesign/TopFade';
 
 const FEATURES = [
   'apps.chatGPT.addCreditsPage.feature1',
@@ -30,11 +33,8 @@ export default function AddChatGPTCredits() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <TopBar fade />
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <PageTitle
             titleStyles={styles.unlockTitle}
             text={t('apps.chatGPT.addCreditsPage.unlockTitle')}
@@ -56,17 +56,19 @@ export default function AddChatGPTCredits() {
           <QuestionDiscoveryGrid />
         </CustomScrollView>
 
-        <CustomButton
-          buttonStyles={styles.continueButton}
-          actionFunction={() => {
-            navigate.navigate('CustomHalfModal', {
-              wantedContent: 'chatGPT',
-              sliderHight: 0.5,
-            });
-          }}
-          textContent={t('constants.continue')}
-          size={'regular'}
-        />
+        <BottomActions>
+          <CustomButton
+            buttonStyles={styles.continueButton}
+            actionFunction={() => {
+              navigate.navigate('CustomHalfModal', {
+                wantedContent: 'chatGPT',
+                sliderHight: 0.5,
+              });
+            }}
+            textContent={t('constants.continue')}
+            size={'regular'}
+          />
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );
@@ -75,7 +77,8 @@ export default function AddChatGPTCredits() {
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
   scrollContent: {
-    paddingBottom: 24,
+    paddingTop: FADE_TOP,
+    paddingBottom: FADE,
   },
   unlockTitle: {
     fontSize: 32,

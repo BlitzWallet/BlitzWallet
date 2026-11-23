@@ -23,6 +23,7 @@ import SectionHeader from '../../../../functions/CustomElements/redesign/Section
 import Segmented from '../../../../functions/CustomElements/redesign/Segmented';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function DisplayOptions() {
   const { toggleMasterInfoObject, setMasterInfoObject, masterInfoObject } =
@@ -72,9 +73,10 @@ export default function DisplayOptions() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('screens.inAccount.settingsContent.display options')}
         />
-        <CustomScrollView showsVerticalScrollIndicator={false}>
+        <CustomScrollView contentContainerStyle={{ paddingTop: FADE_TOP }}>
           <View
             style={[styles.previewCard, { backgroundColor: tokens.surface }]}
           >
@@ -200,7 +202,6 @@ function FieldLabel({ text, style }) {
 const styles = StyleSheet.create({
   content: { alignSelf: 'center', flex: 1 },
   previewCard: {
-    marginTop: 16,
     borderRadius: 20,
     paddingVertical: 18,
     paddingHorizontal: 16,

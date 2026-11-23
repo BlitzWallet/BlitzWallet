@@ -32,6 +32,9 @@ import PageHeader from '../../../../../functions/CustomElements/redesign/PageHea
 import UserInput from '../../../../../functions/CustomElements/redesign/UserInput';
 import ResultAnimation from '../../../../../functions/CustomElements/redesign/ResultAnimation';
 import useContentWidth from '../../../../../functions/CustomElements/redesign/useContentWidth';
+import BottomActions from '../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../../functions/CustomElements/redesign/TopFade';
 
 export default function SMSMessagingSendDescriptionPage(props) {
   const navigate = useNavigation();
@@ -219,8 +222,8 @@ export default function SMSMessagingSendDescriptionPage(props) {
       useStandardWidth={true}
     >
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar title={t('constants.send')} shouldDismissKeyboard={true} />
-        <CustomScrollView showsVerticalScrollIndicator={false}>
+        <TopBar fade title={t('constants.send')} shouldDismissKeyboard={true} />
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <PageHeader
             title={t('apps.sms4sats.sendPage.descriptionStepTitle')}
             sub={t('apps.sms4sats.sendPage.descriptionStepSubtitle', {
@@ -241,13 +244,15 @@ export default function SMSMessagingSendDescriptionPage(props) {
             multiline
           />
         </CustomScrollView>
-        <CustomButton
-          disabled={!description.trim()}
-          buttonStyles={styles.button}
-          actionFunction={handleContinue}
-          textContent={t('constants.continue')}
-          size={'regular'}
-        />
+        <BottomActions>
+          <CustomButton
+            disabled={!description.trim()}
+            buttonStyles={styles.button}
+            actionFunction={handleContinue}
+            textContent={t('constants.continue')}
+            size={'regular'}
+          />
+        </BottomActions>
       </View>
     </CustomKeyboardAvoidingView>
   );
@@ -275,6 +280,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
     textAlign: 'center',
   },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: FADE },
   button: {
     marginTop: CONTENT_KEYBOARD_OFFSET,
   },

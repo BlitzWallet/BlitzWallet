@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { AMOUNT_HERO_SIZE } from '../../../../constants';
 import { StyleSheet, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useTranslation } from 'react-i18next';
@@ -350,7 +351,7 @@ export default function ContributeToPoolHalfModal({
           <AmountHero
             amount={selectedAmountSats}
             fiatStats={fiatStats}
-            amountSize={52}
+            amountSize={AMOUNT_HERO_SIZE.sheet}
           />
           <ThemeText
             styles={[styles.muted, { color: tokens.muted }]}
@@ -414,7 +415,7 @@ export default function ContributeToPoolHalfModal({
           <AmountHero
             amount={selectedAmountSats}
             fiatStats={fiatStats}
-            amountSize={48}
+            amountSize={AMOUNT_HERO_SIZE.secondary}
           />
           <ThemeText
             styles={[styles.muted, styles.successTo, { color: tokens.muted }]}

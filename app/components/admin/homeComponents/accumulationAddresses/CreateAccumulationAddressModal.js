@@ -156,11 +156,7 @@ export default function CreateAccumulationAddressModal({
     t,
   ]);
 
-  const backBar = (
-    <View style={styles.backBar}>
-      <TopBar onBack={handleBackPress} />
-    </View>
-  );
+  const backBar = <TopBar onBack={handleBackPress} />;
 
   return (
     <View style={styles.container}>
@@ -178,7 +174,6 @@ export default function CreateAccumulationAddressModal({
           ref={scrollViewRef}
           style={styles.list}
           contentContainerStyle={{ paddingBottom: bottomPadding }}
-          showsVerticalScrollIndicator={false}
           onScroll={onScroll}
           scrollEventThrottle={16}
           onLayout={onLayout}
@@ -326,7 +321,6 @@ const styles = StyleSheet.create({
     flex: 1,
     overflow: 'hidden',
   },
-  backBar: { marginTop: 8 },
   list: { flexGrow: 0, flexShrink: 1 },
   rowTitle: { fontSize: 15, lineHeight: 21 },
   disabledRow: { opacity: 0.5 },

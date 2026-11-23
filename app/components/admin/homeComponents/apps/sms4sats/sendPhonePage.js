@@ -6,6 +6,7 @@ import {
 } from '../../../../../functions/CustomElements';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {
+  AMOUNT_HERO_SIZE,
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   MAX_WEB_CONTENT_WIDTH,
@@ -95,6 +96,7 @@ export default function SMSMessagingSendPhonePage(props) {
                   `${phoneNumber}`,
                 )}`
           }
+          amountSize={AMOUNT_HERO_SIZE.secondary}
         />
 
         <View style={{ flex: 1 }} />

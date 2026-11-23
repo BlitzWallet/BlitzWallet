@@ -1,0 +1,44 @@
+# Reduced-motion baseline: loader, sheet open/drag-dismiss, screen push.
+# Run with reduced motion ON (Android: transition_animation_scale 0; iOS: ReduceMotionEnabled).
+# Brand-new empty wallet only (clears state and keychain). `yarn e2e:ios` / `yarn e2e:android`.
+appId: ${APP_ID}
+---
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - clearKeychain
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: deny
+- extendedWaitUntil:
+    visible: Get Started
+    timeout: 60000
+- tapOn: Get Started
+- tapOn: Create new wallet
+- tapOn: "I understand I'm solely responsible.*"
+- tapOn: Agree & Continue
+# Create PIN, then Confirm Pin.
+- repeat:
+    times: 8
+    commands:
+      - tapOn: '1'
+- takeScreenshot: rm-loading-1
+- takeScreenshot: rm-loading-2 # loader still playing: the two shots differ
+- extendedWaitUntil:
+    visible: '(?i)total balance'
+    timeout: 90000
+- tapOn: Receive
+- takeScreenshot: rm-sheet-open
+- swipe: # drag the sheet down to dismiss - VERIFY on first run (sheet top ~30%)
+    start: "50%, 30%"
+    end: "50%, 90%"
+# sheet gone: check rm-drag-dismiss shows Home with no sheet
+- takeScreenshot: rm-drag-dismiss
+- tapOn: Receive
+- tapOn: Bitcoin
+- tapOn: Create invoice # sheet row
+- tapOn: Create invoice # keypad screen button, amount 0
+- takeScreenshot: rm-screen-push
+- takeScreenshot: rm-end

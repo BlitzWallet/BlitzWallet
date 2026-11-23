@@ -20,6 +20,7 @@ import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
 import GetThemeColors from '../../../../hooks/themeColors';
 import useAfterTransition from '../../../../hooks/useAfterTransition';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function SavingsGoalDetails(props) {
   const navigate = useNavigation();
@@ -88,14 +89,12 @@ export default function SavingsGoalDetails(props) {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={`${selectedGoal?.emoji} ${
             selectedGoal?.name || t('savings.goalDetails.screenTitleFallback')
           }`}
         />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
+        <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.progressWrap}>
             <CircularProgress
               current={goalProgress * 100}
@@ -161,6 +160,7 @@ const styles = StyleSheet.create({
     ...CENTER,
   },
   scrollContent: {
+    paddingTop: FADE_TOP,
     paddingBottom: 20,
   },
   progressWrap: {

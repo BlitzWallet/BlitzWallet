@@ -10,6 +10,9 @@ import { keyboardNavigate } from '../../../../functions/customNavigation';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import PageHeader from '../../../../functions/CustomElements/redesign/PageHeader';
 import UserInput from '../../../../functions/CustomElements/redesign/UserInput';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function CreateGiftDescription(props) {
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
@@ -34,13 +37,11 @@ export default function CreateGiftDescription(props) {
     >
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade
           title={t('screens.inAccount.giftPages.createGift.header')}
           shouldDismissKeyboard={true}
         />
-        <CustomScrollView
-          contentContainerStyle={styles.scroll}
-          showsVerticalScrollIndicator={false}
-        >
+        <CustomScrollView contentContainerStyle={styles.scroll}>
           <PageHeader
             title={t('screens.inAccount.giftPages.createGift.descriptionTitle')}
             sub={t(
@@ -60,42 +61,44 @@ export default function CreateGiftDescription(props) {
             showTextCount={true}
           />
         </CustomScrollView>
-        <View style={styles.buttonContainer}>
-          <CustomButton
-            disabled={!trimmed}
-            actionFunction={() => {
-              if (!trimmed) return;
-              keyboardNavigate(() => {
-                navigate.navigate('CreateGiftDuration', {
-                  amount,
-                  amountValue,
-                  dollarAmount,
-                  giftDenomination,
-                  giftQuantity,
-                  description: trimmed,
+        <BottomActions>
+          <View style={styles.buttonContainer}>
+            <CustomButton
+              disabled={!trimmed}
+              actionFunction={() => {
+                if (!trimmed) return;
+                keyboardNavigate(() => {
+                  navigate.navigate('CreateGiftDuration', {
+                    amount,
+                    amountValue,
+                    dollarAmount,
+                    giftDenomination,
+                    giftQuantity,
+                    description: trimmed,
+                  });
                 });
-              });
-            }}
-            textContent={t('constants.continue')}
-            size={'regular'}
-          />
-          <CustomButton
-            actionFunction={() => {
-              keyboardNavigate(() => {
-                navigate.navigate('CreateGiftDuration', {
-                  amount,
-                  amountValue,
-                  dollarAmount,
-                  giftDenomination,
-                  giftQuantity,
-                  description: '',
+              }}
+              textContent={t('constants.continue')}
+              size={'regular'}
+            />
+            <CustomButton
+              actionFunction={() => {
+                keyboardNavigate(() => {
+                  navigate.navigate('CreateGiftDuration', {
+                    amount,
+                    amountValue,
+                    dollarAmount,
+                    giftDenomination,
+                    giftQuantity,
+                    description: '',
+                  });
                 });
-              });
-            }}
-            textContent={t('constants.skip', { defaultValue: 'Skip' })}
-            tone={'secondary'}
-          />
-        </View>
+              }}
+              textContent={t('constants.skip', { defaultValue: 'Skip' })}
+              tone={'secondary'}
+            />
+          </View>
+        </BottomActions>
       </View>
     </CustomKeyboardAvoidingView>
   );
@@ -108,6 +111,8 @@ const styles = StyleSheet.create({
   },
   scroll: {
     flexGrow: 1,
+    paddingTop: FADE_TOP,
+    paddingBottom: FADE,
   },
   buttonContainer: { gap: 10 },
 });

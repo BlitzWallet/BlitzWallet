@@ -17,6 +17,7 @@ import {
   DEFAULT_ANIMATION_DURATION,
   RESET_AFTER_SUCCESS_DEFAULT_DELAY,
 } from './constants';
+import {useReducedMotion} from '../../../constants/motion';
 
 const borderWidth = 3;
 const margin = 2;
@@ -54,15 +55,18 @@ export const SwipeThumb = ({
 
   const [shouldDisableTouch, setShouldDisableTouch] = useState(false);
 
+  const reduced = useReducedMotion();
   const widthSV = useSharedValue(defaultContainerWidth);
 
   const reset = useCallback(() => {
     setShouldDisableTouch(false);
-    widthSV.value = withTiming(defaultContainerWidth, {
-      duration: DEFAULT_ANIMATION_DURATION,
-    });
+    widthSV.value = reduced
+      ? defaultContainerWidth
+      : withTiming(defaultContainerWidth, {
+          duration: DEFAULT_ANIMATION_DURATION,
+        });
     if (handleSwipeProgress) scheduleOnRN(handleSwipeProgress, 0);
-  }, [defaultContainerWidth, handleSwipeProgress, widthSV]);
+  }, [defaultContainerWidth, handleSwipeProgress, widthSV, reduced]);
 
   const invokeOnSwipeSuccess = () => {
     setShouldDisableTouch(disableResetOnTap);
@@ -71,9 +75,11 @@ export const SwipeThumb = ({
   };
 
   const finishRemainingSwipe = () => {
-    widthSV.value = withTiming(maxWidth, {
-      duration: DEFAULT_ANIMATION_DURATION,
-    });
+    widthSV.value = reduced
+      ? maxWidth
+      : withTiming(maxWidth, {
+          duration: DEFAULT_ANIMATION_DURATION,
+        });
     if (handleSwipeProgress) handleSwipeProgress(1);
     invokeOnSwipeSuccess();
 

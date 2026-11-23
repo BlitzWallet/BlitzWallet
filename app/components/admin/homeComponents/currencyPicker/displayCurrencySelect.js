@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
+import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
@@ -13,7 +14,11 @@ import {
   normalizeDisplayCurrency,
 } from '../../../../functions/displayCurrency';
 import CurrencyCoin from './currencyCoin';
-import CurrencyIcon from '../../../../functions/CustomElements/redesign/CurrencyIcon';
+import {
+  ASSET_ICON_DENSE,
+  assetDividerInset,
+} from '../../../../functions/CustomElements/redesign/CurrencyIcon';
+import { BITCOIN_SATS_ICON } from '../../../../constants';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import ListCard, {
@@ -33,7 +38,7 @@ export default function DisplayCurrencySelect({
   const { t } = useTranslation();
   const { masterInfoObject } = useGlobalContextProvider();
   const { screenDimensions } = useAppStatus();
-  const { tokens } = GetThemeColors();
+  const { tokens, mode } = GetThemeColors();
   const normalizedCurrentCurrency = normalizeDisplayCurrency(currentCurrency);
   const deviceCurrency = (
     masterInfoObject?.fiatCurrency || 'USD'
@@ -87,8 +92,8 @@ export default function DisplayCurrencySelect({
       {
         id: SATS_DISPLAY_CURRENCY,
         title: t('constants.bitcoin_upper'),
-        subtitle: 'Sats',
-        isBitcoin: true,
+        subtitle: 'BTC',
+        symbol: BITCOIN_SATS_ICON,
       },
       {
         id: 'USD',
@@ -130,15 +135,13 @@ export default function DisplayCurrencySelect({
       key={row.id}
       onPress={() => onSelect(row.id)}
       lead={
-        row.isBitcoin ? (
-          <CurrencyIcon size={36} isBitcoin />
-        ) : (
-          <CurrencyCoin
-            symbol={row.symbol}
-            backgroundColor={tokens.disc}
-            size={36}
-          />
-        )
+        <CurrencyCoin
+          symbol={row.symbol}
+          backgroundColor={
+            mode === 'lightsOut' ? tokens.disc : tokens.surface
+          }
+          size={ASSET_ICON_DENSE}
+        />
       }
       title={row.title}
       sub={row.subtitle}
@@ -168,8 +171,10 @@ export default function DisplayCurrencySelect({
             lead={
               <CurrencyCoin
                 symbol={getCurrencySymbol(item.id)}
-                backgroundColor={tokens.disc}
-                size={36}
+                backgroundColor={
+                  mode === 'lightsOut' ? tokens.disc : tokens.surface
+                }
+                size={ASSET_ICON_DENSE}
               />
             }
             title={item.info.name}
@@ -179,18 +184,18 @@ export default function DisplayCurrencySelect({
         </View>
       );
     },
-    [currencies.length, tokens, normalizedCurrentCurrency, onSelect],
+    [currencies.length, tokens, normalizedCurrentCurrency, onSelect, mode],
   );
 
   const listHeader = (
     <>
       <SheetHeader first title={t('settings.fiatCurrency.halfModalTitle')} />
 
-      <ListCard>
+      <ListCard dividerInset={assetDividerInset(ASSET_ICON_DENSE)}>
         {pinnedRows.map(renderPinnedRow)}
         <ListRow
           onPress={() => setExpanded(prev => !prev)}
-          lead={<Disc icon={'Globe'} />}
+          lead={<Disc icon={'Globe'} tone="white" />}
           title={t('settings.fiatCurrency.moreCurrencies')}
           sub={t('settings.fiatCurrency.currencyCount', {
             count: Math.floor(currencies.length / 10) * 10,
@@ -225,6 +230,7 @@ export default function DisplayCurrencySelect({
 
   return (
     <FlatList
+      renderScrollComponent={props => <CustomScrollView {...props} />}
       style={styles.list}
       contentContainerStyle={styles.listContent}
       ListHeaderComponent={listHeader}

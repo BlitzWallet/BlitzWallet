@@ -13,6 +13,7 @@ import { toggleCrashCollection } from '../../../../functions/crashlyticsLogs';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
+import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 function parseExplainer(text) {
   const lines = String(text || '')
@@ -55,10 +56,12 @@ export default function CrashReportingSettingsPage() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
-        <TopBar title={t('screens.inAccount.settingsContent.crash reports')} />
+        <TopBar
+          fade
+          title={t('screens.inAccount.settingsContent.crash reports')}
+        />
         <CustomScrollView
           style={styles.scroll}
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
           <ListCard style={styles.switchCard}>
@@ -112,8 +115,8 @@ export default function CrashReportingSettingsPage() {
 const styles = StyleSheet.create({
   content: { alignSelf: 'center', flex: 1 },
   scroll: { flex: 1 },
-  scrollContent: { paddingBottom: 40 },
-  switchCard: { marginTop: 16 },
+  scrollContent: { paddingTop: FADE_TOP, paddingBottom: 40 },
+  switchCard: { marginTop: 0 },
   rowTitle: { fontSize: 15, lineHeight: 21 },
   explainerCard: {
     marginTop: 12,

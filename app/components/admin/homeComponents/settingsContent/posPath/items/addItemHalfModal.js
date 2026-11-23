@@ -118,7 +118,6 @@ export default function AddPOSItemHalfModal({
   return (
     <View style={styles.halfModalContainer}>
       <CustomScrollView
-        showsVerticalScrollIndicator={false}
         keyboardDismissMode="none"
         keyboardShouldPersistTaps="handled"
       >

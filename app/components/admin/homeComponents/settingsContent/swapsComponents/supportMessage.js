@@ -14,6 +14,7 @@ import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import { useTheme } from '../../../../../../context-store/theme';
 import { FONT } from '../../../../../constants';
+import { ReduceMotion } from '../../../../../constants/motion';
 import EmptyState from '../../../../../functions/CustomElements/redesign/EmptyState';
 
 export default function SupportMessage({
@@ -32,9 +33,15 @@ export default function SupportMessage({
     if (pending) {
       rotation.value = 0;
       rotation.value = withRepeat(
-        withTiming(360, { duration: 1000, easing: Easing.linear }),
+        withTiming(360, {
+          duration: 1000,
+          easing: Easing.linear,
+          reduceMotion: ReduceMotion.Never,
+        }),
         -1,
         false,
+        undefined,
+        ReduceMotion.Never, // spinner: keeps turning under reduced motion
       );
     }
   }, [pending, rotation]);

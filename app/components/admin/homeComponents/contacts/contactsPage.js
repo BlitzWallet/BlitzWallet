@@ -5,12 +5,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import {
-  CENTER,
-  CONTENT_KEYBOARD_OFFSET,
-  MAX_WEB_CONTENT_WIDTH,
-} from '../../../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import {
@@ -31,15 +26,22 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { TAB_ITEM_HEIGHT } from '../../../../../navigation/tabs';
+import { useTabScrollToTop } from '../../../../../navigation/tabs/useTabScrollToTop';
 import { formatDisplayName } from './utils/formatListDisplayName';
 import { useNavigateToContact } from './utils/navigateToExpandedContact';
 import PageTitle from '../../../../functions/CustomElements/redesign/PageTitle';
 import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
 import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
 import SearchField from '../../../../functions/CustomElements/redesign/SearchField';
+import HideOnScrollView from '../../../../functions/CustomElements/redesign/HideOnScrollView';
 import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
+import TopHeader from '../../../../functions/CustomElements/redesign/TopHeader';
+import {
+  FADE_TOP,
+  FADE_TOP_BUFFER,
+} from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function ContactsPage({ navigation }) {
   const { masterInfoObject } = useGlobalContextProvider();
@@ -65,16 +67,7 @@ export default function ContactsPage({ navigation }) {
   const navigate = useNavigation();
   const myProfile = globalContactsInformation.myProfile;
   const didEditProfile = myProfile?.didEditProfile;
-  useFocusEffect(
-    useCallback(() => {
-      if (!navigation) return;
-      return navigation?.addListener('tabPress', () => {
-        if (scrollViewRef.current) {
-          scrollViewRef.current.scrollTo({ y: 0, animated: true });
-        }
-      });
-    }, [navigation]),
-  );
+  useTabScrollToTop(scrollViewRef);
 
   // Use custom hooks for processed data
   const contactInfoList = useProcessedContacts(
@@ -227,26 +220,29 @@ export default function ContactsPage({ navigation }) {
       useStandardWidth={true}
     >
       <View style={[memoizedStyles.container, { width: contentWidth }]}>
-        {header}
-
-        <SearchField
-          placeholder={t('contacts.contactsPage.searchContactsPlaceholder')}
-          value={inputText}
-          onChangeText={setInputText}
-          pill
-        />
-        <CustomScrollView
+        <TopHeader>{header}</TopHeader>
+        <HideOnScrollView
+          topInset={FADE_TOP + FADE_TOP_BUFFER}
           ref={scrollViewRef}
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             paddingBottom: bottomPadding + TAB_ITEM_HEIGHT + 40,
           }}
-          style={{ marginTop: CONTENT_KEYBOARD_OFFSET }}
           keyboardShouldPersistTaps="handled"
+          header={
+            <SearchField
+              placeholder={t('contacts.contactsPage.searchContactsPlaceholder')}
+              value={inputText}
+              onChangeText={setInputText}
+              pill
+            />
+          }
         >
           {pinnedContacts.length !== 0 && filteredContacts.length !== 0 && (
             <>
-              <SectionHeader title={t('contacts.contactsPage.favorites')} />
+              <SectionHeader
+                style={{ marginTop: 5 }}
+                title={t('contacts.contactsPage.favorites')}
+              />
               <View style={memoizedStyles.pinnedContactsContainer}>
                 {pinnedContacts}
               </View>
@@ -275,7 +271,7 @@ export default function ContactsPage({ navigation }) {
               />
             </View>
           ) : null}
-        </CustomScrollView>
+        </HideOnScrollView>
       </View>
     </CustomKeyboardAvoidingView>
   );
@@ -363,7 +359,9 @@ const ContactElement = memo(
           />
         }
         title={displayName}
-        sub={!contact.isLNURL && `@${contact.uniqueName}`}
+        sub={`${
+          contact.isLNURL ? contact.receiveAddress : '@' + contact.uniqueName
+        }`}
         trailing={
           hasUnlookedTransaction && (
             <View
@@ -388,19 +386,17 @@ const LIST_DIVIDER_INSET = 68;
 const memoizedStyles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
   header: {
-    marginTop: 10,
-    marginBottom: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    minHeight: 45,
+    minHeight: 44,
   },
   headerButtons: {
     flexDirection: 'row',
     gap: 8,
   },
   empty: {
-    marginTop: 130,
+    marginTop: 150,
     alignItems: 'center',
   },
   unreadDot: {

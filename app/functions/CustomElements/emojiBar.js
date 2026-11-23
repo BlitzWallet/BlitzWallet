@@ -1,7 +1,8 @@
 import React, { useCallback, useMemo } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import CustomScrollView from './scrollView';
-import { CONTENT_KEYBOARD_OFFSET, SIZES } from '../../constants';
+import { CENTER, CONTENT_KEYBOARD_OFFSET, SIZES } from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
 import ThemeText from './textTheme';
 import i18next from 'i18next';
@@ -626,13 +627,17 @@ const EmojiQuickBar = ({
           backgroundColor: backgroundOffset,
           marginTop: removeMargin ? 0 : CONTENT_KEYBOARD_OFFSET,
           borderRadius: pill ? 25 : 0,
+          overflow: pill ? 'hidden' : 'visible',
         },
       ]}
     >
       <CustomScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.emojiScrollContent}
+        contentContainerStyle={[
+          styles.emojiScrollContent,
+          pill && styles.pillScrollContent,
+        ]}
         keyboardShouldPersistTaps="always"
       >
         {sortedEmojis.map((emoji, index) => (
@@ -645,6 +650,24 @@ const EmojiQuickBar = ({
           </TouchableOpacity>
         ))}
       </CustomScrollView>
+      {pill && (
+        <>
+          <LinearGradient
+            pointerEvents="none"
+            colors={[backgroundOffset, backgroundOffset + '00']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={[styles.edgeFade, { left: 0 }]}
+          />
+          <LinearGradient
+            pointerEvents="none"
+            colors={[backgroundOffset + '00', backgroundOffset]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={[styles.edgeFade, { right: 0 }]}
+          />
+        </>
+      )}
     </View>
   );
 };
@@ -655,6 +678,16 @@ const styles = StyleSheet.create({
   },
   emojiScrollContent: {
     alignItems: 'center',
+  },
+  // padding = fade width so the first/last emoji rest fully visible
+  pillScrollContent: {
+    paddingHorizontal: 16,
+  },
+  edgeFade: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    width: 16,
   },
   emojiButton: {
     width: 50,

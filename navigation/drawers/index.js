@@ -43,10 +43,7 @@ function ChatsDrawerContent({ state, navigation }) {
         styles={styles.drawerTitle}
         content={t('apps.chatGPT.chats')}
       />
-      <CustomScrollView
-        style={styles.drawerList}
-        showsVerticalScrollIndicator={false}
-      >
+      <CustomScrollView style={styles.drawerList}>
         <ListCard tone="flush" dividerInset={0}>
           {state.routes.map(route => {
             const chat = route.params?.chatHistory;

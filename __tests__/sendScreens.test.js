@@ -143,6 +143,9 @@ jest.mock('../app/functions/CustomElements/redesign/ListRow', () =>
 jest.mock('../app/functions/CustomElements/redesign/KeyValueRow', () =>
   mockStub('kv'),
 );
+jest.mock('../app/functions/CustomElements/redesign/SkeletonBar', () =>
+  mockStub('skeleton'),
+);
 jest.mock('../app/functions/CustomElements/redesign/CurrencyButton', () =>
   mockStub('currency'),
 );
@@ -191,6 +194,7 @@ jest.mock(
 );
 jest.mock('../app/functions/spark/payments', () => ({
   sparkPaymenWrapper: (...args) => mockWrapper(...args),
+  onchainFeeForSpeed: () => 0,
 }));
 jest.mock('../app/functions/spark/transactions', () => ({
   bulkUpdateSparkTransactions: jest.fn(),

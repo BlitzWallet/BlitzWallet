@@ -15,6 +15,7 @@ export default function ViewSwapsHome({ swapType }) {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
         <TopBar
+          fade
           title={
             swapType === 'liquid'
               ? t('settings.viewSwapsHome.liquid')

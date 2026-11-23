@@ -17,11 +17,15 @@ import { useActivitySeen } from '../../context-store/activitySeen';
 import { useGlobalInsets } from '../../context-store/insetsProvider';
 import ThemeIcon from '../../app/functions/CustomElements/themeIcon';
 import IconButton from '../../app/functions/CustomElements/redesign/IconButton';
+import BottomFade from '../../app/functions/CustomElements/redesign/BottomFade';
+import { requestTabScrollToTop } from './useTabScrollToTop';
 
 const Tab = createBottomTabNavigator();
 
 export const TAB_ITEM_HEIGHT = 64;
 const ICON_SIZE = 22;
+// makeShadow draws nothing on Android < 12, so keep a 1px edge there.
+const NO_SHADOW = Platform.OS === 'android' && Platform.Version < 31;
 
 // Home · People · Money · Explore, plus the floating Activity button
 // (Money.dc.html). Label = a11y en key.
@@ -80,72 +84,77 @@ function MyTabBar({ state, navigation }) {
   );
 
   return (
-    <View style={containerStyle}>
-      <View
-        style={[
-          styles.nav,
-          styles.shadow,
-          {
-            backgroundColor: tokens.surface,
-            borderWidth: 1,
-            borderColor: tokens.ground,
-          },
-        ]}
-      >
-        {state.routes.map((route, index) => {
-          const focused = state.index === index;
+    <>
+      <BottomFade height={bottomPadding + TAB_ITEM_HEIGHT} />
+      <View style={containerStyle}>
+        <View
+          style={[
+            styles.nav,
+            styles.shadow,
+            { backgroundColor: tokens.surface },
+            NO_SHADOW && { borderWidth: 1, borderColor: tokens.ground },
+          ]}
+        >
+          {state.routes.map((route, index) => {
+            const focused = state.index === index;
 
-          const onPress = () => {
-            const event = navigation.emit({
-              type: 'tabPress',
-              target: route.key,
-              canPreventDefault: true,
-            });
+            const onPress = () => {
+              const event = navigation.emit({
+                type: 'tabPress',
+                target: route.key,
+                canPreventDefault: true,
+              });
 
-            if (!focused && !event.defaultPrevented) {
-              navigation.navigate(route.name, route.params);
-            }
-          };
-
-          return (
-            <TabButton
-              key={route.key}
-              route={route}
-              focused={focused}
-              tokens={tokens}
-              t={t}
-              showUnread={
-                route.name === 'ContactsPageInit' &&
-                hasUnlookedTransactions &&
-                !focused
+              if (!event.defaultPrevented) {
+                requestTabScrollToTop(route.name);
+                if (!focused) navigation.navigate(route.name, route.params);
               }
-              onPress={onPress}
-            />
-          );
-        })}
+            };
+
+            return (
+              <TabButton
+                key={route.key}
+                route={route}
+                focused={focused}
+                tokens={tokens}
+                t={t}
+                showUnread={
+                  route.name === 'ContactsPageInit' &&
+                  hasUnlookedTransactions &&
+                  !focused
+                }
+                onPress={onPress}
+              />
+            );
+          })}
+        </View>
+        <View
+          style={[
+            styles.activity,
+            styles.shadow,
+            {
+              backgroundColor: hasUnseenActivity
+                ? tokens.accent
+                : tokens.surface,
+            },
+            NO_SHADOW && {
+              borderWidth: 1,
+              borderColor: hasUnseenActivity ? tokens.accent : tokens.ground,
+            },
+          ]}
+        >
+          <IconButton
+            icon="Clock"
+            label={hasUnseenActivity ? 'tabs.activityUnseen' : 'tabs.activity'}
+            size={TAB_ITEM_HEIGHT - 2}
+            iconSize={ICON_SIZE}
+            backgroundColor={hasUnseenActivity ? tokens.accent : undefined}
+            iconColor={hasUnseenActivity ? tokens.onAccent : undefined}
+            onPress={() => navigation.navigate('ViewAllTxPage')}
+          />
+        </View>
       </View>
-      <View
-        style={[
-          styles.activity,
-          styles.shadow,
-          {
-            borderWidth: 1,
-            borderColor: hasUnseenActivity ? tokens.accent : tokens.ground,
-            backgroundColor: hasUnseenActivity ? tokens.accent : 'transparent',
-          },
-        ]}
-      >
-        <IconButton
-          icon="Clock"
-          label={hasUnseenActivity ? 'tabs.activityUnseen' : 'tabs.activity'}
-          size={TAB_ITEM_HEIGHT - 2}
-          iconSize={ICON_SIZE}
-          backgroundColor={hasUnseenActivity ? tokens.accent : undefined}
-          iconColor={hasUnseenActivity ? tokens.onAccent : undefined}
-          onPress={() => navigation.navigate('ViewAllTxPage')}
-        />
-      </View>
-    </View>
+    </>
   );
 }
 
@@ -189,7 +198,7 @@ const styles = StyleSheet.create({
     borderRadius: TAB_ITEM_HEIGHT / 2,
     borderWidth: Platform.OS === 'android' ? 0 : StyleSheet.hairlineWidth,
     borderColor: 'rgba(21,22,26,0.06)',
-    ...makeShadow('#15161A', 10, 0.16, 15),
+    ...makeShadow('#15161A', 10, 0.22, 15),
   },
   activity: { width: TAB_ITEM_HEIGHT, height: TAB_ITEM_HEIGHT },
   tabItem: {

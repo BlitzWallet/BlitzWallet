@@ -17,6 +17,9 @@ import ListRow from '../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../functions/CustomElements/redesign/Disc';
 import CustomScrollView from '../../../functions/CustomElements/scrollView';
 import ConsentRow from '../../../functions/CustomElements/redesign/ConsentRow';
+import BottomActions from '../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../functions/CustomElements/redesign/BottomFade';
+import { FADE_TOP } from '../../../functions/CustomElements/redesign/TopFade';
 
 export default function ChildClaimInfo() {
   const navigate = useNavigation();
@@ -46,11 +49,8 @@ export default function ChildClaimInfo() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar />
-        <CustomScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.contentContainer}
-        >
+        <TopBar fade />
+        <CustomScrollView contentContainerStyle={styles.contentContainer}>
           <PageHeader
             large
             title={t('settings.childAccounts.claim.info.title')}
@@ -102,22 +102,24 @@ export default function ChildClaimInfo() {
           </View>
         </CustomScrollView>
 
-        <View style={styles.footer}>
-          <ConsentRow
-            checked={termsAccepted}
-            onPress={() => setTermsAccepted(prev => !prev)}
-            text={t('createAccount.disclaimerPage.acceptPrefixManaged')}
-            linkText={t('createAccount.disclaimerPage.terms&Conditions')}
-            onLinkPress={openTermsAndConditions}
-            suffix={t('createAccount.disclaimerPage.acceptSuffix')}
-          />
-          <CustomButton
-            buttonStyles={{ opacity: termsAccepted ? 1 : 0.5 }}
-            textContent={t('createAccount.disclaimerPage.continueBTN')}
-            actionFunction={onContinue}
-            size={'regular'}
-          />
-        </View>
+        <BottomActions>
+          <View style={styles.footer}>
+            <ConsentRow
+              checked={termsAccepted}
+              onPress={() => setTermsAccepted(prev => !prev)}
+              text={t('createAccount.disclaimerPage.acceptPrefixManaged')}
+              linkText={t('createAccount.disclaimerPage.terms&Conditions')}
+              onLinkPress={openTermsAndConditions}
+              suffix={t('createAccount.disclaimerPage.acceptSuffix')}
+            />
+            <CustomButton
+              buttonStyles={{ opacity: termsAccepted ? 1 : 0.5 }}
+              textContent={t('createAccount.disclaimerPage.continueBTN')}
+              actionFunction={onContinue}
+              size={'regular'}
+            />
+          </View>
+        </BottomActions>
       </View>
     </GlobalThemeView>
   );
@@ -125,7 +127,7 @@ export default function ChildClaimInfo() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
-  contentContainer: { flexGrow: 1, paddingBottom: 20 },
+  contentContainer: { flexGrow: 1, paddingTop: FADE_TOP, paddingBottom: FADE },
   infoCard: { marginTop: 32 },
   termsCard: { marginTop: 12 },
   rowTitle: { fontSize: 15, lineHeight: 21 },

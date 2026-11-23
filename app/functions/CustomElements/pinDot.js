@@ -2,6 +2,7 @@ import {StyleSheet} from 'react-native';
 import {useEffect, useMemo, useRef} from 'react';
 import GetThemeColors from '../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../context-store/theme';
+import {useReducedMotion} from '../../constants/motion';
 import Animated, {
   useSharedValue,
   withTiming,
@@ -15,13 +16,14 @@ export default function PinDot({dotNum, pin, redesign = false}) {
   const isInitialLoad = useRef(true);
 
   const {textColor, tokens} = GetThemeColors();
+  const reduced = useReducedMotion();
   const dotScale = useSharedValue(1);
 
   useEffect(() => {
     if (isInitialLoad.current) {
       isInitialLoad.current = false;
     }
-    if (typeof pin[dotNum] === 'number') {
+    if (typeof pin[dotNum] === 'number' && !reduced) {
       dotScale.value = withSequence(
         withTiming(1.1, {duration: 100}),
         withTiming(1, {duration: 100}),

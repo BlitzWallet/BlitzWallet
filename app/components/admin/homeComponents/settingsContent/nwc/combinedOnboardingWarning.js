@@ -13,6 +13,8 @@ import PageHeader from '../../../../../functions/CustomElements/redesign/PageHea
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
+import BottomActions from '../../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../../functions/CustomElements/redesign/BottomFade';
 
 export default function CombinedOnboardingWarning() {
   const { toggleMasterInfoObject } = useGlobalContextProvider();
@@ -27,7 +29,7 @@ export default function CombinedOnboardingWarning() {
 
   return (
     <View style={[styles.content, { width: contentWidth }]}>
-      <CustomScrollView showsVerticalScrollIndicator={false}>
+      <CustomScrollView contentContainerStyle={styles.scrollContent}>
         <PageHeader
           title={t('settings.nwc.combinedOnboarding.infoTitle')}
           sub={t('settings.nwc.combinedOnboarding.infoSubtitle')}
@@ -62,12 +64,14 @@ export default function CombinedOnboardingWarning() {
           ))}
         </ListCard>
       </CustomScrollView>
-      <CustomButton
-        buttonStyles={styles.button}
-        textContent={t('settings.nwc.combinedOnboarding.continueButton')}
-        actionFunction={handleContinue}
-        size={'regular'}
-      />
+      <BottomActions>
+        <CustomButton
+          buttonStyles={styles.button}
+          textContent={t('settings.nwc.combinedOnboarding.continueButton')}
+          actionFunction={handleContinue}
+          size={'regular'}
+        />
+      </BottomActions>
     </View>
   );
 }
@@ -77,6 +81,7 @@ const styles = StyleSheet.create({
     flex: 1,
     ...CENTER,
   },
+  scrollContent: { paddingBottom: FADE },
   button: {
     width: '100%',
     marginTop: CONTENT_KEYBOARD_OFFSET,

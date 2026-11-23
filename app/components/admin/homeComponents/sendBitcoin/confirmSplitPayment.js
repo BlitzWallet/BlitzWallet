@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { CENTER } from '../../../../constants';
+import { AMOUNT_HERO_SIZE, CENTER } from '../../../../constants';
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import {
@@ -66,6 +66,8 @@ import {
 } from '../../../../functions/displayCurrency';
 import { useAuthContext } from '../../../../../context-store/authContext';
 import { waitForForground } from '../../../../hooks/useWaitForForground';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
 
 export default function ConfirmSplitPayment(props) {
   const navigate = useNavigation();
@@ -789,7 +791,6 @@ export default function ConfirmSplitPayment(props) {
     <GlobalThemeView useStandardWidth={false}>
       <View style={[styles.replacementContainer, { width: contentWidth }]}>
         <TopBar title={t('constants.send')} />
-
         <CustomScrollView
           contentContainerStyle={
             uiState === 'SWAP_RATES_CHANGED'
@@ -807,7 +808,7 @@ export default function ConfirmSplitPayment(props) {
               <AmountHero
                 amount={amountText}
                 formatAmount={false}
-                amountSize={60}
+                amountSize={AMOUNT_HERO_SIZE.primary}
               />
               {uiState === 'CONFIRM_PAYMENT' && !!secondaryText && (
                 <ThemeText
@@ -886,53 +887,59 @@ export default function ConfirmSplitPayment(props) {
 
         {/* CHOOSE_METHOD — continue button */}
         {uiState === 'CHOOSE_METHOD' && (
-          <CustomButton
-            size="regular"
-            buttonStyles={{
-              ...CENTER,
-              opacity: sendingMethod ? 1 : HIDDEN_OPACITY,
-            }}
-            actionFunction={() => handleSelectPaymentMethod(true)}
-            textContent={t('constants.review')}
-          />
+          <BottomActions>
+            <CustomButton
+              size="regular"
+              buttonStyles={{
+                ...CENTER,
+                opacity: sendingMethod ? 1 : HIDDEN_OPACITY,
+              }}
+              actionFunction={() => handleSelectPaymentMethod(true)}
+              textContent={t('constants.review')}
+            />
+          </BottomActions>
         )}
 
         {/* SWAP_RATES_CHANGED — reset CTA */}
         {uiState === 'SWAP_RATES_CHANGED' && (
-          <CustomButton
-            size="regular"
-            buttonStyles={{ alignSelf: 'stretch', ...CENTER }}
-            actionFunction={handleRateChangedReset}
-            textContent={t(
-              'wallet.sendPages.sendPaymentScreen.swapRatesChangedButton',
-            )}
-          />
+          <BottomActions>
+            <CustomButton
+              size="regular"
+              buttonStyles={{ alignSelf: 'stretch', ...CENTER }}
+              actionFunction={handleRateChangedReset}
+              textContent={t(
+                'wallet.sendPages.sendPaymentScreen.swapRatesChangedButton',
+              )}
+            />
+          </BottomActions>
         )}
 
         {/* CONFIRM_PAYMENT — swipe slider or progress animation */}
         {uiState === 'CONFIRM_PAYMENT' && (
-          <View style={styles.buttonContainer}>
-            {showProgressAnimation ? (
-              <SliderProgressAnimation
-                ref={progressAnimationRef}
-                isVisible={showProgressAnimation}
-                textColor={tokens.onAccent}
-                backgroundColor={tokens.accent}
-                width={1}
-              />
-            ) : (
-              <SwipeButtonNew
-                variant="redesign"
-                title={t('wallet.sendPages.reviewParts.slideToSend')}
-                onSwipeSuccess={sendPayment}
-                resetAfterSuccessAnimDuration={true}
-                shouldResetAfterSuccess={!canSendPayment}
-                containerStyles={{
-                  opacity: canSendPayment ? 1 : HIDDEN_OPACITY,
-                }}
-              />
-            )}
-          </View>
+          <BottomActions>
+            <View style={styles.buttonContainer}>
+              {showProgressAnimation ? (
+                <SliderProgressAnimation
+                  ref={progressAnimationRef}
+                  isVisible={showProgressAnimation}
+                  textColor={tokens.onAccent}
+                  backgroundColor={tokens.accent}
+                  width={1}
+                />
+              ) : (
+                <SwipeButtonNew
+                  variant="redesign"
+                  title={t('wallet.sendPages.reviewParts.slideToSend')}
+                  onSwipeSuccess={sendPayment}
+                  resetAfterSuccessAnimDuration={true}
+                  shouldResetAfterSuccess={!canSendPayment}
+                  containerStyles={{
+                    opacity: canSendPayment ? 1 : HIDDEN_OPACITY,
+                  }}
+                />
+              )}
+            </View>
+          </BottomActions>
         )}
       </View>
     </GlobalThemeView>
@@ -984,10 +991,11 @@ const styles = StyleSheet.create({
   avatarOverlap: { marginLeft: -10 },
   feeLoading: { paddingVertical: 14, gap: 8 },
   feeLabel: { fontSize: 15, lineHeight: 22 },
-  swapContainer: { flexGrow: 1, paddingTop: 132 },
+  swapContainer: { flexGrow: 1, paddingTop: 132, paddingBottom: FADE },
   balanceScrollContainer: {
     flexGrow: 1,
     paddingTop: 72,
+    paddingBottom: FADE,
   },
   buttonContainer: {
     alignItems: 'center',
