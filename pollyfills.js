@@ -1,5 +1,3 @@
-import 'react-native-get-random-values';
-
 import 'react-native-gesture-handler';
 
 import '@azure/core-asynciterator-polyfill';
@@ -19,8 +17,6 @@ import QuickCrypto, {
 global.Buffer = Buffer;
 
 // Polyfill Web Crypto API for packages that rely on crypto.subtle (e.g. @branta-ops/branta)
-// react-native-get-random-values (imported above) already provides crypto.getRandomValues
-// need for @branta-ops/branta
 global.crypto = QuickCrypto;
 global.crypto.subtle = subtle;
 global.crypto.randomUUID =

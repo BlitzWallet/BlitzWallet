@@ -1,12 +1,7 @@
 import { Platform } from 'react-native';
-import * as Crypto from 'expo-crypto';
 import * as FileSystem from 'expo-file-system/legacy';
 import { areImagesSame } from '../../../app/components/admin/homeComponents/contacts/utils/imageComparison';
 
-jest.mock('expo-crypto', () => ({
-  CryptoDigestAlgorithm: { MD5: 'MD5' },
-  digestStringAsync: jest.fn(),
-}));
 jest.mock('expo-file-system/legacy', () => ({
   EncodingType: { Base64: 'base64' },
   readAsStringAsync: jest.fn(),
@@ -27,7 +22,6 @@ describe('areImagesSame', () => {
       false,
     );
     expect(FileSystem.readAsStringAsync).not.toHaveBeenCalled();
-    expect(Crypto.digestStringAsync).not.toHaveBeenCalled();
   });
 
   it('keeps comparing image contents on native', async () => {
@@ -35,12 +29,21 @@ describe('areImagesSame', () => {
     FileSystem.readAsStringAsync
       .mockResolvedValueOnce('same-bytes')
       .mockResolvedValueOnce('same-bytes');
-    Crypto.digestStringAsync.mockResolvedValue('same-hash');
 
     await expect(areImagesSame('file:new-image', 'file:old-image')).resolves.toBe(
       true,
     );
     expect(FileSystem.readAsStringAsync).toHaveBeenCalledTimes(2);
-    expect(Crypto.digestStringAsync).toHaveBeenCalledTimes(2);
+  });
+
+  it('detects different image contents on native', async () => {
+    Platform.OS = 'ios';
+    FileSystem.readAsStringAsync
+      .mockResolvedValueOnce('new-bytes')
+      .mockResolvedValueOnce('old-bytes');
+
+    await expect(areImagesSame('file:new-image', 'file:old-image')).resolves.toBe(
+      false,
+    );
   });
 });

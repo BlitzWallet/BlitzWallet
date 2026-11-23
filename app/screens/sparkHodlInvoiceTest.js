@@ -10,9 +10,8 @@ import {
 } from 'react-native';
 import CustomScrollView from '../functions/CustomElements/scrollView';
 import * as Clipboard from 'expo-clipboard';
-import * as Crypto from 'expo-crypto';
 import { sha256 } from '@noble/hashes/sha2';
-import { bytesToHex } from '@noble/hashes/utils';
+import { bytesToHex, randomBytes } from '@noble/hashes/utils';
 
 import QrCard from '../functions/CustomElements/redesign/QrCard';
 import {
@@ -64,7 +63,7 @@ function eventMessage(title, payload) {
 }
 
 async function makePreimagePair() {
-  const preimageBytes = await Crypto.getRandomBytesAsync(32);
+  const preimageBytes = randomBytes(32);
   const preimage = bytesToHex(preimageBytes);
   const paymentHash = bytesToHex(sha256(preimageBytes));
   return { preimage, paymentHash };

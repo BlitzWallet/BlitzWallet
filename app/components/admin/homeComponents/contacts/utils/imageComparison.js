@@ -1,4 +1,4 @@
-import * as Crypto from 'expo-crypto';
+import { createHash } from 'react-native-quick-crypto';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
 
@@ -8,10 +8,7 @@ async function getImageHash(imageUri) {
     encoding: FileSystem.EncodingType.Base64,
   });
 
-  const hash = await Crypto.digestStringAsync(
-    Crypto.CryptoDigestAlgorithm.MD5,
-    base64,
-  );
+  const hash = createHash('md5').update(base64).digest('hex');
 
   return hash;
 }

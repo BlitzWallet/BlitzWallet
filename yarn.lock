@@ -5885,7 +5885,6 @@ __metadata:
     expo-background-task: ~1.0.8
     expo-blur: ~15.0.8
     expo-clipboard: ~8.0.7
-    expo-crypto: ~15.0.7
     expo-document-picker: ~14.0.8
     expo-file-system: ~19.0.24
     expo-image: ~3.0.8
@@ -5932,7 +5931,6 @@ __metadata:
     react-native-dotenv: ^3.4.11
     react-native-email-link: ^1.16.1
     react-native-gesture-handler: ~2.28.0
-    react-native-get-random-values: ^2.0.0
     react-native-keyboard-controller: 1.21.7
     react-native-localize: ^3.6.0
     react-native-maps: ^1.27.2
@@ -9436,17 +9434,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-crypto@npm:~15.0.7":
-  version: 15.0.7
-  resolution: "expo-crypto@npm:15.0.7"
-  dependencies:
-    base64-js: ^1.3.0
-  peerDependencies:
-    expo: "*"
-  checksum: b329e7113aad3f11083b4c35cc7b178d7a244e37b2b8d99e20058c0a3999157daf9b0a98cc10fc6c4d6e28ba1289dca45d00f821fdef2d9cddcb6812a37a08a9
-  languageName: node
-  linkType: hard
-
 "expo-document-picker@npm:~14.0.8":
   version: 14.0.8
   resolution: "expo-document-picker@npm:14.0.8"
@@ -9881,13 +9868,6 @@ __metadata:
   version: 3.0.2
   resolution: "extend@npm:3.0.2"
   checksum: a50a8309ca65ea5d426382ff09f33586527882cf532931cb08ca786ea3146c0553310bda688710ff61d7668eba9f96b923fe1420cdf56a2c3eaf30fcab87b515
-  languageName: node
-  linkType: hard
-
-"fast-base64-decode@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "fast-base64-decode@npm:1.0.0"
-  checksum: 4c59eb1775a7f132333f296c5082476fdcc8f58d023c42ed6d378d2e2da4c328c7a71562f271181a725dd17cdaa8f2805346cc330cdbad3b8e4b9751508bd0a3
   languageName: node
   linkType: hard
 
@@ -15894,17 +15874,6 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 7bcd7db784b12565fdd5916bbebc2d3511a63159ca553d33e430008940ba7d209f1e85ef02968a920ed19c414fabe7d2c18cc0e967dd4889aae266788562d1e9
-  languageName: node
-  linkType: hard
-
-"react-native-get-random-values@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "react-native-get-random-values@npm:2.0.0"
-  dependencies:
-    fast-base64-decode: ^1.0.0
-  peerDependencies:
-    react-native: ">=0.81"
-  checksum: 57e80fa836e61d5ff08d31cfb3df45c00a6616651b3f7521af2d4fd6456aefd05e17eb21a269d458ada0dd58bc8c25eef6b43097eefc542ab6186072f6b653a3
   languageName: node
   linkType: hard
 
