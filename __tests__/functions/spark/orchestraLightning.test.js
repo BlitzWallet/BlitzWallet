@@ -1,5 +1,6 @@
 import {
   getLightningInvoiceAmountSats,
+  isOrchestraSwapFailed,
   mapOrchestraQuoteToLightningQuote,
   normalizeOrchestraBackendError,
 } from '../../../app/functions/spark/orchestraLightning';
@@ -77,5 +78,18 @@ describe('orchestraLightning helpers', () => {
       message: 'Minimum is 5000 sats',
       minimumSats: '5000',
     });
+  });
+
+  test('a backend-confirmed completion on the last poll never reads as failed', () => {
+    const tx = details => ({
+      paymentStatus: 'completed',
+      details: JSON.stringify({ isFlashnetStablecoin: true, ...details }),
+    });
+    // Timeout marker: polled out without a backend answer.
+    expect(isOrchestraSwapFailed(tx({ runcount: 22 }))).toBe(true);
+    // Real completion that happened to land on poll 21.
+    expect(
+      isOrchestraSwapFailed(tx({ runcount: 22, orchestraCompleted: true })),
+    ).toBe(false);
   });
 });

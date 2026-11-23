@@ -632,7 +632,14 @@ const handlePayInvoice = async (
       payment_hash: paymentHash,
     });
   } catch (err) {
+    // Fail closed: without the lookup we can't rule out an earlier send of
+    // this invoice. The client may retry once storage is readable.
     console.error('Idempotency lookup failed', err);
+    return createErrorResponse(
+      'pay_invoice',
+      ERROR_CODES.INTERNAL,
+      'Unable to verify payment state',
+    );
   }
   if (existing?.type === 'OUTGOING' && existing.status === 'pending') {
     // An earlier attempt (possibly a native run that was killed mid-send) may

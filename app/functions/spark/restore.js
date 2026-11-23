@@ -199,9 +199,11 @@ export async function checkFlashnetStablecoinStatusLogic(
 
     if (!newStatus) return null;
 
+    // Only on a real backend 'completed': the runcount-21 timeout marker must
+    // not fabricate a settled incoming row.
     if (
       details.sarFundingTx &&
-      newStatus === 'completed' &&
+      statusResult.status === 'completed' &&
       statusResult.sparkTxHash &&
       statusResult.sparkTxHash !== tx.sparkID
     ) {
@@ -232,6 +234,11 @@ export async function checkFlashnetStablecoinStatusLogic(
         ...details,
         runcount: runcount + 1,
         lastRunTimestamp: Date.now(), // <-- persist when we last fetched
+        // A real backend completion must never read as the runcount timeout
+        // marker (isOrchestraSwapFailed).
+        ...(statusResult.status === 'completed'
+          ? { orchestraCompleted: true }
+          : {}),
       },
     };
   } catch {

@@ -49,7 +49,8 @@ export async function exportTransactionsCsv({
       const formattedTx = [
         tx.paymentType,
         txDetails.description
-          ? txDetails.description
+          ? // Payer-supplied text: a leading = + - @ would run as a formula.
+            String(txDetails.description).replace(/^[=+\-@\t\r]/, "'$&")
           : t('constants.noDescription'),
         formatDate(txDate, 'sortable'),
         formatBalanceAmount(txDetails.fee, undefined, masterInfoObject),

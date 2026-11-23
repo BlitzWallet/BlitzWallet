@@ -504,3 +504,37 @@ describe('pay_invoice fee accounting', () => {
     },
   );
 });
+
+// 13. The payment_hash lookup itself fails (storage error): the old path logged
+//     it and paid anyway, so a re-delivered request could pay twice.
+describe('pay_invoice idempotency lookup failure (13)', () => {
+  test('refuses without sending when the lookup throws', async () => {
+    const spy = jest
+      .spyOn(NWCInvoiceManager, 'handleLookupInvoice')
+      .mockRejectedValueOnce(new Error('database is locked'));
+
+    await handleNWCBackgroundEvent(payPush());
+
+    expect(mockWallet.sendNWCSparkLightningPayment).not.toHaveBeenCalled();
+    expect(lastResponse().error.message).toBe('Unable to verify payment state');
+    spy.mockRestore();
+  });
+});
+
+// 14. Two invocations reclaim the same event stuck in 'processing' (crash
+//     mid-batch): both used to get 'claimed' and both processed it.
+describe('stale processing reclaim', () => {
+  test('exactly one of two concurrent reclaimers wins', async () => {
+    const now = Date.now();
+    await nwcEventLedger.claimEvent('evt-stale', servicePubkey, 1, now);
+    const later = now + 11 * 60 * 1000;
+
+    const results = await Promise.all([
+      nwcEventLedger.claimEvent('evt-stale', servicePubkey, 1, later),
+      nwcEventLedger.claimEvent('evt-stale', servicePubkey, 1, later + 1),
+    ]);
+
+    expect(results.filter(r => r === 'claimed')).toHaveLength(1);
+    expect(results.filter(r => r === 'busy')).toHaveLength(1);
+  });
+});

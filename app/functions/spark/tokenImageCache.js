@@ -56,6 +56,7 @@ async function loadTokenImage(tokenId) {
       return null;
     }
 
+    let hadError = false;
     for (const ext of EXTENSIONS) {
       const url = `https://tokens.sparkscan.io/${tokenId}.${ext}`;
       try {
@@ -82,9 +83,13 @@ async function loadTokenImage(tokenId) {
         return localUri;
       } catch (err) {
         console.log('Token image fetch error:', tokenId, err);
+        hadError = true;
       }
     }
 
+    // Only a clean "not found" on every extension earns the negative TTL; a
+    // network error must not suppress retries for days.
+    if (hadError) return null;
     await setLocalStorageItem(
       key,
       JSON.stringify({ exists: false, checkedAt: Date.now() }),

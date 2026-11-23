@@ -56,6 +56,7 @@ const {
 describe('getCachedTokenImages', () => {
   beforeEach(() => {
     localStorage.__reset();
+    localStorage.setLocalStorageItem.mockClear();
     fs.__metrics.reset();
     global.fetch = jest.fn(async url => ({
       ok: !url.toLowerCase().includes('missing'),
@@ -95,6 +96,19 @@ describe('getCachedTokenImages', () => {
 
     expect(result.btknOK).toBe('/mockCacheDir/tokenImages/btknOK.jpg');
     expect(result.btknMissing).toBeNull();
+  });
+
+  it('does not cache a miss when the lookup failed on the network', async () => {
+    // A negative entry suppresses retries for days; only a clean 404 on every
+    // extension earns it, never an offline/timeout error.
+    global.fetch = jest.fn(async () => {
+      throw new Error('Network request failed');
+    });
+
+    const result = await getCachedTokenImages(['btknOffline']);
+
+    expect(result.btknOffline).toBeNull();
+    expect(localStorage.setLocalStorageItem).not.toHaveBeenCalled();
   });
 
   it('returns an empty map for an empty id list', async () => {

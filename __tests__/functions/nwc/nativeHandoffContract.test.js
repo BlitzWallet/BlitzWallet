@@ -53,7 +53,8 @@ jest.mock('../../../app/functions/nwc/publishResponse', () => ({
 }));
 jest.mock('../../../app/functions/nwc/cachedNWCTxs', () => ({
   __esModule: true,
-  default: {},
+  // No payment marker for the hash; a throwing lookup now refuses the send.
+  default: { handleLookupInvoice: jest.fn(async () => null) },
 }));
 jest.mock('../../../app/functions/notifications', () => ({
   pushInstantNotification: jest.fn(),

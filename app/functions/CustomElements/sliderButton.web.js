@@ -288,15 +288,23 @@ const SwipeButtonNew = React.memo(function SwipeButtonNew({
       }
     };
 
+    // An interrupted gesture (scroll/system takeover) never confirms.
+    const onCancel = () => {
+      if (!state.down) return;
+      state.down = false;
+      state.dragging = false;
+      resetAll();
+    };
+
     node.addEventListener('pointerdown', onDown);
     node.addEventListener('pointermove', onMove);
     node.addEventListener('pointerup', onUp);
-    node.addEventListener('pointercancel', onUp);
+    node.addEventListener('pointercancel', onCancel);
     return () => {
       node.removeEventListener('pointerdown', onDown);
       node.removeEventListener('pointermove', onMove);
       node.removeEventListener('pointerup', onUp);
-      node.removeEventListener('pointercancel', onUp);
+      node.removeEventListener('pointercancel', onCancel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

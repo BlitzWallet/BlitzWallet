@@ -100,6 +100,7 @@ export function isOrchestraSwapFailed(tx) {
   return (
     tx?.paymentStatus === 'completed' &&
     details?.isFlashnetStablecoin === true &&
+    details?.orchestraCompleted !== true &&
     details?.runcount > 20
   );
 }

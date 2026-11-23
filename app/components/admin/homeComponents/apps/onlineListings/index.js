@@ -150,13 +150,18 @@ export default function ViewOnlineListings({ removeUserLocal }) {
   const preprocessedBusinesses = useMemo(() => {
     if (!data?.businesses) return [];
 
+    // Third-party data: drop malformed entries instead of crashing the screen.
     return Object.values(data.businesses)
+      .filter(
+        biz =>
+          biz && typeof biz === 'object' && typeof biz.country?.code === 'string',
+      )
       .map(biz => ({
         ...biz,
         _name: String(biz.name ?? '').toLowerCase(),
-        _description: biz.description?.toLowerCase() || '',
-        _category: biz.category?.toLowerCase() || '',
-        _countryCode: biz.country?.code?.toLowerCase() || '',
+        _description: String(biz.description ?? '').toLowerCase(),
+        _category: String(biz.category ?? '').toLowerCase(),
+        _countryCode: biz.country.code.toLowerCase(),
         _websiteHost: getWebsiteHost(biz.website),
       }))
       .sort((a, b) => String(a.name ?? '').localeCompare(String(b.name ?? '')));

@@ -182,10 +182,10 @@ export const handleCryptoQRAddress = async (
   try {
     const [username, domain] = btcAddress.split('@');
 
+    const host = (domain || '').toLowerCase();
     if (
-      !domain ||
-      (!domain.includes('cryptoqr.net') &&
-        !domain.includes('staging.cryptoqr.net'))
+      !/^[a-z0-9.-]+$/.test(host) ||
+      (host !== 'cryptoqr.net' && !host.endsWith('.cryptoqr.net'))
     ) {
       throw new Error('Invalid Lightning Address domain');
     }

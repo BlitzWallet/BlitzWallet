@@ -157,7 +157,7 @@ const setPOSTransactions = async ({ transactionsList, privateKey }) => {
       if (!decryptedMessage) continue;
       const parsedMessage = JSON.parse(decryptedMessage);
       await sqlLiteDB.runAsync(
-        `INSERT INTO ${POS_TRANSACTION_TABLE_NAME} (tipAmountSats, orderAmountSats, serverName, timestamp, dbDateAdded)
+        `INSERT OR IGNORE INTO ${POS_TRANSACTION_TABLE_NAME} (tipAmountSats, orderAmountSats, serverName, timestamp, dbDateAdded)
             VALUES (?, ?, ?, ?, ?);`,
         [
           parsedMessage.tipAmountSats,

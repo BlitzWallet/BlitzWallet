@@ -161,6 +161,9 @@ export default function TotalTipsScreen({
         //   webViewRef,
         // });
         if (paymentResponse.didWork) {
+          // Record the payout before anything else can fail: a notify error
+          // must not leave paid tips marked unpaid (a retry would pay twice).
+          await updateInteralDBState(unpaidTxs);
           setIsNotifying(true);
           // First notify employee that tips have been paid and update contacts transactions
           const UUID = customUUID();
@@ -182,20 +185,22 @@ export default function TotalTipsScreen({
             },
           };
 
-          await publishMessage({
-            toPubKey: pubKey,
-            fromPubKey: fromPubKey,
-            data: sendObject,
-            globalContactsInformation,
-            selectedContact: selectedContact.contacts.myProfile,
-            isLNURLPayment: false,
-            privateKey: contactsPrivateKey,
-            retrivedContact: selectedContact,
-            currentTime,
-            masterInfoObject,
-          });
-          // update internal db state of paid tips so you dont pay a tip twice
-          await updateInteralDBState(unpaidTxs);
+          try {
+            await publishMessage({
+              toPubKey: pubKey,
+              fromPubKey: fromPubKey,
+              data: sendObject,
+              globalContactsInformation,
+              selectedContact: selectedContact.contacts.myProfile,
+              isLNURLPayment: false,
+              privateKey: contactsPrivateKey,
+              retrivedContact: selectedContact,
+              currentTime,
+              masterInfoObject,
+            });
+          } catch (notifyErr) {
+            console.log('tip payout notify error', notifyErr);
+          }
         } else
           throw new Error(t('settings.posPath.totalTipsScreen.errorPaying'));
       } else if (EMAIL_REGEX.test(name)) {

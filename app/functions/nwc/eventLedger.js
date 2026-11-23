@@ -147,11 +147,14 @@ class EventLedger {
         now - row.processed_at > STALE_PROCESSING_MS &&
         row.attempts < MAX_ATTEMPTS
       ) {
-        await this.db.runAsync(
-          'UPDATE handled_events SET attempts = attempts + 1, processed_at = ? WHERE event_id = ?',
-          [now, eventId],
+        // Compare-and-swap on the stale row we read: two reclaimers of the same
+        // stale event can't both win.
+        const reclaimed = await this.db.runAsync(
+          `UPDATE handled_events SET attempts = attempts + 1, processed_at = ?
+           WHERE event_id = ? AND status = 'processing' AND processed_at = ?`,
+          [now, eventId, row.processed_at],
         );
-        return 'claimed';
+        return reclaimed.changes > 0 ? 'claimed' : 'busy';
       }
 
       return 'busy';
