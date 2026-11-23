@@ -70,7 +70,13 @@ function TopBarInner({
       />
       <View
         style={[styles.side, styles.right]}
-        onLayout={e => setRightWidth(e.nativeEvent.layout.width)}
+        onLayout={e => {
+          // Android snaps widths to its pixel grid by position, so this
+          // flips ~0.4px each pass (44.19 ↔ 43.81) and feeds back through the
+          // left minWidth forever. Ignore sub-pixel changes.
+          const w = e.nativeEvent.layout.width;
+          setRightWidth(prev => (Math.abs(prev - w) < 1 ? prev : w));
+        }}
       >
         {right}
       </View>
