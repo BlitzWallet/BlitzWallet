@@ -20,13 +20,16 @@ export default function CustomScrollView(props) {
   const nativeGesture = useMemo(() => {
     if (!inSheet) return null;
     const { panGesture, scrollBlocksDrag } = sheetDrag;
+    const onTouch = () => {
+      'worklet';
+      touching.value = true;
+      scrollBlocksDrag.value = offset.value > 0;
+    };
     return Gesture.Native()
       .shouldCancelWhenOutside(false)
       .simultaneousWithExternalGesture(panGesture)
-      .onBegin(() => {
-        touching.value = true;
-        scrollBlocksDrag.value = offset.value > 0;
-      })
+      .onBegin(onTouch)
+      .onStart(onTouch)
       .onFinalize(() => {
         touching.value = false;
         scrollBlocksDrag.value = false;
