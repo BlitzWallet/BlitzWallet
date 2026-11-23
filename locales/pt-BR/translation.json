@@ -1458,9 +1458,9 @@
       "balancePage": {
         "receiveBitcoin": "Receber Bitcoin",
         "receiveDollars": "Receber dólares",
-        "emptyBitcoin": "Os Bitcoins que você enviar e receber aparecerão aqui.",
-        "emptyDollars": "Os dólares que você enviar e receber aparecerão aqui.",
-        "emptyTokens": "Os tokens que você enviar e receber aparecerão aqui.",
+        "emptyBitcoin": "Os bitcoins que você enviar ou receber aparecerão aqui.",
+        "emptyDollars": "Os dólares que você enviar ou receber aparecerão aqui.",
+        "emptyTokens": "Os tokens que você enviar ou receber aparecerão aqui.",
         "balances": "Saldos",
         "viewAllTokens": "Ver todos os {{count}} tokens",
         "allTokens": "Todos os tokens",
