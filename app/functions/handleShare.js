@@ -1,5 +1,5 @@
 import * as Sharing from 'expo-sharing';
-import { Share } from 'react-native';
+import { Platform, Share } from 'react-native';
 import {
   documentDirectory,
   EncodingType,
@@ -71,7 +71,6 @@ export async function shareFile(url, options = {}) {
  * @param {string} content.message - The message to share
  * @param {string} content.url - URL to share
  * @param {string} content.title - Title for the share dialog
- * @param {string} content.type - MIME type (Android only)
  * @param {Object} options - Additional options
  * @param {string} options.dialogTitle - Title for share dialog (Android only)
  * @param {string} options.subject - Subject when sharing via email (iOS only)
@@ -90,7 +89,13 @@ export async function shareMessage(content, options = {}) {
     if (content.message) shareContent.message = content.message;
     if (content.url) shareContent.url = content.url;
     if (content.title) shareContent.title = content.title;
-    if (content.type) shareContent.type = content.type;
+
+    if (Platform.OS === 'android' && shareContent.url) {
+      shareContent.message = [shareContent.message, shareContent.url]
+        .filter(Boolean)
+        .join('\n');
+      delete shareContent.url;
+    }
 
     const shareOptions = {};
 
