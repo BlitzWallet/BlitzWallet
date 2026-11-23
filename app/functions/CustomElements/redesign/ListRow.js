@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { FONT } from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
 import ThemeText from '../textTheme';
@@ -173,9 +173,12 @@ const styles = StyleSheet.create({
   },
   // Title wins the row: up to 70% wide and never shrinks; the value
   // takes (and truncates in) whatever is left.
-  // flex: 0 resets styles.middle's flex: 1 (basis 0) so it sizes to content.
+  // Resets styles.middle's flex: 1 (basis 0) so it sizes to content. RNW
   middleWithValue: {
-    flex: 0,
+    ...Platform.select({
+      web: { flexGrow: 0, flexBasis: 'auto' },
+      default: { flex: 0 },
+    }),
     flexShrink: 0,
     flexWrap: 'nowrap',
     maxWidth: '70%',
