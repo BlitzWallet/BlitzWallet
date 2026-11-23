@@ -71,6 +71,8 @@ export default function SendList() {
         sub={`${
           contact.isLNURL ? contact.receiveAddress : '@' + contact.uniqueName
         }`}
+        subLines={1}
+        subEllipsizeMode="middle"
         onPress={() =>
           navigate.navigate('SendAndRequestPage', {
             selectedContact: contact,

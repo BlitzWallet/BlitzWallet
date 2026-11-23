@@ -27,6 +27,7 @@ export default function ListRow({
   chevronSize = 20,
   accessibilityLabel,
   subLines,
+  subEllipsizeMode,
   titleLines,
 }) {
   const { tokens } = useTheme();
@@ -113,6 +114,7 @@ export default function ListRow({
           <ThemeText
             variant="hint"
             CustomNumberOfLines={subLines}
+            CustomEllipsizeMode={subEllipsizeMode}
             content={sub}
             styles={subStyle}
           />

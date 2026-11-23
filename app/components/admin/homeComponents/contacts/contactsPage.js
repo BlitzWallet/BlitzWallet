@@ -362,6 +362,8 @@ const ContactElement = memo(
         sub={`${
           contact.isLNURL ? contact.receiveAddress : '@' + contact.uniqueName
         }`}
+        subLines={1}
+        subEllipsizeMode="middle"
         trailing={
           hasUnlookedTransaction && (
             <View
