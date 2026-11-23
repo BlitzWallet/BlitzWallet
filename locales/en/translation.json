@@ -2941,6 +2941,7 @@
         "statusFailed": "This payment did not go through. You can safely send it again.",
         "bulkSuccess": "Requests sent successfully",
         "bulkPartialSuccess": "No requests sent",
+        "splitPartialFailure": "Not everyone in this split was paid. Some payments failed or couldn't be confirmed. Check your activity before sending them again.",
         "stablecoinDesc": "{{asset}} on {{chain}}",
         "walletConnected": "Wallet connected",
         "lud9SuccessAction": "View receipt"

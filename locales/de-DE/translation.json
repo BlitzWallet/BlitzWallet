@@ -2942,6 +2942,7 @@
         "confirmMessage": "{{direction}} erfolgreich",
         "bulkSuccess": "Anfragen erfolgreich gesendet",
         "bulkPartialSuccess": "Keine Anfragen gesendet",
+        "splitPartialFailure": "Nicht alle in dieser Aufteilung wurden bezahlt. Einige Zahlungen sind fehlgeschlagen oder konnten nicht bestätigt werden. Prüfe deine Aktivität, bevor du sie erneut sendest.",
         "stablecoinDesc": "{{asset}} auf {{chain}}",
         "failedPaymentSupportSubject": "Support bei fehlgeschlagener Zahlung"
       },

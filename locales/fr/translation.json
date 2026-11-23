@@ -2935,6 +2935,7 @@
         "confirmMessage_received": "Reçu avec succès",
         "bulkSuccess": "Demandes envoyées avec succès",
         "bulkPartialSuccess": "Aucune demande envoyée",
+        "splitPartialFailure": "Tout le monde n'a pas été payé dans ce partage. Certains paiements ont échoué ou n'ont pas pu être confirmés. Vérifie ton activité avant de les renvoyer.",
         "sendingInProgress": "Votre paiement a été envoyé. Veuillez patienter pendant sa confirmation.",
         "statusUnknown": "Statut du paiement inconnu",
         "statusUnknownMessage": "Nous n’avons pas pu confirmer si ce paiement a abouti. Ne l’envoyez pas encore. Vérifiez d’abord son statut.",

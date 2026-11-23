@@ -130,6 +130,8 @@ export default function ConfirmTxPage(props) {
     ? t('screens.inAccount.confirmTxPage.lnurlAuthSuccess')
     : !didSucceed
     ? t('screens.inAccount.confirmTxPage.failedToSend')
+    : props.route.params?.splitHasFailures
+    ? t('screens.inAccount.confirmTxPage.splitPartialFailure')
     : showPendingMessage
     ? successActionDescription ||
       t('screens.inAccount.confirmTxPage.sendingInProgress')
@@ -179,6 +181,11 @@ export default function ConfirmTxPage(props) {
           />
 
           <ThemeText
+            variant="title"
+            styles={styles.title}
+            content={t('screens.inAccount.confirmTxPage.statusUnknown')}
+          />
+          <ThemeText
             styles={[styles.status, { color: tokens.muted }]}
             content={t('screens.inAccount.confirmTxPage.statusUnknownMessage')}
           />
@@ -195,6 +202,22 @@ export default function ConfirmTxPage(props) {
                 });
               }}
               textContent={buttonText}
+            />
+            <TextButton
+              onPress={() =>
+                navigate.push('CustomHalfModal', {
+                  wantedContent: 'contactUs',
+                  emailSubject: t(
+                    'screens.inAccount.confirmTxPage.failedPaymentSupportSubject',
+                  ),
+                  emailBody: [errorMessage, props.route.params?.intentId]
+                    .filter(Boolean)
+                    .join('\n'),
+                  copyBody: true,
+                })
+              }
+              text={t('screens.inAccount.confirmTxPage.sendReport')}
+              align="center"
             />
           </View>
         </BottomActions>

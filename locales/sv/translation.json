@@ -2935,6 +2935,7 @@
         "confirmMessage_received": "Mottaget framgångsrikt",
         "bulkSuccess": "Förfrågningar skickades",
         "bulkPartialSuccess": "Inga förfrågningar skickades",
+        "splitPartialFailure": "Alla i den här uppdelningen fick inte betalt. Vissa betalningar misslyckades eller kunde inte bekräftas. Kontrollera din aktivitet innan du skickar dem igen.",
         "sendingInProgress": "Din betalning har skickats. Vänta medan den bekräftas.",
         "statusUnknown": "Betalningsstatus okänd",
         "statusUnknownMessage": "Vi kunde inte bekräfta om den här betalningen gick igenom. Skicka den inte igen ännu. Kontrollera dess status först.",

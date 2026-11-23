@@ -153,13 +153,13 @@ export default function ViewOnlineListings({ removeUserLocal }) {
     return Object.values(data.businesses)
       .map(biz => ({
         ...biz,
-        _name: biz.name.toLowerCase(),
+        _name: String(biz.name ?? '').toLowerCase(),
         _description: biz.description?.toLowerCase() || '',
         _category: biz.category?.toLowerCase() || '',
         _countryCode: biz.country?.code?.toLowerCase() || '',
         _websiteHost: getWebsiteHost(biz.website),
       }))
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort((a, b) => String(a.name ?? '').localeCompare(String(b.name ?? '')));
   }, [data]);
 
   const categoryOptions = useMemo(() => {

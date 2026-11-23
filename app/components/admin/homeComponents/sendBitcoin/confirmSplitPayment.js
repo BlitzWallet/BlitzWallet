@@ -676,6 +676,7 @@ export default function ConfirmSplitPayment(props) {
                   transaction: result?.transaction,
                   isSplitPayment: true,
                   error: result.error,
+                  splitHasFailures: result?.failed?.length > 0,
                   paymentDisplay: primaryDisplayRef.current,
                 },
               },

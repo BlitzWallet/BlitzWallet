@@ -2935,6 +2935,7 @@
         "confirmMessage": "{{direction}} com sucesso",
         "bulkSuccess": "Solicitações enviadas com sucesso",
         "bulkPartialSuccess": "Nenhuma solicitação enviada",
+        "splitPartialFailure": "Nem todos nesta divisão foram pagos. Alguns pagamentos falharam ou não puderam ser confirmados. Verifique sua atividade antes de enviá-los novamente.",
         "sendingInProgress": "Seu pagamento foi enviado. Aguarde enquanto ele é confirmado.",
         "statusUnknown": "Status do pagamento desconhecido",
         "statusUnknownMessage": "Não conseguimos confirmar se este pagamento foi concluído. Não o envie novamente ainda. Verifique o status primeiro.",

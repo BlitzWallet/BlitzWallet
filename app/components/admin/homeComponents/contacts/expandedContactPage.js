@@ -117,10 +117,10 @@ export default function ExpandedContactsPage(props) {
       decodedAddedContacts.filter(contact => contact?.uuid === selectedUUID),
     [decodedAddedContacts, selectedUUID],
   );
-  const imageData = cache[selectedContact.uuid];
+  const imageData = cache[selectedContact?.uuid];
   const contactTransactions = contactsMessags[selectedUUID]?.messages || [];
   const isLNURLContact =
-    selectedContact.isLNURL && selectedContact.receiveAddress?.includes('@');
+    selectedContact?.isLNURL && selectedContact.receiveAddress?.includes('@');
   const canShareProfile =
     !selectedContact?.isLNURL && !!selectedContact?.uniqueName;
 
@@ -199,7 +199,7 @@ export default function ExpandedContactsPage(props) {
         content={formatDisplayName(selectedContact) || t('constants.annonName')}
       />
 
-      {selectedContact.uniqueName && (
+      {selectedContact?.uniqueName && (
         <ThemeText
           styles={[styles.usernameText, { color: tokens.muted }]}
           content={`@${selectedContact.uniqueName}`}
@@ -262,106 +262,7 @@ export default function ExpandedContactsPage(props) {
             </>
           )}
         </View>
-        <AdaptiveButtonRow
-          pill
-          labels={[requestText, payText]}
-          containerStyle={styles.buttonContainer}
-        >
-          {({ buttonStyle }) => (
-            <>
-              <CustomButton
-                buttonStyles={buttonStyle}
-                enableElipsis={false}
-                textContent={requestText}
-                actionFunction={() => {
-                  if (selectedContact.isLNURL) {
-                    navigate.navigate('ErrorScreen', {
-                      errorMessage: t(
-                        'contacts.expandedContactPage.requestLNURLError',
-                      ),
-                    });
-                    return;
-                  }
-                  if (!isConnectedToTheInternet) {
-                    navigate.navigate('ErrorScreen', {
-                      errorMessage: t('errormessages.nointernet'),
-                    });
-                    return;
-                  }
-                  navigate.navigate('SendAndRequestPage', {
-                    selectedContact: selectedContact,
-                    paymentType: 'request',
-                    imageData,
-                  });
-                }}
-                size={'regular'}
-                tone={'secondary'}
-              />
-              <CustomButton
-                buttonStyles={buttonStyle}
-                enableElipsis={false}
-                textContent={payText}
-                actionFunction={() => {
-                  if (!isConnectedToTheInternet) {
-                    navigate.navigate('ErrorScreen', {
-                      errorMessage: t('errormessages.nointernet'),
-                    });
-                    return;
-                  }
-                  navigate.navigate('SendAndRequestPage', {
-                    selectedContact: selectedContact,
-                    paymentType: 'send',
-                    imageData,
-                    endReceiveType: 'BTC',
-                  });
-                }}
-                size={'regular'}
-              />
-            </>
-          )}
-        </AdaptiveButtonRow>
-      </View>
-    );
-  }
-
-  return (
-    <GlobalThemeView useStandardWidth={true}>
-      <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar
-          fade
-          right={
-            <View style={styles.topBar}>
-              <IconButton
-                icon={'Star'}
-                label="contacts.expandedContactPage.favoriteLabel"
-                onPress={() => {
-                  handleFavortie({ selectedContact });
-                }}
-                fill={selectedContact.isFavorite}
-              />
-              <IconButton
-                label="contacts.expandedContactPage.editLabel"
-                onPress={() => handleSettings({ selectedContact })}
-                icon={'Pencil'}
-              />
-            </View>
-          }
-        />
-        {!selectedContact ? (
-          <FullLoadingScreen
-            text={t('contacts.expandedContactPage.loadingContactError')}
-            textStyles={{ testAlign: 'center' }}
-          />
-        ) : (
-          <CustomScrollView
-            style={styles.flex}
-            contentContainerStyle={styles.listContent}
-          >
-            {header}
-            {history}
-          </CustomScrollView>
-        )}
-        <BottomActions>
+        {selectedContact && (
           <AdaptiveButtonRow
             pill
             labels={[requestText, payText]}
@@ -420,7 +321,112 @@ export default function ExpandedContactsPage(props) {
               </>
             )}
           </AdaptiveButtonRow>
-        </BottomActions>
+        )}
+      </View>
+    );
+  }
+
+  return (
+    <GlobalThemeView useStandardWidth={true}>
+      <View style={[styles.container, { width: contentWidth }]}>
+        <TopBar
+          fade
+          right={
+            selectedContact && (
+              <View style={styles.topBar}>
+                <IconButton
+                  icon={'Star'}
+                  label="contacts.expandedContactPage.favoriteLabel"
+                  onPress={() => {
+                    handleFavortie({ selectedContact });
+                  }}
+                  fill={selectedContact?.isFavorite}
+                />
+                <IconButton
+                  label="contacts.expandedContactPage.editLabel"
+                  onPress={() => handleSettings({ selectedContact })}
+                  icon={'Pencil'}
+                />
+              </View>
+            )
+          }
+        />
+        {!selectedContact ? (
+          <FullLoadingScreen
+            text={t('contacts.expandedContactPage.loadingContactError')}
+            textStyles={{ testAlign: 'center' }}
+          />
+        ) : (
+          <CustomScrollView
+            style={styles.flex}
+            contentContainerStyle={styles.listContent}
+          >
+            {header}
+            {history}
+          </CustomScrollView>
+        )}
+        {selectedContact && (
+          <BottomActions>
+            <AdaptiveButtonRow
+              pill
+              labels={[requestText, payText]}
+              containerStyle={styles.buttonContainer}
+            >
+              {({ buttonStyle }) => (
+                <>
+                  <CustomButton
+                    buttonStyles={buttonStyle}
+                    enableElipsis={false}
+                    textContent={requestText}
+                    actionFunction={() => {
+                      if (selectedContact.isLNURL) {
+                        navigate.navigate('ErrorScreen', {
+                          errorMessage: t(
+                            'contacts.expandedContactPage.requestLNURLError',
+                          ),
+                        });
+                        return;
+                      }
+                      if (!isConnectedToTheInternet) {
+                        navigate.navigate('ErrorScreen', {
+                          errorMessage: t('errormessages.nointernet'),
+                        });
+                        return;
+                      }
+                      navigate.navigate('SendAndRequestPage', {
+                        selectedContact: selectedContact,
+                        paymentType: 'request',
+                        imageData,
+                      });
+                    }}
+                    size={'regular'}
+                    tone={'secondary'}
+                  />
+                  <CustomButton
+                    buttonStyles={buttonStyle}
+                    enableElipsis={false}
+                    textContent={payText}
+                    actionFunction={() => {
+                      if (!isConnectedToTheInternet) {
+                        navigate.navigate('ErrorScreen', {
+                          errorMessage: t('errormessages.nointernet'),
+                        });
+                        return;
+                      }
+                      navigate.navigate('SendAndRequestPage', {
+                        selectedContact: selectedContact,
+                        paymentType: 'send',
+                        imageData,
+                        endReceiveType: 'BTC',
+                      });
+                    }}
+                    size={'regular'}
+                  />
+                </>
+              )}
+            </AdaptiveButtonRow>
+          </BottomActions>
+        )}
       </View>
     </GlobalThemeView>
   );
