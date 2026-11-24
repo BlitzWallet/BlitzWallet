@@ -7,7 +7,7 @@ import CustomNumberKeyboard from '../../../../../../functions/CustomElements/cus
 import GetThemeColors from '../../../../../../hooks/themeColors';
 import SwipeButtonNew from '../../../../../../functions/CustomElements/sliderButton';
 import CustomButton from '../../../../../../functions/CustomElements/button';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getLNAddressForLiquidPayment } from '../../../sendBitcoin/functions/payments';
 import { sparkPaymenWrapper } from '../../../../../../functions/spark/payments';
 import { useGlobalContextProvider } from '../../../../../../../context-store/context';
@@ -20,6 +20,16 @@ import { InputTypes } from 'bitcoin-address-parser';
 import useHandleBackPressNew from '../../../../../../hooks/useHandleBackPressNew';
 import displayCorrectDenomination from '../../../../../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../../../../../context-store/nodeContext';
+import { useFlashnet } from '../../../../../../../context-store/flashnetContext';
+import BudgetCurrencyButton from '../../../../../../functions/CustomElements/redesign/CurrencyButton';
+import useCurrencyDisplay from '../../../../../../hooks/useCurrencyDisplay';
+import useAmountInputConversion from '../../../../../../hooks/useAmountInputConversion';
+import useDisplayCurrencyController from '../../../../../../hooks/useDisplayCurrencyController';
+import {
+  normalizeDisplayCurrency,
+  resolveUsdFiatStats,
+  SATS_DISPLAY_CURRENCY,
+} from '../../../../../../functions/displayCurrency';
 import ThemeIcon from '../../../../../../functions/CustomElements/themeIcon';
 import TopBar from '../../../../../../functions/CustomElements/redesign/TopBar';
 import AmountHero from '../../../../../../functions/CustomElements/redesign/AmountHero';
@@ -64,6 +74,7 @@ export default function ConfirmChatGPTPage({
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
+  const { swapUSDPriceDollars } = useFlashnet();
   const { sparkInformation } = useSparkWallet();
   const {
     decodedChatGPT,
@@ -82,6 +93,53 @@ export default function ConfirmChatGPTPage({
   const [error, setError] = useState('');
 
   const currentPage = step[step.length - 1];
+  const usdFiatStats = useMemo(
+    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
+    [fiatStats, swapUSDPriceDollars],
+  );
+  const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
+    useDisplayCurrencyController({
+      initialCurrency: SATS_DISPLAY_CURRENCY,
+      fiatStats,
+      usdFiatStats,
+      masterInfoObject,
+    });
+  const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
+  const isSats = normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY;
+  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
+    useCurrencyDisplay({
+      displayCurrency,
+      fiatStats,
+      usdFiatStats,
+      currencyRates,
+      masterInfoObject,
+    });
+  const { exactSats } = useAmountInputConversion({
+    amount: amountValue,
+    setAmount: setAmountValue,
+    primaryDisplay,
+    conversionFiatStats,
+  });
+  const primaryMasterInfoObject = useMemo(
+    () => ({
+      ...(masterInfoObject || {}),
+      userBalanceDenomination: primaryDisplay.denomination,
+      fiatCurrency:
+        primaryDisplay.forceCurrency || masterInfoObject?.fiatCurrency || 'USD',
+    }),
+    [masterInfoObject, primaryDisplay],
+  );
+  // This screen is itself inside CustomHalfModal, so push the picker.
+  const openPicker = useCallback(
+    () =>
+      navigate.push('CustomHalfModal', {
+        wantedContent: 'displayCurrencySelect',
+        sliderHight: 0.6,
+        currentCurrency: displayCurrency,
+        onSelectCurrency: code => selectCurrency(code),
+      }),
+    [displayCurrency, navigate, selectCurrency],
+  );
   const satsMasterInfoObject = {
     ...masterInfoObject,
     userBalanceDenomination: 'sats',
@@ -264,7 +322,7 @@ export default function ConfirmChatGPTPage({
 
   const isCustomSelected =
     !!selectedAmountSats && !PRESET_AMOUNTS.includes(selectedAmountSats);
-  const customSats = Number(amountValue) || 0;
+  const customSats = exactSats ?? convertDisplayToSats(amountValue);
   const customError = !customSats
     ? ''
     : customSats < MIN_AMOUNT
@@ -346,12 +404,24 @@ export default function ConfirmChatGPTPage({
         direction={direction}
         exitsBack={direction === -1}
       >
-        <TopBar onBack={goBack} />
+        <TopBar
+          onBack={goBack}
+          right={
+            <BudgetCurrencyButton
+              label={isSats ? 'SAT' : normalizedDisplayCurrency}
+              onPress={openPicker}
+              disabled={isLoadingRate}
+              accessibilityLabel={t(
+                'settings.nwc.createNWCAmount.changeCurrency',
+              )}
+            />
+          }
+        />
         <View style={styles.customAmount}>
           <AmountHero
             amount={customSats}
-            masterInfoObject={satsMasterInfoObject}
-            fiatStats={fiatStats}
+            masterInfoObject={primaryMasterInfoObject}
+            fiatStats={conversionFiatStats}
             amountSize={AMOUNT_HERO_SIZE.sheet}
             mutedValue={!customSats}
           />
@@ -364,8 +434,9 @@ export default function ConfirmChatGPTPage({
         </View>
         <View style={styles.keypad}>
           <CustomNumberKeyboard
-            showDot={false}
+            showDot={primaryDisplay.denomination === 'fiat'}
             setInputValue={setAmountValue}
+            fiatStats={conversionFiatStats}
             usingForBalance={true}
             redesign={true}
             bottomLeftEmpty={true}

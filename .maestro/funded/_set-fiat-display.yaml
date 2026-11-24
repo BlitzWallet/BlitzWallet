@@ -1,0 +1,27 @@
+# Subflow: from Home, set the wallet's currency and show balances as fiat, then
+# return Home. Env: CURRENCY_CODE (typed into the search, e.g. EUR) and
+# CURRENCY_NAME (row name, e.g. Euro). Leaves the wallet in this setting.
+appId: ${APP_ID}
+---
+- tapOn: Profile # avatar, top right
+- tapOn: Settings # list item
+- tapOn: 'Currency.*' # row shows the current code inline
+- tapOn: Search currency
+- inputText: ${CURRENCY_CODE}
+- waitForAnimationToEnd:
+    timeout: 3000
+- tapOn: '.*${CURRENCY_NAME}.*'
+# Saving fetches the rate, then returns to Settings.
+- extendedWaitUntil:
+    visible: Display options
+    timeout: 45000
+- tapOn: Display options
+- tapOn: ${DISPLAY_CODE}
+- waitForAnimationToEnd:
+    timeout: 3000
+- tapOn: Back # Display options -> Settings
+- tapOn: Back # Settings -> Profile
+- tapOn: Back # Profile -> Home
+- extendedWaitUntil:
+    visible: Receive
+    timeout: 15000

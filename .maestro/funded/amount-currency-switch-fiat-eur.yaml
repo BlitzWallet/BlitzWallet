@@ -1,0 +1,215 @@
+# Amount input switching when the wallet shows balances in fiat with EUR as its
+# currency: the keypad opens in EUR, and the picker pins Bitcoin, Dollars and Euro.
+# Covers EUR <-> sats, EUR <-> USD (fiat to fiat) and chained hops back to the
+# typed value. Runs on Receive > Bitcoin > Create invoice; never sends.
+# Starts on Home of a logged-in wallet (no funds needed). Leaves the wallet set to
+# fiat + EUR.
+#
+# maestro test -e APP_ID=org.reactjs.native.example.BlitzWallet \
+#   --format junit --output e2e-artifacts/report.xml --test-output-dir e2e-artifacts \
+#   .maestro/funded/amount-currency-switch-fiat-eur.yaml
+appId: ${APP_ID}
+---
+- runFlow:
+    file: _set-fiat-display.yaml
+    env:
+      CURRENCY_CODE: EUR
+      CURRENCY_NAME: Euro
+      DISPLAY_CODE: 'fiat'
+
+- tapOn: Receive
+- tapOn: Bitcoin
+- tapOn: Create invoice # sheet row -> amount keypad
+- extendedWaitUntil:
+    visible: Change currency
+    timeout: 30000
+
+# V1: the keypad opens in EUR (the fiat default), empty.
+- assertVisible: '.*€.*'
+- assertNotVisible: '.*\$.*'
+- takeScreenshot: eur-00-default-eur
+
+# V2: empty input survives EUR -> sats -> USD -> EUR.
+- tapOn: Change currency
+- tapOn: Bitcoin
+- extendedWaitUntil:
+    notVisible: '.*€.*'
+    timeout: 15000
+- assertVisible: '(₿\s?0|0\s?sats?)'
+- tapOn: Change currency
+- tapOn: Dollars
+- extendedWaitUntil:
+    visible: '.*\$\s?0.*'
+    timeout: 15000
+- tapOn: Change currency
+- tapOn: '.*Euro.*'
+- extendedWaitUntil:
+    visible: '.*€.*'
+    timeout: 15000
+- takeScreenshot: eur-01-empty
+
+# V3: €1.23 -> sats -> EUR comes back exactly.
+- tapOn: '1'
+- tapOn: '\.' # regex: a bare . would match any 1-char key
+- tapOn: '2'
+- tapOn: '3'
+- assertVisible: '(.*€\s?1[.,]23.*|.*1[.,]23\s?€.*)'
+- tapOn: Change currency
+- tapOn: Bitcoin
+- extendedWaitUntil:
+    notVisible: '.*€.*'
+    timeout: 15000
+- assertVisible: '(₿\s?\d[\d ,]*|[\d ,]*\d\s?sats?)'
+- assertNotVisible: '(₿\s?1\.23|1\.23\s?sats?)' # not reinterpreted as 1.23 sats
+- takeScreenshot: eur-02-as-sats
+- tapOn: Change currency
+- tapOn: '.*Euro.*'
+- extendedWaitUntil:
+    visible: '(.*€\s?1[.,]23.*|.*1[.,]23\s?€.*)'
+    timeout: 15000
+- takeScreenshot: eur-02-restored
+
+# V4: €1.23 -> USD (fiat to fiat) converts, not relabels, and comes back exactly.
+- tapOn: Change currency
+- tapOn: Dollars
+- extendedWaitUntil:
+    visible: '.*\$.*'
+    timeout: 15000
+- assertNotVisible: '.*€.*'
+- assertNotVisible: '.*\$\s?1\.23.*'
+- assertVisible: '.*\$\s?\d+(\.\d{1,2})?.*'
+- takeScreenshot: eur-03-as-usd
+- tapOn: Change currency
+- tapOn: '.*Euro.*'
+- extendedWaitUntil:
+    visible: '(.*€\s?1[.,]23.*|.*1[.,]23\s?€.*)'
+    timeout: 15000
+- takeScreenshot: eur-03-restored
+
+# V5: chained hops EUR -> USD -> sats -> USD -> EUR still restore the typed €1.23.
+- repeat:
+    times: 2
+    commands:
+      - tapOn: Change currency
+      - tapOn: Dollars
+      - extendedWaitUntil:
+          visible: '.*\$.*'
+          timeout: 15000
+      - tapOn: Change currency
+      - tapOn: Bitcoin
+      - extendedWaitUntil:
+          notVisible: '.*\$.*'
+          timeout: 15000
+      - tapOn: Change currency
+      - tapOn: Dollars
+      - extendedWaitUntil:
+          visible: '.*\$.*'
+          timeout: 15000
+      - tapOn: Change currency
+      - tapOn: '.*Euro.*'
+      - extendedWaitUntil:
+          visible: '.*€.*'
+          timeout: 15000
+- assertVisible: '(.*€\s?1[.,]23.*|.*1[.,]23\s?€.*)'
+- takeScreenshot: eur-04-multi
+
+# V6: typing after a switch builds on the converted value (in sats, x10).
+- tapOn: Change currency
+- tapOn: Bitcoin
+- extendedWaitUntil:
+    notVisible: '.*€.*'
+    timeout: 15000
+- tapOn: '0'
+- tapOn: Change currency
+- tapOn: '.*Euro.*'
+- extendedWaitUntil:
+    visible: '.*€.*'
+    timeout: 15000
+- assertNotVisible: '(.*€\s?1[.,]23.*|.*1[.,]23\s?€.*)'
+- assertVisible: '(.*€\s?1\d[.,]\d{1,2}.*|.*1\d[.,]\d{1,2}\s?€.*)' # about €12.30
+- takeScreenshot: eur-05-typed-after-switch
+
+# V7: typing in USD after a switch, then back to EUR, uses the new USD value.
+- tapOn: Change currency
+- tapOn: Dollars
+- extendedWaitUntil:
+    visible: '.*\$.*'
+    timeout: 15000
+- repeat:
+    times: 6
+    commands:
+      - tapOn: Delete
+- tapOn: '2'
+- tapOn: '0'
+- assertVisible: '.*\$\s?20.*'
+- tapOn: Change currency
+- tapOn: '.*Euro.*'
+- extendedWaitUntil:
+    visible: '.*€.*'
+    timeout: 15000
+- assertNotVisible: '(.*€\s?20|20\s?€.*)' # converted, not relabelled
+- takeScreenshot: eur-06-usd-typed-as-eur
+- tapOn: Change currency
+- tapOn: Dollars
+- extendedWaitUntil:
+    visible: '.*\$\s?20.*'
+    timeout: 15000
+
+# V8: zero and 1 sat.
+- tapOn: Change currency
+- tapOn: Bitcoin
+- extendedWaitUntil:
+    notVisible: '.*\$.*'
+    timeout: 15000
+- tapOn: Clear
+- tapOn: '0'
+- tapOn: Change currency
+- tapOn: '.*Euro.*'
+- extendedWaitUntil:
+    visible: '.*€.*'
+    timeout: 15000
+- assertVisible: '(.*€\s?0.*|.*0\s?€.*)'
+- tapOn: Change currency
+- tapOn: Bitcoin
+- extendedWaitUntil:
+    notVisible: '.*€.*'
+    timeout: 15000
+- tapOn: Clear
+- tapOn: '1'
+- tapOn: Change currency
+- tapOn: '.*Euro.*'
+- extendedWaitUntil:
+    visible: '.*€.*'
+    timeout: 15000
+- takeScreenshot: eur-07-dust-eur
+- tapOn: Change currency
+- tapOn: Bitcoin
+- extendedWaitUntil:
+    notVisible: '.*€.*'
+    timeout: 15000
+- assertVisible: '(₿\s?1|1\s?sats?)'
+
+# V9: 5,000 sats switched to EUR (rounded to the cent) still requests exactly the
+# typed 5,000 sats, shown with its EUR value.
+- tapOn: Clear
+- tapOn: '5'
+- tapOn: '0'
+- tapOn: '0'
+- tapOn: '0'
+- tapOn: Change currency
+- tapOn: '.*Euro.*'
+- extendedWaitUntil:
+    visible: '.*€.*'
+    timeout: 15000
+- takeScreenshot: eur-08-before-create
+# "Create invoice" is also the page title; the button is the one under the amount.
+- tapOn:
+    text: Create invoice
+    below: '(.*€.*\d.*|.*\d.*€.*)'
+- extendedWaitUntil:
+    visible: Copy
+    timeout: 60000
+- assertNotVisible: Any amount
+- assertVisible: '(.*€.*\d.*|.*\d.*€.*)'
+- assertVisible: '(₿\s?5\D?000|5\D?000\s?sats?)' # typed amount, not re-rounded
+- takeScreenshot: eur-09-invoice-created

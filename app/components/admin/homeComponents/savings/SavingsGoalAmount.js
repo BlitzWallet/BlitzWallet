@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSavings } from '../../../../../context-store/savingsContext';
@@ -16,7 +16,14 @@ import {
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
-import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
+import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
+import useAmountInputConversion from '../../../../hooks/useAmountInputConversion';
+import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
+import BudgetCurrencyButton from '../../../../functions/CustomElements/redesign/CurrencyButton';
+import {
+  normalizeDisplayCurrency,
+  SATS_DISPLAY_CURRENCY,
+} from '../../../../functions/displayCurrency';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { satsToDollars } from '../../../../functions/spark/flashnet';
@@ -40,27 +47,67 @@ export default function SavingsGoalAmount(props) {
   const goalName = props?.route?.params?.goalName || selectedGoal?.name || '';
   const mode = props?.route?.params?.mode || 'create';
 
-  const [inputDenomination] = useState('fiat');
   const [isSaving, setIsSaving] = useState(false);
   const { tokens } = GetThemeColors();
 
-  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
-    usePaymentInputDisplay({
-      paymentMode: 'USD',
-      inputDenomination,
+  const usdFiatStats = useMemo(
+    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
+    [swapUSDPriceDollars],
+  );
+  const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
+    useDisplayCurrencyController({
+      initialCurrency: 'USD',
       fiatStats,
-      usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
+      usdFiatStats,
       masterInfoObject,
     });
+  const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
+  const isUSD = normalizedDisplayCurrency === 'USD';
+  const isSats = normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY;
+  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
+    useCurrencyDisplay({
+      displayCurrency,
+      fiatStats,
+      usdFiatStats,
+      currencyRates,
+      masterInfoObject,
+    });
+  const { exactSats } = useAmountInputConversion({
+    amount: amountValue,
+    setAmount: setAmountValue,
+    primaryDisplay,
+    conversionFiatStats,
+  });
+  const primaryMasterInfoObject = useMemo(
+    () => ({
+      ...(masterInfoObject || {}),
+      userBalanceDenomination: primaryDisplay.denomination,
+      fiatCurrency:
+        primaryDisplay.forceCurrency || masterInfoObject?.fiatCurrency || 'USD',
+    }),
+    [masterInfoObject, primaryDisplay],
+  );
+  const openPicker = useCallback(
+    () =>
+      navigate.navigate('CustomHalfModal', {
+        wantedContent: 'displayCurrencySelect',
+        sliderHight: 0.6,
+        currentCurrency: displayCurrency,
+        onSelectCurrency: code => selectCurrency(code),
+      }),
+    [displayCurrency, navigate, selectCurrency],
+  );
 
   const showCurrentTarget =
     mode === 'update' && !amountValue && !!selectedGoal?.targetAmountMicros;
 
-  const localSatAmount = convertDisplayToSats(amountValue);
+  const localSatAmount = exactSats ?? convertDisplayToSats(amountValue);
 
-  const fiatAmount = (
-    satsToDollars(localSatAmount, swapUSDPriceDollars) / 100
-  ).toFixed(2);
+  // USD: the typed value is already dollars. Other currencies go via sats.
+  const fiatAmount = isUSD
+    ? Number(amountValue || 0).toFixed(2)
+    : (satsToDollars(localSatAmount, swapUSDPriceDollars) / 100).toFixed(2);
+  const showLiteralUsd = isUSD || showCurrentTarget;
 
   return (
     <GlobalThemeView useStandardWidth={true}>
@@ -68,6 +115,16 @@ export default function SavingsGoalAmount(props) {
         <TopBar
           title={
             mode === 'update' ? goalName : t('savings.goalAmount.screenTitle')
+          }
+          right={
+            <BudgetCurrencyButton
+              label={isSats ? 'SAT' : normalizedDisplayCurrency}
+              onPress={openPicker}
+              disabled={isLoadingRate}
+              accessibilityLabel={t(
+                'settings.nwc.createNWCAmount.changeCurrency',
+              )}
+            />
           }
         />
         <View style={styles.amountContainer}>
@@ -78,26 +135,30 @@ export default function SavingsGoalAmount(props) {
           />
           <AmountHero
             amount={
-              primaryDisplay.denomination === 'fiat'
+              showLiteralUsd
                 ? showCurrentTarget
                   ? (selectedGoal.targetAmountMicros / 1e6).toFixed(2)
                   : Number(amountValue || 0).toFixed(2)
-                : amountValue || 0
+                : localSatAmount
             }
-            fiatStats={primaryDisplay.forceFiatStats}
-            masterInfoObject={{
-              ...masterInfoObject,
-              userBalanceDenomination: primaryDisplay.denomination,
-            }}
-            forceCurrency={primaryDisplay.forceCurrency}
-            convertAmount={false}
+            fiatStats={showLiteralUsd ? usdFiatStats : conversionFiatStats}
+            masterInfoObject={
+              showLiteralUsd
+                ? {
+                    ...masterInfoObject,
+                    userBalanceDenomination: 'fiat',
+                  }
+                : primaryMasterInfoObject
+            }
+            forceCurrency={showLiteralUsd ? 'USD' : undefined}
+            convertAmount={!showLiteralUsd}
             mutedValue={showCurrentTarget}
             amountSize={AMOUNT_HERO_SIZE.primary}
           />
         </View>
 
         <CustomNumberKeyboard
-          showDot={false}
+          showDot={primaryDisplay.denomination === 'fiat'}
           setInputValue={setAmountValue}
           usingForBalance={true}
           fiatStats={conversionFiatStats}

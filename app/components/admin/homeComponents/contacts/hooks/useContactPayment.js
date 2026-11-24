@@ -27,6 +27,7 @@ import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
 import { getLNAddressForLiquidPayment } from '../../sendBitcoin/functions/payments';
 import usePaymentValidation from '../../sendBitcoin/functions/paymentValidation';
 import useCurrencyDisplay from '../../../../../hooks/useCurrencyDisplay';
+import useAmountInputConversion from '../../../../../hooks/useAmountInputConversion';
 import useDisplayCurrencyController from '../../../../../hooks/useDisplayCurrencyController';
 import useDebounce from '../../../../../hooks/useDebounce';
 import getReceiveAddressAndContactForContactsPayment from '../internalComponents/getReceiveAddressAndKindForPayment';
@@ -125,7 +126,6 @@ export default function useContactPayment({
   useEffect(() => {
     if (previousExplicitMethodRef.current === explicitPaymentMethod) return;
     previousExplicitMethodRef.current = explicitPaymentMethod;
-    setAmountValue('');
     if (explicitPaymentMethod) {
       userChangedPaymentMethodRef.current = true;
       setPaymentMethod(explicitPaymentMethod);
@@ -141,14 +141,9 @@ export default function useContactPayment({
     const resolvedDefault = resolveContactPaymentDefault();
 
     if (!userChangedPaymentMethodRef.current) {
-      setPaymentMethod(prev => {
-        // If the default flips while the user has already typed an amount, clear
-        // it so a sats entry isn't silently reinterpreted as fiat (or vice versa).
-        if (prev !== resolvedDefault) {
-          setAmountValue('');
-        }
-        return resolvedDefault;
-      });
+      // If the default flips while the user has already typed an amount,
+      // useAmountInputConversion converts it so its meaning is kept.
+      setPaymentMethod(resolvedDefault);
     }
   }, [explicitPaymentMethod, lockInitialPaymentMethod]);
 
@@ -324,8 +319,14 @@ export default function useContactPayment({
     currencyRates,
     masterInfoObject,
   });
+  const { exactSats } = useAmountInputConversion({
+    amount: amountValue,
+    setAmount: setAmountValue,
+    primaryDisplay,
+    conversionFiatStats,
+  });
 
-  const convertedSendAmount = convertDisplayToSats(amountValue);
+  const convertedSendAmount = exactSats ?? convertDisplayToSats(amountValue);
 
   // Phone-number payments encode the destination currency in the address domain
   // (e.g. @bitcoin.co.ke → KES), so we can switch immediately without waiting for
@@ -672,7 +673,6 @@ export default function useContactPayment({
   const handleDisplayCurrencySelect = useCallback(
     async code => {
       const response = await selectCurrency(code);
-      if (response?.didWork) setAmountValue('');
       return response;
     },
     [selectCurrency],
@@ -680,12 +680,7 @@ export default function useContactPayment({
 
   const setSelectedPaymentMethod = useCallback(nextMethod => {
     userChangedPaymentMethodRef.current = true;
-    setPaymentMethod(prev => {
-      if (prev !== nextMethod) {
-        setAmountValue('');
-      }
-      return nextMethod;
-    });
+    setPaymentMethod(nextMethod);
   }, []);
 
   const getValidationErrorResult = useCallback(() => {

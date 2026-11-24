@@ -25,6 +25,7 @@ import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import { useTheme } from '../../../../../../context-store/theme';
 import { useFlashnet } from '../../../../../../context-store/flashnetContext';
 import useCurrencyDisplay from '../../../../../hooks/useCurrencyDisplay';
+import useAmountInputConversion from '../../../../../hooks/useAmountInputConversion';
 import useDisplayCurrencyController from '../../../../../hooks/useDisplayCurrencyController';
 import {
   getDefaultDisplayCurrency,
@@ -106,12 +107,18 @@ export default function CreateNWCAmount(props) {
     currencyRates,
     masterInfoObject,
   });
+  const { exactSats } = useAmountInputConversion({
+    amount: amountValue,
+    setAmount: setAmountValue,
+    primaryDisplay,
+    conversionFiatStats,
+  });
 
   const savedBudgetAmount = savedData?.budgetRenewalSettings?.amount;
   const localSatAmount =
     prefillRef.current !== null && amountValue === prefillRef.current
       ? savedBudgetAmount
-      : convertDisplayToSats(amountValue);
+      : exactSats ?? convertDisplayToSats(amountValue);
   const hasBudget = localSatAmount > 0;
   const activeRenewalOption = renewalOption || 'Weekly';
   const canSubmit =
@@ -138,7 +145,6 @@ export default function CreateNWCAmount(props) {
       currentCurrency: displayCurrency,
       onSelectCurrency: async code => {
         const response = await selectCurrency(code);
-        if (response?.didWork) setAmountValue('');
         return response;
       },
     });

@@ -21,6 +21,7 @@ import {
 } from '../../../../../functions/displayCurrency';
 import useDisplayCurrencyController from '../../../../../hooks/useDisplayCurrencyController';
 import useCurrencyDisplay from '../../../../../hooks/useCurrencyDisplay';
+import useAmountInputConversion from '../../../../../hooks/useAmountInputConversion';
 import useDebounce from '../../../../../hooks/useDebounce';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import useAccountBalancePreviews from '../../../../../hooks/useAccountBalancePreviews';
@@ -403,8 +404,14 @@ export default function AccountTransferHalfModal({
       }
     : primaryDisplay;
   const effectiveFiatStats = isUsdAsset ? usdFiatStats : conversionFiatStats;
+  const { exactSats } = useAmountInputConversion({
+    amount: amountValue,
+    setAmount: setAmountValue,
+    primaryDisplay: effectivePrimaryDisplay,
+    conversionFiatStats: effectiveFiatStats,
+  });
 
-  const btcAmountSats = convertDisplayToSats(amountValue);
+  const btcAmountSats = exactSats ?? convertDisplayToSats(amountValue);
   const amountOut = isUsdAsset
     ? Math.round(Number(amountValue) * 1e6)
     : btcAmountSats;
@@ -417,7 +424,6 @@ export default function AccountTransferHalfModal({
         currentCurrency: displayCurrency,
         onSelectCurrency: async code => {
           const response = await selectCurrency(code);
-          if (response?.didWork) setAmountValue('');
           return response;
         },
       }),
@@ -779,7 +785,6 @@ export default function AccountTransferHalfModal({
               selectedPaymentMethod: asset,
               onSelectMethod: code => {
                 setAsset(code);
-                setAmountValue('');
               },
               bitcoinBalance: sourceBtcSats,
               dollarBalanceToken: sourceUsdDollars,

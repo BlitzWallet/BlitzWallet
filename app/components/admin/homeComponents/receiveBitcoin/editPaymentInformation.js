@@ -31,6 +31,7 @@ import customUUID from '../../../../functions/customUUID';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
+import useAmountInputConversion from '../../../../hooks/useAmountInputConversion';
 import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import {
@@ -112,9 +113,15 @@ export default function EditReceivePaymentInformation(props) {
     currencyRates,
     masterInfoObject,
   });
+  const { exactSats } = useAmountInputConversion({
+    amount: amountValue,
+    setAmount: setAmountValue,
+    primaryDisplay,
+    conversionFiatStats,
+  });
 
   // Calculate sat amount based on which fiat we're using
-  const localSatAmount = convertDisplayToSats(amountValue);
+  const localSatAmount = exactSats ?? convertDisplayToSats(amountValue);
   const hasAmountInput = amountValue !== '';
   const requestedSatAmount = hasAmountInput
     ? Number(localSatAmount) || 0
@@ -157,7 +164,6 @@ export default function EditReceivePaymentInformation(props) {
       currentCurrency: displayCurrency,
       onSelectCurrency: async code => {
         const response = await selectCurrency(code);
-        if (response?.didWork) setAmountValue('');
         return response;
       },
     });

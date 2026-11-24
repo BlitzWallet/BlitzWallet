@@ -1,0 +1,171 @@
+# Amount input switching when the wallet shows balances in fiat with USD as its
+# currency: the keypad opens in USD. Same variants as amount-currency-switch.yaml,
+# started from USD. Runs on Receive > Bitcoin > Create invoice; never sends.
+# Starts on Home of a logged-in wallet (no funds needed). Leaves the wallet set to
+# fiat + USD.
+#
+# maestro test -e APP_ID=org.reactjs.native.example.BlitzWallet \
+#   --format junit --output e2e-artifacts/report.xml --test-output-dir e2e-artifacts \
+#   .maestro/funded/amount-currency-switch-fiat-usd.yaml
+appId: ${APP_ID}
+---
+- runFlow:
+    file: _set-fiat-display.yaml
+    env:
+      CURRENCY_CODE: USD
+      CURRENCY_NAME: US Dollar
+      DISPLAY_CODE: 'fiat'
+
+- tapOn: Receive
+- tapOn: Bitcoin
+- tapOn: Create invoice # sheet row -> amount keypad
+- extendedWaitUntil:
+    visible: Change currency
+    timeout: 30000
+
+# V1: the keypad opens in USD (the fiat default), empty.
+- assertVisible: '.*\$\s?0.*'
+- takeScreenshot: usd-00-default-usd
+
+# V2: empty input survives USD -> sats -> USD.
+- tapOn: Change currency
+- tapOn: Bitcoin
+- extendedWaitUntil:
+    notVisible: '.*\$.*'
+    timeout: 15000
+- assertVisible: '(₿\s?0|0\s?sats?)'
+- tapOn: Change currency
+- tapOn: Dollars
+- extendedWaitUntil:
+    visible: '.*\$\s?0.*'
+    timeout: 15000
+- takeScreenshot: usd-01-empty
+
+# V3: a decimal USD entry converts to sats and comes back exactly.
+- tapOn: '1'
+- tapOn: '\.' # regex: a bare . would match any 1-char key
+- tapOn: '2'
+- tapOn: '3'
+- assertVisible: '.*\$\s?1\.23.*'
+- tapOn: Change currency
+- tapOn: Bitcoin
+- extendedWaitUntil:
+    notVisible: '.*\$.*'
+    timeout: 15000
+- assertVisible: '(₿\s?\d[\d ,]*|[\d ,]*\d\s?sats?)'
+- assertNotVisible: '(₿\s?1\.23|1\.23\s?sats?)' # not reinterpreted as 1.23 sats
+- takeScreenshot: usd-02-as-sats
+- tapOn: Change currency
+- tapOn: Dollars
+- extendedWaitUntil:
+    visible: '.*\$\s?1\.23.*'
+    timeout: 15000
+- takeScreenshot: usd-02-restored
+
+# V4: many switches in a row don't drift.
+- repeat:
+    times: 3
+    commands:
+      - tapOn: Change currency
+      - tapOn: Bitcoin
+      - extendedWaitUntil:
+          notVisible: '.*\$.*'
+          timeout: 15000
+      - tapOn: Change currency
+      - tapOn: Dollars
+      - extendedWaitUntil:
+          visible: '.*\$.*'
+          timeout: 15000
+- assertVisible: '.*\$\s?1\.23.*'
+- takeScreenshot: usd-03-multi
+
+# V5: typing after a switch builds on the converted value.
+- tapOn: Change currency
+- tapOn: Bitcoin
+- extendedWaitUntil:
+    notVisible: '.*\$.*'
+    timeout: 15000
+- tapOn: '0' # sats x10
+- tapOn: Change currency
+- tapOn: Dollars
+- extendedWaitUntil:
+    visible: '.*\$.*'
+    timeout: 15000
+- assertNotVisible: '.*\$\s?1\.23.*'
+- assertVisible: '.*\$\s?1\d\.\d{1,2}.*' # about $12.30
+- takeScreenshot: usd-04-typed-after-switch
+
+# V6: zero stays zero.
+- repeat:
+    times: 6
+    commands:
+      - tapOn: Delete
+- tapOn: '0'
+- tapOn: Change currency
+- tapOn: Bitcoin
+- extendedWaitUntil:
+    notVisible: '.*\$.*'
+    timeout: 15000
+- assertVisible: '(₿\s?0|0\s?sats?)'
+- takeScreenshot: usd-05-zero
+
+# V7: 1 sat shows under a cent in USD and comes back as exactly 1 sat.
+- tapOn: Clear
+- tapOn: '1'
+- tapOn: Change currency
+- tapOn: Dollars
+- extendedWaitUntil:
+    visible: '.*\$.*'
+    timeout: 15000
+- takeScreenshot: usd-06-dust-usd
+- tapOn: Change currency
+- tapOn: Bitcoin
+- extendedWaitUntil:
+    notVisible: '.*\$.*'
+    timeout: 15000
+- assertVisible: '(₿\s?1|1\s?sats?)'
+
+# V8: USD -> EUR (fiat to fiat) and back restores exactly.
+- tapOn: Change currency
+- tapOn: Dollars
+- extendedWaitUntil:
+    visible: '.*\$.*'
+    timeout: 15000
+- repeat:
+    times: 4
+    commands:
+      - tapOn: Delete
+- tapOn: '5'
+- assertVisible: '.*\$\s?5.*'
+- tapOn: Change currency
+- tapOn: More currencies
+# iOS merges the row's title and code into one element ("Euro, EUR").
+- scrollUntilVisible:
+    element: '.*Euro.*'
+    direction: DOWN
+    timeout: 30000
+- tapOn: '.*Euro.*'
+- extendedWaitUntil:
+    visible: '.*€.*'
+    timeout: 45000
+- assertNotVisible: '.*\$.*'
+- assertNotVisible: '(.*€\s?5|5\s?€.*)' # converted, not relabelled
+- takeScreenshot: usd-07-as-eur
+- tapOn: Change currency
+- tapOn: Dollars
+- extendedWaitUntil:
+    visible: '.*\$\s?5.*'
+    timeout: 15000
+- takeScreenshot: usd-07-restored
+
+# V9: create the invoice from the USD default; it carries the USD amount.
+# "Create invoice" is also the page title; the button is the one under the amount.
+- tapOn:
+    text: Create invoice
+    below: '.*\$\s?\d.*'
+- extendedWaitUntil:
+    visible: Copy
+    timeout: 60000
+- assertNotVisible: Any amount
+- assertVisible: '.*\$\s?\d.*'
+- takeScreenshot: usd-08-invoice-created

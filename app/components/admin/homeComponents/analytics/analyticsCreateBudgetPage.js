@@ -11,18 +11,22 @@ import {
   ThemeText,
 } from '../../../../functions/CustomElements';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
 import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
+import useAmountInputConversion from '../../../../hooks/useAmountInputConversion';
+import BudgetCurrencyButton from '../../../../functions/CustomElements/redesign/CurrencyButton';
 import { useTranslation } from 'react-i18next';
 import { numberConverter } from '../../../../functions';
 import {
   getDefaultDisplayCurrency,
+  normalizeDisplayCurrency,
   resolveUsdFiatStats,
+  SATS_DISPLAY_CURRENCY,
 } from '../../../../functions/displayCurrency';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
@@ -65,12 +69,15 @@ export default function AnalyticsCreateBudgetPage() {
     [masterInfoObject, fiatStats],
   );
 
-  const { displayCurrency, currencyRates } = useDisplayCurrencyController({
-    initialCurrency: initialDisplayCurrency,
-    fiatStats,
-    usdFiatStats,
-    masterInfoObject,
-  });
+  const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
+    useDisplayCurrencyController({
+      initialCurrency: initialDisplayCurrency,
+      fiatStats,
+      usdFiatStats,
+      masterInfoObject,
+    });
+  const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
+  const isSats = normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY;
 
   const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
     useCurrencyDisplay({
@@ -81,7 +88,25 @@ export default function AnalyticsCreateBudgetPage() {
       masterInfoObject,
     });
 
-  const localSatAmount = convertDisplayToSats(amountValue);
+  const { exactSats } = useAmountInputConversion({
+    amount: amountValue,
+    setAmount: setAmountValue,
+    primaryDisplay,
+    conversionFiatStats,
+  });
+
+  const localSatAmount = exactSats ?? convertDisplayToSats(amountValue);
+
+  const openPicker = useCallback(
+    () =>
+      navigate.navigate('CustomHalfModal', {
+        wantedContent: 'displayCurrencySelect',
+        sliderHight: 0.6,
+        currentCurrency: displayCurrency,
+        onSelectCurrency: code => selectCurrency(code),
+      }),
+    [displayCurrency, navigate, selectCurrency],
+  );
 
   async function handleSave() {
     if (!localSatAmount || localSatAmount <= 0) {
@@ -98,7 +123,19 @@ export default function AnalyticsCreateBudgetPage() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.innerContainer, { width: contentWidth }]}>
-        <TopBar title={t('analytics.budget.monthlyBudget')} />
+        <TopBar
+          title={t('analytics.budget.monthlyBudget')}
+          right={
+            <BudgetCurrencyButton
+              label={isSats ? 'SAT' : normalizedDisplayCurrency}
+              onPress={openPicker}
+              disabled={isLoadingRate}
+              accessibilityLabel={t(
+                'settings.nwc.createNWCAmount.changeCurrency',
+              )}
+            />
+          }
+        />
         {/* Amount input */}
         <View style={styles.container}>
           {/* AmountHero formats sats, so pass the converted amount, not the
@@ -109,6 +146,10 @@ export default function AnalyticsCreateBudgetPage() {
             masterInfoObject={{
               ...masterInfoObject,
               userBalanceDenomination: primaryDisplay.denomination,
+              fiatCurrency:
+                primaryDisplay.forceCurrency ||
+                masterInfoObject?.fiatCurrency ||
+                'USD',
             }}
             amountSize={AMOUNT_HERO_SIZE.primary}
             mutedValue={!localSatAmount}

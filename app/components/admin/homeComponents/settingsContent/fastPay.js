@@ -4,7 +4,7 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
@@ -20,9 +20,19 @@ import {
 } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
+import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import BudgetCurrencyButton from '../../../../functions/CustomElements/redesign/CurrencyButton';
+import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
+import useAmountInputConversion from '../../../../hooks/useAmountInputConversion';
+import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
+import {
+  normalizeDisplayCurrency,
+  resolveUsdFiatStats,
+  SATS_DISPLAY_CURRENCY,
+} from '../../../../functions/displayCurrency';
 import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
@@ -39,6 +49,7 @@ export default function FastPay() {
     useGlobalContextProvider();
   const { tokens } = useGlobalThemeContext();
   const { fiatStats } = useNodeContext();
+  const { swapUSDPriceDollars } = useFlashnet();
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { width } = useWindowDimensions();
@@ -50,6 +61,54 @@ export default function FastPay() {
 
   const [thresholdInput, setThresholdInput] = useState('0');
   const [isEditing, setIsEditing] = useState(false);
+
+  const usdFiatStats = useMemo(
+    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
+    [fiatStats, swapUSDPriceDollars],
+  );
+  const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
+    useDisplayCurrencyController({
+      initialCurrency: SATS_DISPLAY_CURRENCY,
+      fiatStats,
+      usdFiatStats,
+      masterInfoObject,
+    });
+  const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
+  const isSats = normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY;
+  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
+    useCurrencyDisplay({
+      displayCurrency,
+      fiatStats,
+      usdFiatStats,
+      currencyRates,
+      masterInfoObject,
+    });
+  const { exactSats } = useAmountInputConversion({
+    amount: thresholdInput,
+    setAmount: setThresholdInput,
+    primaryDisplay,
+    conversionFiatStats,
+  });
+  const thresholdSats = exactSats ?? convertDisplayToSats(thresholdInput);
+  const primaryMasterInfoObject = useMemo(
+    () => ({
+      ...(masterInfoObject || {}),
+      userBalanceDenomination: primaryDisplay.denomination,
+      fiatCurrency:
+        primaryDisplay.forceCurrency || masterInfoObject?.fiatCurrency || 'USD',
+    }),
+    [masterInfoObject, primaryDisplay],
+  );
+  const openPicker = useCallback(
+    () =>
+      navigate.navigate('CustomHalfModal', {
+        wantedContent: 'displayCurrencySelect',
+        sliderHight: 0.6,
+        currentCurrency: displayCurrency,
+        onSelectCurrency: code => selectCurrency(code),
+      }),
+    [displayCurrency, navigate, selectCurrency],
+  );
 
   const resetLocalThreshold = useCallback(() => {
     setThresholdInput('0');
@@ -65,9 +124,9 @@ export default function FastPay() {
   }, [masterInfoObject, isOn, toggleMasterInfoObject]);
 
   const canSubmit =
-    !isNaN(thresholdInput) &&
-    Number(thresholdInput) !== 0 &&
-    Number(thresholdInput) !== fastPayThreshold;
+    !isNaN(thresholdSats) &&
+    thresholdSats !== 0 &&
+    thresholdSats !== fastPayThreshold;
 
   const handleSubmit = useCallback(
     value => {
@@ -105,8 +164,8 @@ export default function FastPay() {
 
   const handleSave = useCallback(() => {
     if (!canSubmit) return;
-    handleSubmit(thresholdInput);
-  }, [thresholdInput, handleSubmit, canSubmit]);
+    handleSubmit(thresholdSats);
+  }, [thresholdSats, handleSubmit, canSubmit]);
 
   const savedThresholdDisplay = displayCorrectDenomination({
     amount: String(fastPayThreshold),
@@ -115,15 +174,30 @@ export default function FastPay() {
   });
 
   const newThresholdDisplay = displayCorrectDenomination({
-    amount: thresholdInput,
-    masterInfoObject: { ...masterInfoObject, userBalanceDenomination: 'sats' },
-    fiatStats,
+    amount: thresholdSats,
+    masterInfoObject: primaryMasterInfoObject,
+    fiatStats: conversionFiatStats,
   });
 
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
-        <TopBar fade title={t('screens.inAccount.settingsContent.fast pay')} />
+        <TopBar
+          fade
+          title={t('screens.inAccount.settingsContent.fast pay')}
+          right={
+            isEditing ? (
+              <BudgetCurrencyButton
+                label={isSats ? 'SAT' : normalizedDisplayCurrency}
+                onPress={openPicker}
+                disabled={isLoadingRate}
+                accessibilityLabel={t(
+                  'settings.nwc.createNWCAmount.changeCurrency',
+                )}
+              />
+            ) : undefined
+          }
+        />
         <CustomScrollView
           style={styles.scroll}
           contentContainerStyle={styles.scrollContent}
@@ -197,8 +271,9 @@ export default function FastPay() {
         {isEditing && (
           <BottomActions overlap={false} style={styles.editTray}>
             <CustomNumberKeyboard
-              showDot={false}
+              showDot={primaryDisplay.denomination === 'fiat'}
               setInputValue={setThresholdInput}
+              fiatStats={conversionFiatStats}
               frompage="fastPay"
               redesign
               bottomLeftEmpty

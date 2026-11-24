@@ -255,7 +255,8 @@ export default function useSendPaymentDetails({
 
   const convertedSendAmount = !isUsingLRC20
     ? canEditAmount
-      ? currencyDisplay.convertDisplayToSats(sendingAmount) // User entered amount, convert to sats
+      ? paymentInfo?.sendAmountExactSats ??
+        currencyDisplay.convertDisplayToSats(sendingAmount) // User entered amount, convert to sats
       : Number(sendingAmount) // Fixed invoice amount, already in sats
     : Number(sendingAmount);
 

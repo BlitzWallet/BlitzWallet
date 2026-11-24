@@ -54,6 +54,7 @@ import {
   dollarsToSats,
 } from '../../../../functions/spark/flashnet';
 import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
+import useAmountInputConversion from '../../../../hooks/useAmountInputConversion';
 import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { formatAmountText, formatFeeText } from './functions/formatSendText';
@@ -182,6 +183,12 @@ export default function StablecoinSendScreen() {
       masterInfoObject,
       isSendingPayment: isSendingPayment.current,
     });
+  const { exactSats } = useAmountInputConversion({
+    amount: rawInput,
+    setAmount: setRawInput,
+    primaryDisplay,
+    conversionFiatStats,
+  });
 
   // Kept current so the success-page handoff reads the live display config
   // rather than a stale value captured in the handleSend useCallback closure.
@@ -190,7 +197,7 @@ export default function StablecoinSendScreen() {
     primaryDisplayRef.current = primaryDisplay;
   }, [primaryDisplay]);
 
-  const convertedSendAmount = convertDisplayToSats(rawInput);
+  const convertedSendAmount = exactSats ?? convertDisplayToSats(rawInput);
 
   const { shouldWarn } = useBudgetWarning(convertedSendAmount);
 
@@ -334,7 +341,7 @@ export default function StablecoinSendScreen() {
       const amountIn = calculateFlashnetAmountIn({
         baseAmountIn:
           sourceMethod === 'BTC'
-            ? convertDisplayToSats(rawInput)
+            ? exactSats ?? convertDisplayToSats(rawInput)
             : rawInput * Math.pow(10, 6),
         isUsdAssetIn: sourceMethod === 'USD',
         dollarBalanceSat,
@@ -357,7 +364,14 @@ export default function StablecoinSendScreen() {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [rawInput, sourceMethod, fetchQuote, clearCountdown, retriggerQuoteFetch]);
+  }, [
+    rawInput,
+    exactSats,
+    sourceMethod,
+    fetchQuote,
+    clearCountdown,
+    retriggerQuoteFetch,
+  ]);
 
   useEffect(() => {
     return () => {
@@ -386,7 +400,6 @@ export default function StablecoinSendScreen() {
       currentCurrency: displayCurrency,
       onSelectCurrency: async code => {
         const response = await selectCurrency(code);
-        if (response?.didWork) setRawInput('');
         return response;
       },
     });
