@@ -186,7 +186,14 @@ export default function FastPay() {
           fade
           title={t('screens.inAccount.settingsContent.fast pay')}
           right={
-            isEditing ? (
+            <View
+              pointerEvents={isEditing ? 'auto' : 'none'}
+              accessibilityElementsHidden={!isEditing}
+              importantForAccessibility={
+                isEditing ? 'auto' : 'no-hide-descendants'
+              }
+              style={{ opacity: isEditing ? 1 : 0 }}
+            >
               <BudgetCurrencyButton
                 label={isSats ? 'SAT' : normalizedDisplayCurrency}
                 onPress={openPicker}
@@ -195,7 +202,7 @@ export default function FastPay() {
                   'settings.nwc.createNWCAmount.changeCurrency',
                 )}
               />
-            ) : undefined
+            </View>
           }
         />
         <CustomScrollView

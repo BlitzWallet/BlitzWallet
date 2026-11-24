@@ -267,7 +267,14 @@ export default function SendAndRequestPage(props) {
           onBack={step === 'note' ? goToAmount : undefined}
           shouldDismissKeyboard={step === 'note'}
           right={
-            step === 'amount' ? (
+            <View
+              pointerEvents={step === 'amount' ? 'auto' : 'none'}
+              accessibilityElementsHidden={step !== 'amount'}
+              importantForAccessibility={
+                step === 'amount' ? 'auto' : 'no-hide-descendants'
+              }
+              style={{ opacity: step === 'amount' ? 1 : 0 }}
+            >
               <BudgetCurrencyButton
                 label={isSats ? 'SAT' : normalizedDisplayCurrency}
                 onPress={openCurrencyPicker}
@@ -276,7 +283,7 @@ export default function SendAndRequestPage(props) {
                   'settings.nwc.createNWCAmount.changeCurrency',
                 )}
               />
-            ) : null
+            </View>
           }
         />
         <View style={styles.steps}>

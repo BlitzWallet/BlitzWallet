@@ -455,7 +455,14 @@ export default function SendAmountScreen(props) {
         <TopBar
           title={t('constants.send')}
           right={
-            !isUsingLRC20 && !lockedAmount ? (
+            <View
+              pointerEvents={!isUsingLRC20 && !lockedAmount ? 'auto' : 'none'}
+              accessibilityElementsHidden={isUsingLRC20 || !!lockedAmount}
+              importantForAccessibility={
+                !isUsingLRC20 && !lockedAmount ? 'auto' : 'no-hide-descendants'
+              }
+              style={{ opacity: !isUsingLRC20 && !lockedAmount ? 1 : 0 }}
+            >
               <CurrencyButton
                 label={currencyCode === 'SATS' ? 'SAT' : currencyCode}
                 onPress={openCurrencyPicker}
@@ -464,7 +471,7 @@ export default function SendAmountScreen(props) {
                   'settings.nwc.createNWCAmount.changeCurrency',
                 )}
               />
-            ) : null
+            </View>
           }
         />
         <CustomScrollView contentContainerStyle={styles.scrollContainer}>

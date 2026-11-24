@@ -305,6 +305,14 @@ export default function EditAccountPage(props) {
     accountInformation.uuid !== NWC_ACCOUNT_UUID &&
     accountInformation.accountType !== 'main';
 
+  // Trash icon (or the "still connecting" ZapOff notice): custody accounts
+  // only, never main/NWC/child accounts.
+  const hasAccountAction =
+    isConnecting ||
+    (accountInformation.uuid !== NWC_ACCOUNT_UUID &&
+      accountInformation.uuid !== MAIN_ACCOUNT_UUID &&
+      !isChild);
+
   const handleProfileImage = () => {
     if (!canEditAvatar) return;
     navigate.navigate('EmojiAvatarSelector', {
@@ -548,10 +556,14 @@ export default function EditAccountPage(props) {
           fade
           title={accountInformation.name}
           right={
-            (isConnecting ||
-              (accountInformation.uuid !== NWC_ACCOUNT_UUID &&
-                accountInformation.uuid !== MAIN_ACCOUNT_UUID &&
-                !isChild)) && (
+            <View
+              pointerEvents={hasAccountAction ? 'auto' : 'none'}
+              accessibilityElementsHidden={!hasAccountAction}
+              importantForAccessibility={
+                hasAccountAction ? 'auto' : 'no-hide-descendants'
+              }
+              style={{ opacity: hasAccountAction ? 1 : 0 }}
+            >
               <IconButton
                 icon={isConnecting ? 'ZapOff' : 'Trash2'}
                 label={
@@ -563,7 +575,7 @@ export default function EditAccountPage(props) {
                   isConnecting ? handleSlowConnectInfo : handleDeleteAccount
                 }
               />
-            )
+            </View>
           }
         />
         <CustomScrollView

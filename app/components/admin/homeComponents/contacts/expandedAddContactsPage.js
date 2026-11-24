@@ -73,24 +73,31 @@ const MemoizedNavBar = memo(
       <TopBar
         onBack={onBack}
         right={
-          selectedContact &&
-          isContactAdded && (
-            <View style={styles.topBar}>
-              <IconButton
-                icon={'Star'}
-                label="contacts.expandedContactPage.favoriteLabel"
-                onPress={() => {
-                  handleFavortie({ selectedContact });
-                }}
-                fill={selectedContact?.isFavorite}
-              />
-              <IconButton
-                onPress={() => handleSettings({ selectedContact })}
-                icon={'Pencil'}
-                label="contacts.expandedContactPage.editLabel"
-              />
-            </View>
-          )
+          <View
+            pointerEvents={selectedContact && isContactAdded ? 'auto' : 'none'}
+            accessibilityElementsHidden={!(selectedContact && isContactAdded)}
+            importantForAccessibility={
+              selectedContact && isContactAdded ? 'auto' : 'no-hide-descendants'
+            }
+            style={[
+              styles.topBar,
+              { opacity: selectedContact && isContactAdded ? 1 : 0 },
+            ]}
+          >
+            <IconButton
+              icon={'Star'}
+              label="contacts.expandedContactPage.favoriteLabel"
+              onPress={() => {
+                handleFavortie({ selectedContact });
+              }}
+              fill={selectedContact?.isFavorite}
+            />
+            <IconButton
+              onPress={() => handleSettings({ selectedContact })}
+              icon={'Pencil'}
+              label="contacts.expandedContactPage.editLabel"
+            />
+          </View>
         }
       />
     );

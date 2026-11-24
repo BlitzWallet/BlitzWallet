@@ -741,39 +741,44 @@ export default function StablecoinSendScreen() {
           fade
           title={`${t('constants.send')}`}
           right={
-            isConfirmMode ? null : (
-              <>
-                {countdown != null && (
-                  <View
-                    style={[
-                      styles.countdownPill,
-                      { backgroundColor: tokens.surface },
+            <View
+              pointerEvents={isConfirmMode ? 'none' : 'auto'}
+              accessibilityElementsHidden={isConfirmMode}
+              importantForAccessibility={
+                isConfirmMode ? 'no-hide-descendants' : 'auto'
+              }
+              style={[styles.topBarRight, { opacity: isConfirmMode ? 0 : 1 }]}
+            >
+              {countdown != null && (
+                <View
+                  style={[
+                    styles.countdownPill,
+                    { backgroundColor: tokens.surface },
+                  ]}
+                  accessibilityLabel={`${t(
+                    'wallet.stablecoinSend.quoteExpiresIn',
+                  )} ${formatCountdown(countdown)}`}
+                >
+                  <ThemeText
+                    styles={[
+                      styles.countdownText,
+                      !!countdownDanger && { color: countdownDanger },
                     ]}
-                    accessibilityLabel={`${t(
-                      'wallet.stablecoinSend.quoteExpiresIn',
-                    )} ${formatCountdown(countdown)}`}
-                  >
-                    <ThemeText
-                      styles={[
-                        styles.countdownText,
-                        !!countdownDanger && { color: countdownDanger },
-                      ]}
-                      content={formatCountdown(countdown)}
-                    />
-                  </View>
-                )}
-                {sourceMethod !== 'USD' && (
-                  <CurrencyButton
-                    label={currencyCode === 'SATS' ? 'SAT' : currencyCode}
-                    onPress={openPicker}
-                    disabled={isLoadingRate}
-                    accessibilityLabel={t(
-                      'settings.nwc.createNWCAmount.changeCurrency',
-                    )}
+                    content={formatCountdown(countdown)}
                   />
-                )}
-              </>
-            )
+                </View>
+              )}
+              {sourceMethod !== 'USD' && (
+                <CurrencyButton
+                  label={currencyCode === 'SATS' ? 'SAT' : currencyCode}
+                  onPress={openPicker}
+                  disabled={isLoadingRate}
+                  accessibilityLabel={t(
+                    'settings.nwc.createNWCAmount.changeCurrency',
+                  )}
+                />
+              )}
+            </View>
           }
         />
         <CustomScrollView
@@ -975,6 +980,13 @@ const styles = StyleSheet.create({
   hero: { alignItems: 'center' },
   secondary: { marginTop: 4, textAlign: 'center' },
   card: { marginTop: 48 },
+  // Keeps the countdown pill and currency button side by side in the always
+  // mounted right slot (the slot's own row/gap only applies to its children).
+  topBarRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   countdownPill: {
     minHeight: 44,
     paddingHorizontal: 14,
