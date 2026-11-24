@@ -398,8 +398,10 @@ const memoizedStyles = StyleSheet.create({
     gap: 8,
   },
   empty: {
-    marginTop: 150,
+    marginBottom: TAB_ITEM_HEIGHT,
     alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
   },
   unreadDot: {
     width: 10,
