@@ -4048,7 +4048,7 @@
       "noSentSub": "Envie um pagamento para ver a atividade"
     },
     "chart": {
-      "titleSpent": "Gasto {{period}}",
+      "titleSpent": "Gastos {{period}}",
       "period": {
         "today": "hoje",
         "week": "esta semana",
@@ -4087,7 +4087,7 @@
       "noBudgetSetSub": "Crie um orçamento mensal para acompanhar seus gastos",
       "noBudgetSetButton": "Criar orçamento",
       "leftToSpend": "Restante para gastar",
-      "spentThisMonth": "Gasto neste mês",
+      "spentThisMonth": "Gastos neste mês",
       "removeBudgetTitle": "Remover orçamento?",
       "removeBudgetSub": "Remover este orçamento desativará alertas e acompanhamento. Você pode recriá-lo a qualquer momento.",
       "nearBudgetWarning": "Você está perto do seu limite mensal de gastos",
@@ -4125,7 +4125,7 @@
   },
   "money": {
     "title": "Dinheiro",
-    "spentIn": "Gasto em {{month}}",
+    "spentIn": "Gastos em {{month}}",
     "today": "Hoje",
     "chartLabel": "Gastos diários em {{month}}",
     "weeklyChartLabel": "Gastos semanais em {{month}}",
