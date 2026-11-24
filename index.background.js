@@ -63,14 +63,19 @@ async function formatPushNotification(data) {
         forceCurrency: 'USD',
       });
     } else {
-      const [bitcoinPrice, userBalanceDenomination] = await Promise.all([
-        getLocalStorageItem('cachedBitcoinPrice').then(
-          data => JSON.parse(data) || { coin: 'USD', value: 100_000 },
+      const [cachedBitcoinPrice, storedDenomination] = await Promise.all([
+        getLocalStorageItem('cachedBitcoinPrice').then(data =>
+          JSON.parse(data),
         ),
         getLocalStorageItem('userBalanceDenomination').then(
           data => JSON.parse(data) || 'sats',
         ),
       ]);
+      // No cached rate: show sats rather than a made-up fiat amount.
+      const bitcoinPrice = cachedBitcoinPrice || { coin: 'USD', value: null };
+      const userBalanceDenomination = cachedBitcoinPrice
+        ? storedDenomination
+        : 'sats';
 
       formattedAmount = data.amountSat
         ? displayCorrectDenomination({
