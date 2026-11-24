@@ -59,8 +59,11 @@ jest.mock('../app/constants', () => ({
   QUICK_PAY_STORAGE_KEY: 'fastPay',
   CONTENT_KEYBOARD_OFFSET: 10,
   MAX_WEB_CONTENT_WIDTH: 500,
+  AMOUNT_HERO_SIZE: { primary: 40, secondary: 24 },
+  SATSPERBITCOIN: 100000000,
 }));
 jest.mock('expo-image', () => ({ Image: () => null }));
+jest.mock('expo-linear-gradient', () => ({ LinearGradient: () => null }));
 jest.mock('../app/functions/unilateralExit/useBlockSendDuringExit', () => ({
   __esModule: true,
   default: jest.fn(),
@@ -457,6 +460,12 @@ describe('SendReview rate reset', () => {
 });
 
 describe('SendAmount Next', () => {
+  // A rate/display change that doesn't go through the currency picker.
+  const usdDisplay = {
+    primaryDisplay: { denomination: 'fiat', forceCurrency: 'USD' },
+    conversionFiatStats: { coin: 'USD', value: 100000 },
+    displayCurrency: 'USD',
+  };
   const draft = { ...invoice, canEditPayment: true };
   const params = { paymentInfo: draft, lockedAmount: false };
   const next = 'constants.review';
@@ -486,7 +495,7 @@ describe('SendAmount Next', () => {
     mockDetails = ({ paymentInfo }) =>
       baseDetails({
         decodePayment,
-        paymentValidation: validation(paymentInfo !== decoded),
+        paymentValidation: validation(paymentInfo?.paymentFee !== 900),
       });
     const renderer = await render(SendAmountScreen, params);
     await act(async () => buttonNamed(renderer, next).props.actionFunction());
@@ -564,5 +573,37 @@ describe('SendAmount Next', () => {
       await act(async () => finish());
       expect(mockNavigate.navigate).not.toHaveBeenCalled();
     });
+
+    test('is dropped after the display unit flips without the picker', async () => {
+      const { finish } = pending();
+      const renderer = await render(SendAmountScreen, params);
+      await act(async () => {
+        buttonNamed(renderer, next).props.actionFunction();
+      });
+      const decodePayment = mockDetails().decodePayment;
+      mockDetails = () => baseDetails({ decodePayment, ...usdDisplay });
+      await rerender(renderer, SendAmountScreen, params);
+      await act(async () => finish());
+      expect(mockNavigate.navigate).not.toHaveBeenCalled();
+      expect(buttonNamed(renderer, next).props.disabled).toBe(false);
+    });
+  });
+
+  test('a display unit flip unblocks Next like the picker does', async () => {
+    const decoded = { ...invoice, paymentFee: 900 };
+    const decodePayment = jest.fn(async () => ({ decoded }));
+    let extra = {};
+    mockDetails = ({ paymentInfo }) =>
+      baseDetails({
+        decodePayment,
+        paymentValidation: validation(paymentInfo?.paymentFee !== 900),
+        ...extra,
+      });
+    const renderer = await render(SendAmountScreen, params);
+    await act(async () => buttonNamed(renderer, next).props.actionFunction());
+    expect(buttonNamed(renderer, next).props.disabled).toBe(true);
+    extra = usdDisplay;
+    await rerender(renderer, SendAmountScreen, params);
+    expect(buttonNamed(renderer, next).props.disabled).toBe(false);
   });
 });

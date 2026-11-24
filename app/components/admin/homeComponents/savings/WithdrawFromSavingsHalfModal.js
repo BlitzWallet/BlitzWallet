@@ -22,6 +22,7 @@ import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
 import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
+import useAmountInputConversion from '../../../../hooks/useAmountInputConversion';
 import {
   dollarsToSats,
   satsToDollars,
@@ -45,7 +46,12 @@ import {
   getLocalStorageItem,
   setLocalStorageItem,
 } from '../../../../functions/localStorage';
-import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
+import {
+  getDefaultDisplayCurrency,
+  normalizeDisplayCurrency,
+  SATS_DISPLAY_CURRENCY,
+} from '../../../../functions/displayCurrency';
+import BudgetCurrencyButton from '../../../../functions/CustomElements/redesign/CurrencyButton';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
@@ -227,12 +233,16 @@ export default function WithdrawFromSavingsHalfModal({
   const isInterestDisabled = interestSats <= 0;
   const isSavingsDisabled = savingsBalanceUsd <= 0;
 
-  const { displayCurrency, currencyRates } = useDisplayCurrencyController({
-    initialCurrency: initialDisplayCurrency,
-    fiatStats,
-    usdFiatStats,
-    masterInfoObject,
-  });
+  const { displayCurrency, selectCurrency, currencyRates, isLoadingRate } =
+    useDisplayCurrencyController({
+      initialCurrency: initialDisplayCurrency,
+      fiatStats,
+      usdFiatStats,
+      masterInfoObject,
+    });
+
+  const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
+  const isSats = normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY;
 
   const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
     useCurrencyDisplay({
@@ -241,6 +251,21 @@ export default function WithdrawFromSavingsHalfModal({
       usdFiatStats,
       currencyRates,
       masterInfoObject,
+    });
+
+  const { exactSats } = useAmountInputConversion({
+    amount: amountValue,
+    setAmount: setAmountValue,
+    primaryDisplay,
+    conversionFiatStats,
+  });
+
+  const openCurrencyPicker = () =>
+    navigate.push('CustomHalfModal', {
+      wantedContent: 'displayCurrencySelect',
+      sliderHight: 0.6,
+      currentCurrency: displayCurrency,
+      onSelectCurrency: async code => selectCurrency(code),
     });
 
   const handleSkeletonLayout = useCallback(event => {
@@ -258,7 +283,7 @@ export default function WithdrawFromSavingsHalfModal({
     }
   }, []);
 
-  const localSatAmount = convertDisplayToSats(amountValue);
+  const localSatAmount = exactSats ?? convertDisplayToSats(amountValue);
 
   // USD value of what the user wants to withdraw (in micros)
   const fiatMicros =
@@ -1020,7 +1045,19 @@ export default function WithdrawFromSavingsHalfModal({
 
     return (
       <>
-        {backBar}
+        <TopBar
+          onBack={closeOrBack}
+          right={
+            <BudgetCurrencyButton
+              label={isSats ? 'SAT' : normalizedDisplayCurrency}
+              onPress={openCurrencyPicker}
+              disabled={isLoadingRate}
+              accessibilityLabel={t(
+                'settings.nwc.createNWCAmount.changeCurrency',
+              )}
+            />
+          }
+        />
         <View style={styles.amountBlock}>
           <AmountHero
             amount={

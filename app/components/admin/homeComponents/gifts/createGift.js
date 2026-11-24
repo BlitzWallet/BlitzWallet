@@ -14,6 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
+import useAmountInputConversion from '../../../../hooks/useAmountInputConversion';
 import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
@@ -76,8 +77,14 @@ export default function CreateGift(props) {
       currencyRates,
       masterInfoObject,
     });
+  const { exactSats } = useAmountInputConversion({
+    amount: amountValue,
+    setAmount: setAmountValue,
+    primaryDisplay,
+    conversionFiatStats,
+  });
 
-  const localSatAmount = convertDisplayToSats(amountValue);
+  const localSatAmount = exactSats ?? convertDisplayToSats(amountValue);
   const dollarAmount = satsToDollars(
     localSatAmount,
     poolInfoRef.currentPriceAInB,
@@ -90,7 +97,6 @@ export default function CreateGift(props) {
       currentCurrency: displayCurrency,
       onSelectCurrency: async code => {
         const response = await selectCurrency(code);
-        if (response?.didWork) setAmountValue('');
         return response;
       },
     });

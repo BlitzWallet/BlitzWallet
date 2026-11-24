@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
@@ -19,7 +19,15 @@ import displayCorrectDenomination from '../../../../functions/displayCorrectDeno
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
-import usePaymentInputDisplay from '../../../../hooks/usePaymentInputDisplay';
+import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
+import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
+import useAmountInputConversion from '../../../../hooks/useAmountInputConversion';
+import {
+  getDefaultDisplayCurrency,
+  normalizeDisplayCurrency,
+  SATS_DISPLAY_CURRENCY,
+} from '../../../../functions/displayCurrency';
+import BudgetCurrencyButton from '../../../../functions/CustomElements/redesign/CurrencyButton';
 import {
   BTC_ASSET_ADDRESS,
   dollarsToSats,
@@ -99,13 +107,6 @@ export default function AddMoneyToSavingsHalfModal({
   const [amountValue, setAmountValue] = useState('');
   const [addedDollars, setAddedDollars] = useState(0);
 
-  const [inputDenomination, setInputDenomination] = useState(
-    selectedSource === 'dollar'
-      ? 'fiat'
-      : masterInfoObject.userBalanceDenomination != 'fiat'
-      ? 'sats'
-      : 'fiat',
-  );
   const fiatStats = globalFiatStats;
   const [selectedGoalId, setSelectedGoalId] = useState(
     selectedGoalUUID || UNALLOCATED_GOAL_ID,
@@ -118,16 +119,59 @@ export default function AddMoneyToSavingsHalfModal({
   const availableBalance =
     paymentMode === 'USD' ? dollarBalanceToken.toFixed(3) : bitcoinBalance;
 
-  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
-    usePaymentInputDisplay({
-      paymentMode,
-      inputDenomination,
+  const usdFiatStats = useMemo(
+    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
+    [swapUSDPriceDollars],
+  );
+  // Dollar source types USD; bitcoin source types sats or the device currency.
+  const initialDisplayCurrency = useMemo(
+    () =>
+      selectedSource === 'dollar'
+        ? 'USD'
+        : getDefaultDisplayCurrency({
+            paymentMode: 'BTC',
+            masterInfoObject,
+            fiatStats,
+          }),
+    [selectedSource, masterInfoObject, fiatStats],
+  );
+
+  const { displayCurrency, selectCurrency, currencyRates, isLoadingRate } =
+    useDisplayCurrencyController({
+      initialCurrency: initialDisplayCurrency,
       fiatStats,
-      usdFiatStats: { coin: 'USD', value: swapUSDPriceDollars },
+      usdFiatStats,
       masterInfoObject,
     });
 
-  const localSatAmount = convertDisplayToSats(amountValue);
+  const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
+  const isSats = normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY;
+
+  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
+    useCurrencyDisplay({
+      displayCurrency,
+      fiatStats,
+      usdFiatStats,
+      currencyRates,
+      masterInfoObject,
+    });
+
+  const { exactSats } = useAmountInputConversion({
+    amount: amountValue,
+    setAmount: setAmountValue,
+    primaryDisplay,
+    conversionFiatStats,
+  });
+
+  const openCurrencyPicker = () =>
+    navigate.push('CustomHalfModal', {
+      wantedContent: 'displayCurrencySelect',
+      sliderHight: 0.6,
+      currentCurrency: displayCurrency,
+      onSelectCurrency: async code => selectCurrency(code),
+    });
+
+  const localSatAmount = exactSats ?? convertDisplayToSats(amountValue);
 
   // When paying from BTC: sats entered directly; fiat micros derived from price.
   // When paying from USD: fiat entered directly; convert to sats for sparkPaymenWrapper.
@@ -488,13 +532,6 @@ export default function AddMoneyToSavingsHalfModal({
                     }
                     setSelectedSource(option.key);
                     setAmountValue('');
-                    setInputDenomination(
-                      option.key === 'dollar'
-                        ? 'fiat'
-                        : masterInfoObject.userBalanceDenomination != 'fiat'
-                        ? 'sats'
-                        : 'fiat',
-                    );
                     pushStep('amount');
                   }}
                 />
@@ -536,7 +573,19 @@ export default function AddMoneyToSavingsHalfModal({
 
     return (
       <>
-        {backBar}
+        <TopBar
+          onBack={goBack}
+          right={
+            <BudgetCurrencyButton
+              label={isSats ? 'SAT' : normalizedDisplayCurrency}
+              onPress={openCurrencyPicker}
+              disabled={isLoadingRate}
+              accessibilityLabel={t(
+                'settings.nwc.createNWCAmount.changeCurrency',
+              )}
+            />
+          }
+        />
         <View style={styles.amountBlock}>
           <AmountHero
             amount={

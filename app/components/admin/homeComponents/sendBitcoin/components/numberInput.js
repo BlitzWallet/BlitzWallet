@@ -25,6 +25,7 @@ export default function NumberInputSendPage({
         return {
           ...prev,
           sendAmount: newAmount,
+          sendAmountExactSats: undefined, // typed: the shown value is exact
           feeQuote: undefined,
           swapPaymentQuote: undefined,
           paymentFee: 0,

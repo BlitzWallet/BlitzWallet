@@ -2,7 +2,7 @@ import { GlobalThemeView } from '../../../../../../functions/CustomElements';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import CustomButton from '../../../../../../functions/CustomElements/button';
 import {
   AMOUNT_HERO_SIZE,
@@ -32,7 +32,17 @@ import { encriptMessage } from '../../../../../../functions/messaging/encodingAn
 import { crashlyticsRecordErrorReport } from '../../../../../../functions/crashlyticsLogs';
 import CustomNumberKeyboard from '../../../../../../functions/CustomElements/customNumberKeyboard';
 import AmountHero from '../../../../../../functions/CustomElements/redesign/AmountHero';
-import formatBalanceAmount from '../../../../../../functions/formatNumber';
+import BudgetCurrencyButton from '../../../../../../functions/CustomElements/redesign/CurrencyButton';
+import { useNodeContext } from '../../../../../../../context-store/nodeContext';
+import { useFlashnet } from '../../../../../../../context-store/flashnetContext';
+import useCurrencyDisplay from '../../../../../../hooks/useCurrencyDisplay';
+import useAmountInputConversion from '../../../../../../hooks/useAmountInputConversion';
+import useDisplayCurrencyController from '../../../../../../hooks/useDisplayCurrencyController';
+import {
+  normalizeDisplayCurrency,
+  resolveUsdFiatStats,
+  SATS_DISPLAY_CURRENCY,
+} from '../../../../../../functions/displayCurrency';
 
 export default function ChildSpendingLimit(props) {
   const navigate = useNavigation();
@@ -42,6 +52,8 @@ export default function ChildSpendingLimit(props) {
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
   const { accountMnemoinc, publicKey } = useKeysContext();
+  const { fiatStats } = useNodeContext();
+  const { swapUSDPriceDollars } = useFlashnet();
   const [limit, setLimit] = useState(
     editChild?.spendingLimit ? String(editChild.spendingLimit) : '',
   );
@@ -50,10 +62,58 @@ export default function ChildSpendingLimit(props) {
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const isCreatingRef = useRef(false);
 
+  const usdFiatStats = useMemo(
+    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
+    [fiatStats, swapUSDPriceDollars],
+  );
+  const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
+    useDisplayCurrencyController({
+      initialCurrency: SATS_DISPLAY_CURRENCY,
+      fiatStats,
+      usdFiatStats,
+      masterInfoObject,
+    });
+  const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
+  const isSats = normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY;
+  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
+    useCurrencyDisplay({
+      displayCurrency,
+      fiatStats,
+      usdFiatStats,
+      currencyRates,
+      masterInfoObject,
+    });
+  const { exactSats } = useAmountInputConversion({
+    amount: limit,
+    setAmount: setLimit,
+    primaryDisplay,
+    conversionFiatStats,
+  });
+  const limitSats = exactSats ?? convertDisplayToSats(limit);
+  const primaryMasterInfoObject = useMemo(
+    () => ({
+      ...(masterInfoObject || {}),
+      userBalanceDenomination: primaryDisplay.denomination,
+      fiatCurrency:
+        primaryDisplay.forceCurrency || masterInfoObject?.fiatCurrency || 'USD',
+    }),
+    [masterInfoObject, primaryDisplay],
+  );
+  const openPicker = useCallback(
+    () =>
+      navigate.navigate('CustomHalfModal', {
+        wantedContent: 'displayCurrencySelect',
+        sliderHight: 0.6,
+        currentCurrency: displayCurrency,
+        onSelectCurrency: code => selectCurrency(code),
+      }),
+    [displayCurrency, navigate, selectCurrency],
+  );
+
   const parseLimit = useCallback(() => {
-    const parsed = limit.trim() ? Math.round(Number(limit)) : null;
+    const parsed = limit.trim() ? limitSats : null;
     return parsed && Number.isFinite(parsed) && parsed > 0 ? parsed : null;
-  }, [limit]);
+  }, [limit, limitSats]);
 
   // Set/adjust the child's spendingLimit + isChildAccount through the
   // updateChildAccount Cloud Function. Two proofs travel inside the single em
@@ -220,20 +280,28 @@ export default function ChildSpendingLimit(props) {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar title={editChild?.name || name} />
+        <TopBar
+          title={editChild?.name || name}
+          right={
+            <BudgetCurrencyButton
+              label={isSats ? 'SAT' : normalizedDisplayCurrency}
+              onPress={openPicker}
+              disabled={isLoadingRate}
+              accessibilityLabel={t(
+                'settings.nwc.createNWCAmount.changeCurrency',
+              )}
+            />
+          }
+        />
         <PageHeader
           title={t('settings.childAccounts.spendingLimit.title')}
           sub={t('settings.childAccounts.spendingLimit.subtitle')}
         />
         <View style={styles.amount}>
           <AmountHero
-            // Limit is always typed in sats: format as typed, no conversion.
-            amount={formatBalanceAmount(limit || 0, false, masterInfoObject)}
-            convertAmount={false}
-            masterInfoObject={{
-              ...masterInfoObject,
-              userBalanceDenomination: 'sats',
-            }}
+            amount={limitSats}
+            fiatStats={conversionFiatStats}
+            masterInfoObject={primaryMasterInfoObject}
             mutedValue={!limit}
             amountSize={AMOUNT_HERO_SIZE.primary}
           />
@@ -241,7 +309,8 @@ export default function ChildSpendingLimit(props) {
         <CustomNumberKeyboard
           redesign
           setInputValue={setLimit}
-          showDot={false}
+          showDot={primaryDisplay.denomination === 'fiat'}
+          fiatStats={conversionFiatStats}
         />
         <CustomButton
           buttonStyles={styles.button}

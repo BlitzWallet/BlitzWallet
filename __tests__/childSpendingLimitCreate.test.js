@@ -93,6 +93,22 @@ jest.mock('../app/functions/CustomElements', () => {
 });
 
 jest.mock('../app/functions/CustomElements/redesign/TopBar', () => () => null);
+jest.mock('../context-store/nodeContext', () => ({
+  useNodeContext: () => ({ fiatStats: { coin: 'USD', value: 100000 } }),
+}));
+jest.mock('../context-store/flashnetContext', () => ({
+  useFlashnet: () => ({ swapUSDPriceDollars: 100000 }),
+}));
+jest.mock('../app/hooks/useDisplayCurrencyController', () => () => ({
+  displayCurrency: 'SATS',
+  currencyRates: {},
+  isLoadingRate: false,
+  selectCurrency: jest.fn(),
+}));
+jest.mock(
+  '../app/functions/CustomElements/redesign/CurrencyButton',
+  () => () => null,
+);
 jest.mock(
   '../app/functions/CustomElements/redesign/PageHeader',
   () => () => null,

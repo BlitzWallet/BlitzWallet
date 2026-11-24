@@ -17,6 +17,7 @@ import {
 } from '../displayCurrency';
 import useDisplayCurrencyController from '../../hooks/useDisplayCurrencyController';
 import useCurrencyDisplay from '../../hooks/useCurrencyDisplay';
+import useAmountInputConversion from '../../hooks/useAmountInputConversion';
 import BudgetCurrencyButton from './redesign/CurrencyButton';
 import AmountHero from './redesign/AmountHero';
 import SheetHeader from './redesign/SheetHeader';
@@ -77,9 +78,15 @@ export default function CustomInputHalfModal(props) {
       currencyRates,
       masterInfoObject,
     });
+  const { exactSats } = useAmountInputConversion({
+    amount: amountValue,
+    setAmount: setAmountValue,
+    primaryDisplay,
+    conversionFiatStats,
+  });
 
   // Convert current keyboard input to sats (used only in custom step)
-  const localSatAmount = convertDisplayToSats(amountValue);
+  const localSatAmount = exactSats ?? convertDisplayToSats(amountValue);
 
   const openPicker = useCallback(
     () =>
@@ -89,7 +96,6 @@ export default function CustomInputHalfModal(props) {
         currentCurrency: displayCurrency,
         onSelectCurrency: async code => {
           const response = await selectCurrency(code);
-          if (response?.didWork) setAmountValue('');
           return response;
         },
       }),

@@ -14,6 +14,7 @@ import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import { useFlashnet } from '../../../../../../context-store/flashnetContext';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import useCurrencyDisplay from '../../../../../hooks/useCurrencyDisplay';
+import useAmountInputConversion from '../../../../../hooks/useAmountInputConversion';
 import useDisplayCurrencyController from '../../../../../hooks/useDisplayCurrencyController';
 import {
   getDefaultDisplayCurrency,
@@ -72,8 +73,14 @@ export default function PoolAmountKeypad({
       currencyRates,
       masterInfoObject,
     });
+  const { exactSats } = useAmountInputConversion({
+    amount: amountValue,
+    setAmount: setAmountValue,
+    primaryDisplay,
+    conversionFiatStats,
+  });
 
-  const sats = convertDisplayToSats(amountValue);
+  const sats = exactSats ?? convertDisplayToSats(amountValue);
   const primaryMasterInfoObject = useMemo(
     () => ({
       ...(masterInfoObject || {}),
@@ -102,7 +109,6 @@ export default function PoolAmountKeypad({
         currentCurrency: displayCurrency,
         onSelectCurrency: async code => {
           const response = await selectCurrency(code);
-          if (response?.didWork) setAmountValue('');
           return response;
         },
       }),

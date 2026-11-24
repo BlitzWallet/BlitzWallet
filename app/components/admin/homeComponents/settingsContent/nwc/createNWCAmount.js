@@ -25,6 +25,7 @@ import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import { useTheme } from '../../../../../../context-store/theme';
 import { useFlashnet } from '../../../../../../context-store/flashnetContext';
 import useCurrencyDisplay from '../../../../../hooks/useCurrencyDisplay';
+import useAmountInputConversion from '../../../../../hooks/useAmountInputConversion';
 import useDisplayCurrencyController from '../../../../../hooks/useDisplayCurrencyController';
 import {
   getDefaultDisplayCurrency,
@@ -72,6 +73,12 @@ export default function CreateNWCAmount(props) {
   // Display string we prefilled; while untouched, save the exact saved sats so a
   // fiat round-trip can't nudge the budget.
   const prefillRef = useRef(null);
+  // Set on the first keypad press; a currency switch alone doesn't count.
+  const editedRef = useRef(false);
+  const setTypedAmount = useCallback(value => {
+    editedRef.current = true;
+    setAmountValue(value);
+  }, []);
 
   const usdFiatStats = useMemo(
     () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
@@ -106,12 +113,20 @@ export default function CreateNWCAmount(props) {
     currencyRates,
     masterInfoObject,
   });
+  const { exactSats } = useAmountInputConversion({
+    amount: amountValue,
+    setAmount: setAmountValue,
+    primaryDisplay,
+    conversionFiatStats,
+  });
 
   const savedBudgetAmount = savedData?.budgetRenewalSettings?.amount;
   const localSatAmount =
-    prefillRef.current !== null && amountValue === prefillRef.current
+    prefillRef.current !== null &&
+    amountValue !== '' &&
+    (!editedRef.current || amountValue === prefillRef.current)
       ? savedBudgetAmount
-      : convertDisplayToSats(amountValue);
+      : exactSats ?? convertDisplayToSats(amountValue);
   const hasBudget = localSatAmount > 0;
   const activeRenewalOption = renewalOption || 'Weekly';
   const canSubmit =
@@ -138,7 +153,6 @@ export default function CreateNWCAmount(props) {
       currentCurrency: displayCurrency,
       onSelectCurrency: async code => {
         const response = await selectCurrency(code);
-        if (response?.didWork) setAmountValue('');
         return response;
       },
     });
@@ -315,7 +329,7 @@ export default function CreateNWCAmount(props) {
 
         <CustomNumberKeyboard
           showDot={primaryDisplay.denomination === 'fiat'}
-          setInputValue={setAmountValue}
+          setInputValue={setTypedAmount}
           usingForBalance={true}
           fiatStats={conversionFiatStats}
           redesign={true}

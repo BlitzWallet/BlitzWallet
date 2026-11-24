@@ -35,6 +35,7 @@ import { fiatCurrencies } from '../../../../functions/currencyOptions';
 import NumberInputSendPage from './components/numberInput';
 import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
 import useSendPaymentDetails from './hooks/useSendPaymentDetails';
+import useAmountInputConversion from '../../../../hooks/useAmountInputConversion';
 import { buildNextParams, descriptionAvailable } from './functions/sendFlow';
 import {
   formatAmountText,
@@ -135,12 +136,40 @@ export default function SendAmountScreen(props) {
     [invalidateNext],
   );
 
+  // A currency switch re-displays the amount; sendAmountExactSats keeps the
+  // typed amount until it is edited (read by useSendPaymentDetails).
+  const setAmountFromConversion = useCallback(
+    (value, exactSats) => {
+      invalidateNext();
+      setDraft(prev => ({
+        ...prev,
+        sendAmount: value,
+        sendAmountExactSats: exactSats ?? undefined,
+        feeQuote: undefined,
+        swapPaymentQuote: undefined,
+        paymentFee: 0,
+        supportFee: 0,
+      }));
+    },
+    [invalidateNext],
+  );
+  useAmountInputConversion({
+    amount: draft?.sendAmount ?? '',
+    setAmount: setAmountFromConversion,
+    // A locked (invoice) amount is never rewritten: pin its unit.
+    primaryDisplay: lockedAmount ? undefined : primaryDisplay,
+    conversionFiatStats,
+    tokenUnit: isUsingLRC20 ? selectedLRC20Asset : undefined,
+  });
+
   useEffect(() => {
     if (
       prevSelection.current.selectedPaymentMethod === selectedPaymentMethod &&
       prevSelection.current.tokenName === masterTokenInfo?.tokenName
     )
       return;
+    const tokenChanged =
+      prevSelection.current.tokenName !== masterTokenInfo?.tokenName;
     prevSelection.current = {
       selectedPaymentMethod,
       tokenName: masterTokenInfo?.tokenName,
@@ -149,7 +178,7 @@ export default function SendAmountScreen(props) {
     if (lockedAmount) return;
     setDraft(prev => ({
       ...prev,
-      sendAmount: '',
+      ...(tokenChanged && { sendAmount: '', sendAmountExactSats: undefined }),
       feeQuote: undefined,
       swapPaymentQuote: undefined,
       paymentFee: 0,
@@ -308,7 +337,11 @@ export default function SendAmountScreen(props) {
       return;
     }
     setPrepared({
-      paymentInfo: outcome.decoded,
+      // Validation of the prepared payment must see the same exact amount.
+      paymentInfo: {
+        ...outcome.decoded,
+        sendAmountExactSats: draft.sendAmountExactSats,
+      },
       method,
       extra: {
         basePaymentInfo: draft,
@@ -360,7 +393,6 @@ export default function SendAmountScreen(props) {
         if (!response?.didWork) return response;
         updateDraft(prev => ({
           ...prev,
-          sendAmount: '',
           feeQuote: undefined,
           swapPaymentQuote: undefined,
           paymentFee: 0,

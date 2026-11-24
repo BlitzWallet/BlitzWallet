@@ -27,6 +27,7 @@ import GetThemeColors from '../../../../../hooks/themeColors';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import useNWCNotificationsEnabled from '../../../../../hooks/useNWCNotificationsEnabled';
 import useCurrencyDisplay from '../../../../../hooks/useCurrencyDisplay';
+import useAmountInputConversion from '../../../../../hooks/useAmountInputConversion';
 import useDisplayCurrencyController from '../../../../../hooks/useDisplayCurrencyController';
 import {
   getDefaultDisplayCurrency,
@@ -436,12 +437,26 @@ function LimitStep({ appName, limit, onBack, onDone }) {
       : null,
   );
   const [amountValue, setAmountValue] = useState(prefill?.displayValue ?? '');
+  // Set on the first keypad press; a currency switch alone doesn't count.
+  const editedRef = useRef(false);
+  const setTypedAmount = useCallback(value => {
+    editedRef.current = true;
+    setAmountValue(value);
+  }, []);
+  const { exactSats } = useAmountInputConversion({
+    amount: amountValue,
+    setAmount: setAmountValue,
+    primaryDisplay,
+    conversionFiatStats,
+  });
   const [renewalOption, setRenewalOption] = useState(limit?.option || null);
 
   const localSatAmount =
-    prefill?.displayValue === amountValue
+    prefill &&
+    amountValue !== '' &&
+    (!editedRef.current || prefill.displayValue === amountValue)
       ? prefill.sats
-      : convertDisplayToSats(amountValue);
+      : exactSats ?? convertDisplayToSats(amountValue);
   const hasBudget = localSatAmount > 0;
   const activeRenewalOption = renewalOption || limit?.option || 'Weekly';
   const amountHeroMasterInfoObject = useMemo(
@@ -465,7 +480,6 @@ function LimitStep({ appName, limit, onBack, onDone }) {
         currentCurrency: displayCurrency,
         onSelectCurrency: async code => {
           const response = await selectCurrency(code);
-          if (response?.didWork) setAmountValue('');
           return response;
         },
       }),
@@ -547,7 +561,7 @@ function LimitStep({ appName, limit, onBack, onDone }) {
 
       <CustomNumberKeyboard
         showDot={primaryDisplay.denomination === 'fiat'}
-        setInputValue={setAmountValue}
+        setInputValue={setTypedAmount}
         usingForBalance={true}
         fiatStats={conversionFiatStats}
         redesign={true}
