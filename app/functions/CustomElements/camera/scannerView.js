@@ -63,7 +63,7 @@ export default function ScannerView({ children, onBack, actions = [], hint }) {
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel={t('constants.back')}
-          style={[styles.round, styles.back, { top: topPadding + 10 }]}
+          style={[styles.round, styles.back, { top: topPadding }]}
           onPress={onBack}
         >
           <ThemeIcon
