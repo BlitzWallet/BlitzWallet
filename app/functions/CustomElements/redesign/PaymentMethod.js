@@ -27,9 +27,6 @@ export default function PaymentMethod({
     determinePaymentMethod === 'BTC' ||
     determinePaymentMethod === 'user-choice';
 
-  const showHiddenBalance =
-    masterInfoObject.userBalanceDenomination === 'hidden';
-
   const balance =
     determinePaymentMethod === 'BTC' || determinePaymentMethod === 'user-choice'
       ? displayCorrectDenomination({
@@ -84,7 +81,7 @@ export default function PaymentMethod({
                     ? 'bitcoin_upper'
                     : 'dollars_upper'
                 }`,
-              )}${showHiddenBalance ? '' : ' · ' + balance}`
+              )}${' · ' + balance}`
         }
         subStyle={{ ...styles.subStyles, color: tokens.ink }}
         showChevron={!showBitcoinCardOnly}
