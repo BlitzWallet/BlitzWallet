@@ -15,12 +15,18 @@ describe('areImagesSame', () => {
     jest.clearAllMocks();
   });
 
-  it('treats a picked web image as changed without native-only APIs', async () => {
+  it('compares image bytes on web via fetch', async () => {
     Platform.OS = 'web';
+    const bytes = b => ({ arrayBuffer: async () => new Uint8Array(b).buffer });
+    global.fetch = jest
+      .fn()
+      .mockResolvedValueOnce(bytes([1, 2]))
+      .mockResolvedValueOnce(bytes([1, 2]))
+      .mockResolvedValueOnce(bytes([1, 2]))
+      .mockResolvedValueOnce(bytes([3]));
 
-    await expect(areImagesSame('blob:new-image', 'blob:old-image')).resolves.toBe(
-      false,
-    );
+    await expect(areImagesSame('blob:a', 'blob:b')).resolves.toBe(true);
+    await expect(areImagesSame('blob:a', 'blob:c')).resolves.toBe(false);
     expect(FileSystem.readAsStringAsync).not.toHaveBeenCalled();
   });
 
