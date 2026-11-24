@@ -162,6 +162,7 @@ export default function RootstockSwapInfo({ swap, handleBackPressFunction }) {
         </View>
         <FormattedSatText
           balance={data?.amountSat || 0}
+          neverHideBalance={true}
           styles={{ ...styles.amount, color: tokens.ink }}
         />
         <ThemeText
