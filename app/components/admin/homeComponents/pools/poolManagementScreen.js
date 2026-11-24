@@ -209,15 +209,13 @@ export default function PoolManagementScreen() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.innerContainer, { width: contentWidth }]}>
-        <TopHeader>
-          <TopBar title={t('screens.inAccount.settingsContent.pools')} />
-          {infoDropdown}
-        </TopHeader>
+        <TopBar fade title={t('screens.inAccount.settingsContent.pools')} />
 
         <FlatList
           data={hasAnyPools ? sections : []}
           renderItem={renderPoolSection}
           keyExtractor={item => item.poolId}
+          ListHeaderComponent={infoDropdown}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={

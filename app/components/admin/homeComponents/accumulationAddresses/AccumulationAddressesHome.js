@@ -90,36 +90,35 @@ export default function AccumulationAddressesHome() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar fade title={t('screens.accumulationAddresses.title')} />
-        <InfoDropdown
-          icon="Info"
-          title={t('screens.accumulationAddresses.info.title')}
-          infoComponenet={
-            <>
-              <ThemeText
-                styles={styles.bodyText}
-                content={t('screens.accumulationAddresses.info.whatAreBody')}
-              />
-              <ThemeText
-                styles={styles.sectionTitle}
-                content={t('screens.accumulationAddresses.info.howItWorks')}
-              />
-              <ThemeText
-                styles={styles.bulletText}
-                content={t('screens.accumulationAddresses.info.step1')}
-              />
-              <ThemeText
-                styles={styles.bulletText}
-                content={t('screens.accumulationAddresses.info.step2')}
-              />
-              <ThemeText
-                styles={styles.bulletText}
-                content={t('screens.accumulationAddresses.info.step3')}
-              />
-            </>
-          }
-        />
-
         <CustomScrollView contentContainerStyle={styles.scrollContent}>
+          <InfoDropdown
+            icon="Info"
+            title={t('screens.accumulationAddresses.info.title')}
+            infoComponenet={
+              <>
+                <ThemeText
+                  styles={styles.bodyText}
+                  content={t('screens.accumulationAddresses.info.whatAreBody')}
+                />
+                <ThemeText
+                  styles={styles.sectionTitle}
+                  content={t('screens.accumulationAddresses.info.howItWorks')}
+                />
+                <ThemeText
+                  styles={styles.bulletText}
+                  content={t('screens.accumulationAddresses.info.step1')}
+                />
+                <ThemeText
+                  styles={styles.bulletText}
+                  content={t('screens.accumulationAddresses.info.step2')}
+                />
+                <ThemeText
+                  styles={styles.bulletText}
+                  content={t('screens.accumulationAddresses.info.step3')}
+                />
+              </>
+            }
+          />
           <SectionHeader
             title={t('screens.accumulationAddresses.sectionTitle')}
             style={styles.sectionHeader}
