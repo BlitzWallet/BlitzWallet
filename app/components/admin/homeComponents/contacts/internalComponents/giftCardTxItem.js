@@ -64,6 +64,7 @@ export default function GiftCardTxItem({
             }
             styles={styles.amount}
             balance={txParsed.amountMsat}
+            neverHideBalance={true}
             useMillionDenomination={true}
           />
         }
