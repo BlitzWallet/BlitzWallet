@@ -979,7 +979,7 @@
         "reclaimComplete": "Reenvio concluído. Se nenhum código for gerado, você será reembolsado automaticamente após 21 minutos.",
         "noCode": "Sem código",
         "rateLimitError": "Excesso de solicitações. Você só pode fazer 5 solicitações a cada 30 segundos. Aguarde antes de tentar novamente.",
-        "noPurchasesTitle": "Você ainda não enviou nem recebeu nenhuma mensagem SMS. Quando fizer isso, elas aparecerão aqui."
+        "noPurchasesTitle": "Você ainda não enviou nem recebeu nenhuma mensagem SMS. Quando fizer isso, elas aparecem aqui."
       },
       "receivePage": {
         "paymentMemo": "Loja - Receber SMS",
@@ -1079,7 +1079,7 @@
       "noAddedContactsTitle": "Nenhum contato adicionado",
       "noAvailableContactsTitle": "Nenhum contato disponível",
       "noAddedContactsDesc": "Adicione contatos para que eles apareçam aqui",
-      "noAvailableContactsDescription": "Você só pode solicitar de contatos Blitz; eles aparecerão aqui quando você adicionar um.",
+      "noAvailableContactsDescription": "Você só pode solicitar de contatos Blitz; eles aparecem aqui quando você adicionar um.",
       "payMe": "Endereço Blitz",
       "createInvoice": "Criar Fatura",
       "invoiceDescription": "Escolha a moeda e quantia desejada",
@@ -1463,9 +1463,9 @@
       "balancePage": {
         "receiveBitcoin": "Receber Bitcoin",
         "receiveDollars": "Receber dólares",
-        "emptyBitcoin": "Os bitcoins que você enviar ou receber aparecerão aqui.",
-        "emptyDollars": "Os dólares que você enviar ou receber aparecerão aqui.",
-        "emptyTokens": "Os tokens que você enviar ou receber aparecerão aqui.",
+        "emptyBitcoin": "Os bitcoins que você enviar ou receber aparecem aqui.",
+        "emptyDollars": "Os dólares que você enviar ou receber aparecem aqui.",
+        "emptyTokens": "Os tokens que você enviar ou receber aparecem aqui.",
         "balances": "Saldos",
         "viewAllTokens": "Ver todos os {{count}} tokens",
         "allTokens": "Todos os tokens",
@@ -1534,7 +1534,7 @@
         "editProfileTitle": "Editar seu perfil",
         "editProfileDescription": "Adicione seus dados para que outras pessoas possam encontrá-lo e pagar você facilmente",
         "addContactstitle": "Nenhum contato adicionado",
-        "addContactsDescription": "Os contatos adicionados aparecerão aqui"
+        "addContactsDescription": "Os contatos adicionados aparecem aqui"
       },
       "favorites": "Favoritos",
       "allContacts": "Todos os contatos",
@@ -1685,7 +1685,7 @@
       },
       "viewAllGiftCards": {
         "cardNamePlaceH": "Cartão-presente",
-        "noCardsText": "Seus cartões-presente aparecerão aqui assim que você os receber",
+        "noCardsText": "Seus cartões-presente aparecem aqui assim que você os receber",
         "header": "Seus cartões-presente",
         "cardsLengthSingular": "{{num}} cartão",
         "cardsLengthPlural": "{{num}} cartões",
@@ -1764,7 +1764,7 @@
       "settingsHead": "Configurações",
       "seedPopup": "A frase de recuperação é uma lista de palavras que permite recuperar seus Bitcoins caso seu dispositivo seja perdido ou danificado. Anote as palavras e guarde em um local seguro. Nunca mostre as palavras para ninguém pois se alguém tiver acesso a elas, poderá roubar todos os seus Bitcoins.",
       "changePhoto": "Alterar foto",
-      "backup": "Backup",
+      "backup": "Backup da carteira",
       "social": "Social",
       "pointOfSale": "Ponto de venda",
       "nostr": "Nostr"
@@ -2338,7 +2338,7 @@
       "editAccountPage": {
         "title": "Conta",
         "accountNameLabel": "Nome da conta",
-        "showRecoveryPhraseLabel": "Mostrar frase de recuperação",
+        "showRecoveryPhraseLabel": "Backup da conta",
         "lightningAddressLabel": "Endereço da conta",
         "removeAccountLabel": "Remover conta",
         "activeAccountError": "Você não pode remover a conta que está selecionada. Por favor, mude para uma conta diferente antes de remover esta.",
@@ -2532,7 +2532,7 @@
         "unpaidtips": "Gorjetas: {{number}}",
         "title": "Gorjetas a pagar",
         "empNamePlaceholder": "Nome do funcionário",
-        "noEmployees": "No momento, você não tem funcionários com gorjetas salvas. Assim que um funcionário usar o ponto de venda, suas gorjetas aparecerão aqui para que você possa pagá-las.",
+        "noEmployees": "No momento, você não tem funcionários com gorjetas salvas. Assim que um funcionário usar o ponto de venda, suas gorjetas aparecem aqui para que você possa pagá-las.",
         "noTips": "O funcionário não tem gorjetas",
         "noEmployeeTitle": "Nenhuma gorjeta a pagar",
         "noEmployeeSubTitle": "Você ainda não tem gorjetas para pagar. Quando um funcionário receber uma gorjeta, ela aparecerá aqui.",
@@ -2843,7 +2843,7 @@
       },
       "transactions": {
         "title": "Atividade",
-        "noTxHistorySub": "Os pagamentos de {{name}} aparecerão aqui quando enviar ou receber um."
+        "noTxHistorySub": "Os pagamentos de {{name}} aparecem aqui quando enviar ou receber um."
       },
       "page": {
         "title": "Conta parental",
@@ -3161,7 +3161,7 @@
         "filterSavings": "Metas em dólar",
         "filterPools": "Vaquinhas",
         "noTxHistoryTitle": "Sem atividade",
-        "noTxHistorySub": "Suas transações aparecerão aqui.",
+        "noTxHistorySub": "Suas transações aparecem aqui.",
         "searchPlaceholder": "Pesquisar descrições",
         "noFilterResultsTitle": "Nenhuma transação correspondente",
         "noFilterResultsSub": "Nenhuma transação corresponde aos filtros atuais. Tente ajustá-los ou removê-los.",
@@ -3458,7 +3458,7 @@
       "swapHistory": {
         "loadingSwapHistoryError": "Não foi possível carregar o histórico de trocas. Tente novamente mais tarde.",
         "noHistoryTitle": "Nenhum histórico de trocas",
-        "noHistoryDesc": "As trocas aparecerão aqui.",
+        "noHistoryDesc": "As trocas aparecem aqui.",
         "pageTitle": "Histórico",
         "bitcoinToDollars": "Bitcoin → Dólares",
         "dollarsToBitcoin": "Dólares → Bitcoin"
@@ -3480,7 +3480,7 @@
         "placeholder": "Insira ou cole um endereço",
         "placeholderEmpty": "Insira um endereço",
         "emptyTitle": "Envie dinheiro para seus contatos",
-        "emptySub": "Os contatos que você adicionar aparecerão aqui.",
+        "emptySub": "Os contatos que você adicionar aparecem aqui.",
         "contacts": "Enviar para um contato",
         "contact": "Contato"
       }
@@ -3881,7 +3881,7 @@
     },
     "activity": {
       "title": "Atividade",
-      "emptyState": "As transações futuras aparecerão aqui"
+      "emptyState": "As transações futuras aparecem aqui"
     },
     "addMoney": {
       "chooseGoalTitle": "Guardar dinheiro em",
@@ -4048,7 +4048,7 @@
       "noSentSub": "Envie um pagamento para ver a atividade"
     },
     "chart": {
-      "titleSpent": "Gasto {{period}}",
+      "titleSpent": "Gastos {{period}}",
       "period": {
         "today": "hoje",
         "week": "esta semana",
@@ -4087,7 +4087,7 @@
       "noBudgetSetSub": "Crie um orçamento mensal para acompanhar seus gastos",
       "noBudgetSetButton": "Criar orçamento",
       "leftToSpend": "Restante para gastar",
-      "spentThisMonth": "Gasto neste mês",
+      "spentThisMonth": "Gastos neste mês",
       "removeBudgetTitle": "Remover orçamento?",
       "removeBudgetSub": "Remover este orçamento desativará alertas e acompanhamento. Você pode recriá-lo a qualquer momento.",
       "nearBudgetWarning": "Você está perto do seu limite mensal de gastos",
@@ -4125,7 +4125,7 @@
   },
   "money": {
     "title": "Dinheiro",
-    "spentIn": "Gasto em {{month}}",
+    "spentIn": "Gastos em {{month}}",
     "today": "Hoje",
     "chartLabel": "Gastos diários em {{month}}",
     "weeklyChartLabel": "Gastos semanais em {{month}}",
@@ -4161,9 +4161,9 @@
     "networkFeeInfo": "Receber Bitcoin neste endereço custa uma pequena taxa de rede. A taxa é descontada do valor recebido, portanto o saldo pode ficar um pouco menor do que o enviado.",
     "arrives": "Recebimento",
     "afterConfirmations": "Após 3 confirmações",
-    "arrivesInfoBitcoin": "Os bitcoins enviados para este endereço aparecem no seu saldo depois de 3 confirmações na rede Bitcoin. Isso normalmente leva cerca de 30 minutos.",
+    "arrivesInfoBitcoin": "Os bitcoins enviados para este endereço aparecem no seu saldo após 3 confirmações na rede Bitcoin. Isso normalmente leva cerca de 30 minutos.",
     "inAFewMinutes": "Em alguns minutos",
-    "arrivesInfoStable": "Os pagamentos aparecem no seu saldo depois que a rede {{chain}} os confirma, normalmente em poucos minutos.",
+    "arrivesInfoStable": "Os pagamentos aparecem no seu saldo após a confirmação na rede {{chain}}. Isso ocorre normalmente em poucos minutos.",
     "minimum": "Mínimo",
     "fee": "Taxa",
     "aboutOnePercent": "Cerca de 1%",
