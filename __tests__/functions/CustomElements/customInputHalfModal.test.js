@@ -55,10 +55,6 @@ jest.mock('../../../app/functions/displayCurrency', () => ({
     const normalized = String(currency).toUpperCase();
     return normalized === 'BTC' ? 'SATS' : normalized;
   },
-  resolveUsdFiatStats: (fiatStats, swapUSDPriceDollars) =>
-    fiatStats?.coin?.toUpperCase() === 'USD'
-      ? fiatStats
-      : { coin: 'USD', value: swapUSDPriceDollars },
 }));
 
 jest.mock('../../../app/hooks/useDisplayCurrencyController', () => {

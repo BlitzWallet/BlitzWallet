@@ -128,7 +128,6 @@ jest.mock('../app/functions/displayCurrency', () => ({
     forceCurrency: null,
     forceFiatStats: null,
   }),
-  resolveUsdFiatStats: () => ({}),
 }));
 
 jest.mock('../app/hooks/useDisplayCurrencyController', () => ({
