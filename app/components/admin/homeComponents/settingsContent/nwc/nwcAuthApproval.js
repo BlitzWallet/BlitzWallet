@@ -437,6 +437,12 @@ function LimitStep({ appName, limit, onBack, onDone }) {
       : null,
   );
   const [amountValue, setAmountValue] = useState(prefill?.displayValue ?? '');
+  // Set on the first keypad press; a currency switch alone doesn't count.
+  const editedRef = useRef(false);
+  const setTypedAmount = useCallback(value => {
+    editedRef.current = true;
+    setAmountValue(value);
+  }, []);
   const { exactSats } = useAmountInputConversion({
     amount: amountValue,
     setAmount: setAmountValue,
@@ -446,7 +452,9 @@ function LimitStep({ appName, limit, onBack, onDone }) {
   const [renewalOption, setRenewalOption] = useState(limit?.option || null);
 
   const localSatAmount =
-    prefill?.displayValue === amountValue
+    prefill &&
+    amountValue !== '' &&
+    (!editedRef.current || prefill.displayValue === amountValue)
       ? prefill.sats
       : exactSats ?? convertDisplayToSats(amountValue);
   const hasBudget = localSatAmount > 0;
@@ -553,7 +561,7 @@ function LimitStep({ appName, limit, onBack, onDone }) {
 
       <CustomNumberKeyboard
         showDot={primaryDisplay.denomination === 'fiat'}
-        setInputValue={setAmountValue}
+        setInputValue={setTypedAmount}
         usingForBalance={true}
         fiatStats={conversionFiatStats}
         redesign={true}

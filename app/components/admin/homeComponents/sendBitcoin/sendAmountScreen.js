@@ -139,7 +139,8 @@ export default function SendAmountScreen(props) {
   // A currency switch re-displays the amount; sendAmountExactSats keeps the
   // typed amount until it is edited (read by useSendPaymentDetails).
   const setAmountFromConversion = useCallback(
-    (value, exactSats) =>
+    (value, exactSats) => {
+      invalidateNext();
       setDraft(prev => ({
         ...prev,
         sendAmount: value,
@@ -148,8 +149,9 @@ export default function SendAmountScreen(props) {
         swapPaymentQuote: undefined,
         paymentFee: 0,
         supportFee: 0,
-      })),
-    [],
+      }));
+    },
+    [invalidateNext],
   );
   useAmountInputConversion({
     amount: draft?.sendAmount ?? '',

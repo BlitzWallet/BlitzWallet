@@ -73,6 +73,12 @@ export default function CreateNWCAmount(props) {
   // Display string we prefilled; while untouched, save the exact saved sats so a
   // fiat round-trip can't nudge the budget.
   const prefillRef = useRef(null);
+  // Set on the first keypad press; a currency switch alone doesn't count.
+  const editedRef = useRef(false);
+  const setTypedAmount = useCallback(value => {
+    editedRef.current = true;
+    setAmountValue(value);
+  }, []);
 
   const usdFiatStats = useMemo(
     () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
@@ -116,7 +122,9 @@ export default function CreateNWCAmount(props) {
 
   const savedBudgetAmount = savedData?.budgetRenewalSettings?.amount;
   const localSatAmount =
-    prefillRef.current !== null && amountValue === prefillRef.current
+    prefillRef.current !== null &&
+    amountValue !== '' &&
+    (!editedRef.current || amountValue === prefillRef.current)
       ? savedBudgetAmount
       : exactSats ?? convertDisplayToSats(amountValue);
   const hasBudget = localSatAmount > 0;
@@ -321,7 +329,7 @@ export default function CreateNWCAmount(props) {
 
         <CustomNumberKeyboard
           showDot={primaryDisplay.denomination === 'fiat'}
-          setInputValue={setAmountValue}
+          setInputValue={setTypedAmount}
           usingForBalance={true}
           fiatStats={conversionFiatStats}
           redesign={true}
