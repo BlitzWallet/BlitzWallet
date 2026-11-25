@@ -174,14 +174,19 @@ export default function ContactRingAvatar({
   }, [progress, onToggle, reduced]);
 
   // ─── Sizes ────────────────────────────────────────────────────────────────
-  const badgeSize = Math.max(14, Math.round(size * 0.32));
-  const overhang = Math.round(badgeSize * 0.22);
+  // Same proportions as the Edit profile photo badge (96 avatar → 50 disc,
+  // 3 px ground ring, hanging 9 px off the corner) so the crossfade between
+  // the two screens doesn't shift.
+  const badgeSize = Math.max(14, Math.round((size * 50) / 96));
+  // Swapped state keeps the profile badge small so it doesn't cover the identicon.
+  const profileBadgeSize = Math.max(14, Math.round(size * 0.32));
+  const overhang = Math.round((size * 9) / 96);
   const containerSize = size + overhang;
 
   // When expanded, the secondary sits bottom-right at `size` dimensions
   const expandedSecondarySize = size;
   // Badge ring/border width
-  const borderWidth = Math.min(1.5, badgeSize * 0.1);
+  const borderWidth = (size * 3) / 96;
 
   // ─── Animated styles ──────────────────────────────────────────────────────
 
@@ -190,7 +195,7 @@ export default function ContactRingAvatar({
     const sz = interpolate(
       progress.value,
       [0, 1],
-      [size, badgeSize],
+      [size, profileBadgeSize],
       Extrapolation.CLAMP,
     );
     const opacity = interpolate(
@@ -289,7 +294,12 @@ export default function ContactRingAvatar({
       onPress={handlePress}
       style={[
         styles.container,
-        { width: containerSize, height: containerSize },
+        // Negative right margin keeps the avatar (not avatar + badge) centred.
+        {
+          width: containerSize,
+          height: containerSize,
+          marginRight: -overhang,
+        },
       ]}
     >
       {/* Profile image — primary by default */}
@@ -298,7 +308,12 @@ export default function ContactRingAvatar({
         pointerEvents="none"
       >
         <Animated.View
-          style={[styles.imageClip, styles.identiconBorder, profileAnimStyle]}
+          style={[
+            styles.imageClip,
+            styles.identiconBorder,
+            { borderColor: tokens.ground },
+            profileAnimStyle,
+          ]}
         >
           {children}
         </Animated.View>
@@ -309,7 +324,13 @@ export default function ContactRingAvatar({
         style={[styles.absolute, identiconWrapperStyle]}
         pointerEvents="none"
       >
-        <Animated.View style={[styles.identiconBorder, identiconAnimStyle]}>
+        <Animated.View
+          style={[
+            styles.identiconBorder,
+            { borderColor: tokens.ground },
+            identiconAnimStyle,
+          ]}
+        >
           {/* Re-render at correct size using the animated size */}
           <IdenticonSizeAdaptor
             spokes={spokes}

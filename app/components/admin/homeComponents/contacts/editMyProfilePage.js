@@ -423,6 +423,7 @@ function InnerContent({
         >
           {/* Profile image */}
           <TouchableOpacity
+            style={styles.profileImageButton}
             activeOpacity={!isAddingImage ? 0.2 : 1}
             onPress={async () => {
               if (isAddingImage) return;
@@ -765,6 +766,9 @@ const styles = StyleSheet.create({
     bottom: -9,
     zIndex: 2,
   },
+  // Margin lives here, not on the image, so the badge's -9 offsets are
+  // measured from the avatar edge (matches ContactRingAvatar on Profile).
+  profileImageButton: { marginBottom: 10 },
   profileImage: {
     width: 96,
     height: 96,
@@ -772,7 +776,6 @@ const styles = StyleSheet.create({
     ...CENTER,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
     overflow: 'hidden',
   },
   rowTitle: { fontSize: 15, lineHeight: 22 },

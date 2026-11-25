@@ -138,7 +138,6 @@ const styles = StyleSheet.create({
   profileContainer: {
     width: '100%',
     alignItems: 'center',
-    marginTop: 4,
   },
   // 44 white disc with a 3 px ground ring, hanging off the avatar corner.
   nameBlock: {
