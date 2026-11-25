@@ -20,14 +20,13 @@ import { InputTypes } from 'bitcoin-address-parser';
 import useHandleBackPressNew from '../../../../../../hooks/useHandleBackPressNew';
 import displayCorrectDenomination from '../../../../../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../../../../../context-store/nodeContext';
-import { useFlashnet } from '../../../../../../../context-store/flashnetContext';
+import useDisplayUsdRate from '../../../../../../hooks/useDisplayUsdRate';
 import BudgetCurrencyButton from '../../../../../../functions/CustomElements/redesign/CurrencyButton';
 import useCurrencyDisplay from '../../../../../../hooks/useCurrencyDisplay';
 import useAmountInputConversion from '../../../../../../hooks/useAmountInputConversion';
 import useDisplayCurrencyController from '../../../../../../hooks/useDisplayCurrencyController';
 import {
   normalizeDisplayCurrency,
-  resolveUsdFiatStats,
   SATS_DISPLAY_CURRENCY,
 } from '../../../../../../functions/displayCurrency';
 import ThemeIcon from '../../../../../../functions/CustomElements/themeIcon';
@@ -74,7 +73,7 @@ export default function ConfirmChatGPTPage({
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
-  const { swapUSDPriceDollars } = useFlashnet();
+  const usdFiatStats = useDisplayUsdRate();
   const { sparkInformation } = useSparkWallet();
   const {
     decodedChatGPT,
@@ -93,10 +92,6 @@ export default function ConfirmChatGPTPage({
   const [error, setError] = useState('');
 
   const currentPage = step[step.length - 1];
-  const usdFiatStats = useMemo(
-    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
-    [fiatStats, swapUSDPriceDollars],
-  );
   const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
     useDisplayCurrencyController({
       initialCurrency: SATS_DISPLAY_CURRENCY,
@@ -106,14 +101,18 @@ export default function ConfirmChatGPTPage({
     });
   const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
   const isSats = normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY;
-  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
-    useCurrencyDisplay({
-      displayCurrency,
-      fiatStats,
-      usdFiatStats,
-      currencyRates,
-      masterInfoObject,
-    });
+  const {
+    primaryDisplay,
+    conversionFiatStats,
+    convertDisplayToSats,
+    rateUnavailable,
+  } = useCurrencyDisplay({
+    displayCurrency,
+    fiatStats,
+    usdFiatStats,
+    currencyRates,
+    masterInfoObject,
+  });
   const { exactSats } = useAmountInputConversion({
     amount: amountValue,
     setAmount: setAmountValue,
@@ -408,7 +407,9 @@ export default function ConfirmChatGPTPage({
           onBack={goBack}
           right={
             <BudgetCurrencyButton
-              label={isSats ? 'SAT' : normalizedDisplayCurrency}
+              label={
+                isSats || rateUnavailable ? 'SAT' : normalizedDisplayCurrency
+              }
               onPress={openPicker}
               disabled={isLoadingRate}
               accessibilityLabel={t(

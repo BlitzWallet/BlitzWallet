@@ -31,6 +31,7 @@ import {
 } from '../../../../constants';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
+import useDisplayUsdRate from '../../../../hooks/useDisplayUsdRate';
 import { useKeysContext } from '../../../../../context-store/keys';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import {
@@ -65,7 +66,6 @@ import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
 import {
   getDefaultDisplayCurrency,
   normalizeDisplayCurrency,
-  resolveUsdFiatStats,
 } from '../../../../functions/displayCurrency';
 import { Image } from 'expo-image';
 import { formatCountdown } from '../../../../functions/timeFormatter';
@@ -101,13 +101,14 @@ export default function StablecoinSendScreen() {
   const contentWidth = useContentWidth();
   const didWarnAboutBudget = useRef(null);
   const { fiatStats } = useNodeContext();
+  const usdFiatStats = useDisplayUsdRate();
   const { masterInfoObject } = useGlobalContextProvider();
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { sparkInformation } = useSparkWallet();
   const { bitcoinBalance, dollarBalanceToken, dollarBalanceSat } =
     useUserBalanceContext();
-  const { swapUSDPriceDollars, poolInfoRef } = useFlashnet();
+  const { poolInfoRef } = useFlashnet();
   // Provider-owned auth-reset counter. A long-background/logout reset bumps it
   // AND navigates to SplashReload (login); it also tears down the WebView
   // bridge, which settles any in-flight/held send with a fabricated cleanup
@@ -146,10 +147,6 @@ export default function StablecoinSendScreen() {
   balanceRef.current.dollarToken = dollarBalanceToken;
 
   const sourceMethod = selectedPaymentMethod || 'BTC';
-  const usdFiatStats = useMemo(
-    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
-    [fiatStats, swapUSDPriceDollars],
-  );
   const initialDisplayCurrency = useMemo(
     () =>
       sourceMethod === 'USD'
@@ -770,7 +767,13 @@ export default function StablecoinSendScreen() {
               )}
               {sourceMethod !== 'USD' && (
                 <CurrencyButton
-                  label={currencyCode === 'SATS' ? 'SAT' : currencyCode}
+                  label={
+                    // No fresh rate → entry falls back to sats; the chip must say so.
+                    currencyCode === 'SATS' ||
+                    primaryDisplay.denomination === 'sats'
+                      ? 'SAT'
+                      : currencyCode
+                  }
                   onPress={openPicker}
                   disabled={isLoadingRate}
                   accessibilityLabel={t(

@@ -2967,7 +2967,11 @@
         "moreDetails": "Mer information",
         "showLess": "Visa mindre",
         "waitingForConfirmations": "Väntar på {{count}} bekräftelser",
-        "claimError": "Fel vid hämtning av betalning."
+        "claimError": "Fel vid hämtning av betalning.",
+        "valueWhenSent": "Värde vid sändning",
+        "valueWhenReceived": "Värde vid mottagande",
+        "rateAtTime": "Kurs vid tillfället",
+        "valueToday": "Värde idag"
       },
       "explorePage": {
         "timeLeft": "({{time}} kvar)",

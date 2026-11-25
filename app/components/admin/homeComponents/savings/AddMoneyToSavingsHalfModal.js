@@ -120,7 +120,11 @@ export default function AddMoneyToSavingsHalfModal({
     paymentMode === 'USD' ? dollarBalanceToken.toFixed(3) : bitcoinBalance;
 
   const usdFiatStats = useMemo(
-    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
+    () => ({
+      coin: 'USD',
+      value: swapUSDPriceDollars,
+      fetchedAt: Date.now(),
+    }),
     [swapUSDPriceDollars],
   );
   // Dollar source types USD; bitcoin source types sats or the device currency.
@@ -147,14 +151,18 @@ export default function AddMoneyToSavingsHalfModal({
   const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
   const isSats = normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY;
 
-  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
-    useCurrencyDisplay({
-      displayCurrency,
-      fiatStats,
-      usdFiatStats,
-      currencyRates,
-      masterInfoObject,
-    });
+  const {
+    primaryDisplay,
+    conversionFiatStats,
+    convertDisplayToSats,
+    rateUnavailable,
+  } = useCurrencyDisplay({
+    displayCurrency,
+    fiatStats,
+    usdFiatStats,
+    currencyRates,
+    masterInfoObject,
+  });
 
   const { exactSats } = useAmountInputConversion({
     amount: amountValue,
@@ -577,7 +585,9 @@ export default function AddMoneyToSavingsHalfModal({
           onBack={goBack}
           right={
             <BudgetCurrencyButton
-              label={isSats ? 'SAT' : normalizedDisplayCurrency}
+              label={
+                isSats || rateUnavailable ? 'SAT' : normalizedDisplayCurrency
+              }
               onPress={openCurrencyPicker}
               disabled={isLoadingRate}
               accessibilityLabel={t(

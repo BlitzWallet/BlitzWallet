@@ -207,7 +207,11 @@ export default function WithdrawFromSavingsHalfModal({
   // Dollar destination → user types USD; Bitcoin destination → user types sats/fiat
   const paymentMode = selectedBalanceType !== 'interest' ? 'USD' : 'BTC';
   const usdFiatStats = useMemo(
-    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
+    () => ({
+      coin: 'USD',
+      value: swapUSDPriceDollars,
+      fetchedAt: Date.now(),
+    }),
     [swapUSDPriceDollars],
   );
   const initialDisplayCurrency = useMemo(
@@ -244,14 +248,18 @@ export default function WithdrawFromSavingsHalfModal({
   const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
   const isSats = normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY;
 
-  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
-    useCurrencyDisplay({
-      displayCurrency,
-      fiatStats,
-      usdFiatStats,
-      currencyRates,
-      masterInfoObject,
-    });
+  const {
+    primaryDisplay,
+    conversionFiatStats,
+    convertDisplayToSats,
+    rateUnavailable,
+  } = useCurrencyDisplay({
+    displayCurrency,
+    fiatStats,
+    usdFiatStats,
+    currencyRates,
+    masterInfoObject,
+  });
 
   const { exactSats } = useAmountInputConversion({
     amount: amountValue,
@@ -1049,7 +1057,9 @@ export default function WithdrawFromSavingsHalfModal({
           onBack={closeOrBack}
           right={
             <BudgetCurrencyButton
-              label={isSats ? 'SAT' : normalizedDisplayCurrency}
+              label={
+                isSats || rateUnavailable ? 'SAT' : normalizedDisplayCurrency
+              }
               onPress={openCurrencyPicker}
               disabled={isLoadingRate}
               accessibilityLabel={t(

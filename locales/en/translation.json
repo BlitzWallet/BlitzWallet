@@ -2967,7 +2967,11 @@
         "moreDetails": "More details",
         "showLess": "Show less",
         "waitingForConfirmations": "Waiting for {{count}} confirmations",
-        "claimError": "Error when claiming payment."
+        "claimError": "Error when claiming payment.",
+        "valueWhenSent": "Value when sent",
+        "valueWhenReceived": "Value when received",
+        "rateAtTime": "Rate at the time",
+        "valueToday": "Value today"
       },
       "explorePage": {
         "timeLeft": "({{time}} left)",

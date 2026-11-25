@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native';
-import { CENTER, SATSPERBITCOIN } from '../../constants';
+import { CENTER } from '../../constants';
+import { fiatToSats } from '../money';
 import KeyForKeyboard from './key';
 import { useCallback, useMemo } from 'react';
 import { useNavigation } from '@react-navigation/native';
@@ -67,12 +68,17 @@ export default function CustomNumberKeyboard({
           newNumber = newNumber.replace(/^(-?)0+(?=\d)/, '$1');
 
           if (usingForBalance) {
-            const convertedValue =
-              showDot || showDot === undefined
-                ? (SATSPERBITCOIN / (fiatStats?.value || 65000)) * newNumber
-                : newNumber;
+            const isFiatInput = showDot || showDot === undefined;
+            // No usable rate: skip the cap (amount screens validate against balance).
+            const convertedValue = isFiatInput
+              ? fiatToSats(newNumber, fiatStats)
+              : newNumber;
 
-            if (convertedValue > 25_000_000 && useMaxBalance)
+            if (
+              convertedValue != null &&
+              convertedValue > 25_000_000 &&
+              useMaxBalance
+            )
               return previousNumber;
           }
 

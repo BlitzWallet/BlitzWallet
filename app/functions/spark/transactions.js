@@ -8,6 +8,11 @@ import {
 } from './spendAndReplaceStorage';
 import { labelSpendAndReplaceIncoming } from './spendAndReplaceCorrelation';
 import { isFlashnetTransfer } from './handleFlashnetTransferIds';
+import {
+  buildSnapshotFiatValue,
+  shouldReplaceFiatValue,
+} from '../txFiatValue';
+import { getCurrentMarketRate } from '../money';
 
 export const SPARK_TRANSACTIONS_DATABASE_NAME = 'SPARK_INFORMATION_DATABASE';
 export const SPARK_TRANSACTIONS_TABLE_NAME = 'SPARK_TRANSACTIONS';
@@ -75,12 +80,25 @@ const isMeaningfulDetailValue = (key, value, shouldUpdateDescription) =>
   (value !== '' && value !== null && value !== undefined && value !== 0) ||
   (key === 'description' && shouldUpdateDescription);
 
-const shouldUseIncomingDetailValue = (
+const withSnapshotFiatValue = details => {
+  const fiatValue = buildSnapshotFiatValue(
+    details,
+    getCurrentMarketRate(),
+    Date.now(),
+  );
+  return fiatValue ? { ...details, fiatValue } : details;
+};
+
+export const shouldUseIncomingDetailValue = (
   key,
   incomingValue,
   existingValue,
   shouldUpdateDescription,
 ) => {
+  if (key === 'fiatValue') {
+    return shouldReplaceFiatValue(incomingValue, existingValue);
+  }
+
   if (key === 'fee') {
     const incomingFee = Number(incomingValue);
     const existingFee = Number(existingValue) || 0;
@@ -123,7 +141,7 @@ export const insertSparkTransactionPlaceholders = async (
             tx.paymentType || 'unknown',
             accountId,
             JSON.stringify({
-              ...(tx.details ?? {}),
+              ...withSnapshotFiatValue(tx.details ?? {}),
               dateAddedToDb: Date.now(),
             }),
             sparkID,
@@ -1739,7 +1757,7 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
               processedTx.paymentType,
               processedTx.accountId,
               JSON.stringify({
-                ...processedTx.details,
+                ...withSnapshotFiatValue(processedTx.details),
                 dateAddedToDb: Date.now(),
               }),
             ],
@@ -1796,7 +1814,10 @@ export const addSingleSparkTransaction = async (
         tx.paymentStatus,
         tx.paymentType ?? 'unknown',
         tx.accountId ?? 'unknown',
-        JSON.stringify({ ...newDetails, dateAddedToDb: Date.now() }),
+        JSON.stringify({
+          ...withSnapshotFiatValue(newDetails ?? {}),
+          dateAddedToDb: Date.now(),
+        }),
       ],
     );
     // Emit event

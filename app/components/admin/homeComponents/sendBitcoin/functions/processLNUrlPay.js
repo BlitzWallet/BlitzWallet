@@ -30,7 +30,6 @@ export default async function processLNUrlPay(input, context) {
     masterInfoObject,
     comingFromAccept,
     enteredPaymentInfo,
-    fiatStats,
     paymentInfo,
     currentWalletMnemoinc,
     t,
@@ -121,9 +120,6 @@ export default async function processLNUrlPay(input, context) {
       ? enteredAmount
       : input.data.minSendable;
   const amountSat = Math.round(amountMsat / 1000);
-
-  const fiatValue =
-    !!amountMsat && amountSat / (SATSPERBITCOIN / (fiatStats?.value || 65000));
 
   let swapPaymentQuote = {};
   let paymentFee = 0;
@@ -385,10 +381,6 @@ export default async function processLNUrlPay(input, context) {
   const displayAmount =
     enteredPaymentInfo?.fromContacts || comingFromAccept
       ? enteredAmount / 1000 // the re-quoted amount when it was re-quoted above
-      : masterInfoObject.userBalanceDenomination != 'fiat'
-      ? amountSat
-      : canEditPayment
-      ? fiatValue
       : amountSat;
 
   return {

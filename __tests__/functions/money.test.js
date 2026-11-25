@@ -125,9 +125,24 @@ describe('homeTotalFiat', () => {
 });
 
 describe('resolveDisplayUsdRate', () => {
-  const usd = { coin: 'USD', value: 100000 };
-  it('prefers a usable market USD rate', () => {
+  const usd = { coin: 'USD', value: 100000, fetchedAt: Date.now() };
+  it('prefers a fresh market USD rate', () => {
     expect(resolveDisplayUsdRate(usd, 90000)).toBe(usd);
+  });
+  it('falls back to the pool price when the market rate is stale', () => {
+    const stale = {
+      coin: 'USD',
+      value: 100000,
+      fetchedAt: Date.now() - RATE_MAX_INPUT_AGE_MS - 1,
+    };
+    expect(resolveDisplayUsdRate(stale, 90000)).toMatchObject({
+      coin: 'USD',
+      value: 90000,
+    });
+  });
+  it('keeps a stale market rate when there is no pool price', () => {
+    const stale = { coin: 'USD', value: 100000, fetchedAt: 0 };
+    expect(resolveDisplayUsdRate(stale, 0)).toBe(stale);
   });
   it('falls back to the pool price', () => {
     const out = resolveDisplayUsdRate({ coin: 'USD', value: null }, 90000);

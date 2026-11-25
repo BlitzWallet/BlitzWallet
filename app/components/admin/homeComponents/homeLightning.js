@@ -51,6 +51,12 @@ import {
   getWalletTokens,
 } from '../../../functions/lrc20/utils';
 import { useFlashnet } from '../../../../context-store/flashnetContext';
+import {
+  homeTotalFiat,
+  isUsableRate,
+  resolveDisplayUsdRate,
+} from '../../../functions/money';
+import formatBalanceAmount from '../../../functions/formatNumber';
 import handleDBStateChange from '../../../functions/handleDBStateChange';
 
 const PRICE_WAIT_MS = 10000;
@@ -59,8 +65,9 @@ const MemoizedStickyNavbarContainer = memo(
   function MemoizedStickyNavbarContainer({
     backgroundColor,
     onLayout,
-    masterInfoObject,
-    totalSatValue,
+    balanceDenomination,
+    totalBalance,
+    isTotalPreformatted,
     balanceOpacityStyle,
   }) {
     return (
@@ -81,9 +88,9 @@ const MemoizedStickyNavbarContainer = memo(
         >
           <FormattedSatText
             styles={styles.navbarBalanceText}
-            globalBalanceDenomination={masterInfoObject.userBalanceDenomination}
-            balance={totalSatValue}
-            useBalance={false}
+            globalBalanceDenomination={balanceDenomination}
+            balance={totalBalance}
+            useBalance={isTotalPreformatted}
             useSizing={true}
           />
         </Animated.View>
@@ -94,14 +101,14 @@ const MemoizedStickyNavbarContainer = memo(
 
 export default function HomeLightning() {
   const reduced = useReducedMotion();
-  const { fiatStats } = useNodeContext();
+  const { fiatStats, usdFiatStats } = useNodeContext();
   const {
     sparkInformation,
     showTokensInformation,
     tokensImageCache,
     sparkConnectionError,
   } = useSparkWallet();
-  const { poolInfo } = useFlashnet();
+  const { poolInfo, swapUSDPriceDollars } = useFlashnet();
 
   const { bitcoinBalance, totalSatValue, dollarBalanceToken } =
     useUserBalanceContext();
@@ -142,6 +149,37 @@ export default function HomeLightning() {
     isWalletLoaded &&
     (!isWaitingForPrice || didPriceTimeOut || showWalletConnectionError);
   const isHidden = masterInfoObject.userBalanceDenomination === 'hidden';
+  // Fiat mode shows the total at market rates (display only; totalSatValue and
+  // dollarBalanceSat stay pool-valued). Null -> render the sats total instead.
+  const isFiatMode = masterInfoObject.userBalanceDenomination === 'fiat';
+  const totalFiat = isFiatMode
+    ? homeTotalFiat({
+        btcSats: bitcoinBalance,
+        usdbDollars: dollarBalanceToken,
+        rate: isUsableRate(fiatStats, masterInfoObject.fiatCurrency)
+          ? fiatStats
+          : null,
+        usdRate: resolveDisplayUsdRate(usdFiatStats, swapUSDPriceDollars),
+      })
+    : null;
+  const heroTotalProps =
+    totalFiat == null
+      ? {
+          amount: totalSatValue,
+          masterInfoObject: isFiatMode
+            ? { ...masterInfoObject, userBalanceDenomination: 'sats' }
+            : masterInfoObject,
+        }
+      : {
+          amount: formatBalanceAmount(
+            totalFiat > 0 && totalFiat < 0.01 ? '0.01' : totalFiat.toFixed(2),
+            false,
+            masterInfoObject,
+          ),
+          convertAmount: false,
+          isDust: totalFiat > 0 && totalFiat < 0.01,
+          masterInfoObject,
+        };
   const lastVisibleDenomination = useRef('sats');
   if (!isHidden) {
     lastVisibleDenomination.current = masterInfoObject.userBalanceDenomination;
@@ -243,8 +281,11 @@ export default function HomeLightning() {
           <MemoizedStickyNavbarContainer
             backgroundColor={backgroundColor}
             onLayout={handleNavbarLayout}
-            masterInfoObject={masterInfoObject}
-            totalSatValue={totalSatValue}
+            balanceDenomination={
+              heroTotalProps.masterInfoObject.userBalanceDenomination
+            }
+            totalBalance={heroTotalProps.amount}
+            isTotalPreformatted={heroTotalProps.convertAmount === false}
             balanceOpacityStyle={balanceOpacityStyle}
           />
           <ThemeText
@@ -268,9 +309,8 @@ export default function HomeLightning() {
                   >
                     <AmountHero
                       amountSize={AMOUNT_HERO_SIZE.primary}
-                      amount={totalSatValue}
+                      {...heroTotalProps}
                       fiatStats={fiatStats}
-                      masterInfoObject={masterInfoObject}
                       isHidden={isHidden}
                     />
                   </TouchableOpacity>

@@ -51,6 +51,7 @@ export default function usePaymentValidation({
   //can perform swap
   sparkInformation,
   poolInfoRef,
+  typedUsdAmount = null,
 }) {
   const validation = useMemo(() => {
     const result = {
@@ -202,7 +203,11 @@ export default function usePaymentValidation({
       }
 
       if (isDirectUsdToUsd) {
-        if (dollarBalanceSat < totalCost) {
+        if (
+          typedUsdAmount != null
+            ? typedUsdAmount > Number(dollarBalanceToken)
+            : dollarBalanceSat < totalCost
+        ) {
           result.errors.push('INSUFFICIENT_BALANCE');
           return result;
         }
@@ -325,6 +330,7 @@ export default function usePaymentValidation({
     maxLNURLSatAmount,
     isDecoding,
     canEditAmount,
+    typedUsdAmount,
     sparkInformation?.didConnectToFlashnet,
     sparkInformation?.didConnect,
   ]);

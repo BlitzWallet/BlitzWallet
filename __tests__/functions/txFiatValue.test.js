@@ -4,10 +4,10 @@ import {
   buildEnteredFiatValue,
   buildSnapshotFiatValue,
   resolveTxFiatDisplay,
+  txFiatAmount,
 } from '../../app/functions/txFiatValue';
 
 const fv = (source, extra = {}) => ({
-  amount: 1,
   currency: 'USD',
   rate: 50000,
   source,
@@ -25,7 +25,7 @@ describe('isValidFiatValue', () => {
     expect(isValidFiatValue(fv('entered', { currency: undefined }))).toBe(
       false,
     );
-    expect(isValidFiatValue(fv('entered', { amount: NaN }))).toBe(false);
+    expect(isValidFiatValue(fv('entered', { rate: NaN }))).toBe(false);
     expect(isValidFiatValue(fv('entered', { rate: 0 }))).toBe(false);
     expect(isValidFiatValue(fv('guess'))).toBe(false);
   });
@@ -34,7 +34,7 @@ describe('isValidFiatValue', () => {
 describe('shouldReplaceFiatValue', () => {
   it('never stores invalid', () => {
     expect(
-      shouldReplaceFiatValue(fv('entered', { amount: NaN }), undefined),
+      shouldReplaceFiatValue(fv('entered', { rate: NaN }), undefined),
     ).toBe(false);
     expect(shouldReplaceFiatValue(undefined, fv('snapshot'))).toBe(false);
   });
@@ -51,17 +51,16 @@ describe('shouldReplaceFiatValue', () => {
 });
 
 describe('buildEnteredFiatValue', () => {
-  const base = { displayAmount: '12.5', displayCurrency: 'USD', rate, now };
-  it('builds for fiat with matching rate', () => {
+  const base = { displayCurrency: 'USD', rate, now };
+  it('builds for fiat with matching rate (no stored fiat amount)', () => {
     expect(buildEnteredFiatValue(base)).toEqual({
-      amount: 12.5,
       currency: 'USD',
       rate: 50000,
       source: 'entered',
       at: now,
     });
   });
-  it('null for sats, token, wrong coin, bad amount', () => {
+  it('null for sats, token, wrong coin', () => {
     expect(
       buildEnteredFiatValue({ ...base, displayCurrency: 'SATS' }),
     ).toBeNull();
@@ -71,24 +70,18 @@ describe('buildEnteredFiatValue', () => {
     expect(
       buildEnteredFiatValue({ ...base, displayCurrency: 'EUR' }),
     ).toBeNull();
-    expect(buildEnteredFiatValue({ ...base, displayAmount: 'abc' })).toBeNull();
-    expect(buildEnteredFiatValue({ ...base, displayAmount: -1 })).toBeNull();
   });
 });
 
 describe('buildSnapshotFiatValue', () => {
   const details = { amount: 100000, time: now - 1000 };
-  it('snapshots within window, 2dp', () => {
+  it('snapshots the rate within window', () => {
     expect(buildSnapshotFiatValue(details, rate, now)).toEqual({
-      amount: 50,
       currency: 'USD',
       rate: 50000,
       source: 'snapshot',
       at: now,
     });
-    expect(
-      buildSnapshotFiatValue({ ...details, amount: 123 }, rate, now).amount,
-    ).toBe(0.06);
   });
   it('null when old, token, wrong/unusable rate, or already present', () => {
     expect(
@@ -114,7 +107,7 @@ describe('buildSnapshotFiatValue', () => {
 
 describe('resolveTxFiatDisplay (SM-3)', () => {
   const base = {
-    details: { amount: 100000, fiatValue: fv('entered', { amount: 49 }) },
+    details: { amount: 100000, fiatValue: fv('entered', { rate: 49000 }) },
     denomination: 'fiat',
     selectedCurrency: 'USD',
     marketRate: rate,
@@ -127,13 +120,23 @@ describe('resolveTxFiatDisplay (SM-3)', () => {
       run({ details: { ...base.details, isLRC20Payment: true } }),
     ).toBeNull();
   });
-  it('stored amount when currency matches', () => {
+  it('sats x stored rate when currency matches', () => {
     expect(run()).toEqual({ amount: 49, currency: 'USD', approx: false });
     expect(
       run({
-        details: { ...base.details, fiatValue: fv('snapshot', { amount: 49 }) },
+        details: { ...base.details, fiatValue: fv('snapshot', { rate: 49000 }) },
       }),
     ).toEqual({ amount: 49, currency: 'USD', approx: true });
+  });
+  it('ignores a legacy stored fiat amount', () => {
+    expect(
+      run({
+        details: {
+          ...base.details,
+          fiatValue: fv('entered', { rate: 49000, amount: 12 }),
+        },
+      }),
+    ).toEqual({ amount: 49, currency: 'USD', approx: false });
   });
   it('matches stored currency case-insensitively', () => {
     expect(run({ selectedCurrency: 'usd' })).toEqual({
@@ -166,5 +169,18 @@ describe('resolveTxFiatDisplay (SM-3)', () => {
     expect(run({ details: { amount: 5 }, marketRate: null })).toEqual({
       sats: true,
     });
+  });
+});
+
+describe('txFiatAmount', () => {
+  it('converts the tx sats at the stored rate', () => {
+    expect(
+      txFiatAmount({ amount: 100000, fiatValue: fv('entered', { rate: 49000 }) }),
+    ).toBe(49);
+  });
+  it('null without a valid fiatValue or sats', () => {
+    expect(txFiatAmount({ amount: 100000 })).toBeNull();
+    expect(txFiatAmount({ fiatValue: fv('entered') })).toBeNull();
+    expect(txFiatAmount(undefined)).toBeNull();
   });
 });

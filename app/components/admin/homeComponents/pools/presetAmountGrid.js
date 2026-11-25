@@ -4,6 +4,7 @@ import { SATSPERBITCOIN } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useTranslation } from 'react-i18next';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import { isUsableRate } from '../../../../functions/money';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 
 const PRESET_AMOUNTS_USD = [5, 10, 25, 50, 100];
@@ -67,7 +68,15 @@ export default function PresetAmountGrid({
   };
 
   // Create all items (presets + custom)
-  const allItems = [...presets, { isCustomButton: true }];
+  // Fiat presets need a usable rate; without one only "Other" is offered.
+  const hasRate = isUsableRate(
+    fiatStats,
+    masterInfoObject.fiatCurrency || 'USD',
+  );
+  const allItems =
+    isFiatMode && !hasRate
+      ? [{ isCustomButton: true }]
+      : [...presets, { isCustomButton: true }];
 
   const renderButton = item => {
     const selected = item.isCustomButton

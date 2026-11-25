@@ -188,8 +188,10 @@ export async function sendPushNotification({
       const didFindCurrency = fiatValue?.didWork;
       const fiatAmount =
         didFindCurrency &&
+        Number.isFinite(fiatValue?.fiatRateResponse?.value) &&
+        fiatValue.fiatRateResponse.value > 0 &&
         (
-          (fiatValue?.value / SATSPERBITCOIN) *
+          (fiatValue?.fiatRateResponse?.value / SATSPERBITCOIN) *
           (data.amountMsat / 1000)
         ).toFixed(2);
 

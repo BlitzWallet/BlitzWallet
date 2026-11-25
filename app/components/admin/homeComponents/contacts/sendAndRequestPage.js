@@ -253,7 +253,10 @@ export default function SendAndRequestPage(props) {
   const normalizedDisplayCurrency = normalizeDisplayCurrency(
     payment.displayCurrency,
   );
-  const isSats = normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY;
+  // No fresh rate → the hook falls back to sats entry; the chip must say so.
+  const isSats =
+    normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY ||
+    payment.primaryDisplay?.denomination === 'sats';
 
   return (
     <CustomKeyboardAvoidingView

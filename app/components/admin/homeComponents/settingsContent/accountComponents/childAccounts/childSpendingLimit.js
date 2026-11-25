@@ -34,15 +34,14 @@ import CustomNumberKeyboard from '../../../../../../functions/CustomElements/cus
 import AmountHero from '../../../../../../functions/CustomElements/redesign/AmountHero';
 import BudgetCurrencyButton from '../../../../../../functions/CustomElements/redesign/CurrencyButton';
 import { useNodeContext } from '../../../../../../../context-store/nodeContext';
-import { useFlashnet } from '../../../../../../../context-store/flashnetContext';
 import useCurrencyDisplay from '../../../../../../hooks/useCurrencyDisplay';
 import useAmountInputConversion from '../../../../../../hooks/useAmountInputConversion';
 import useDisplayCurrencyController from '../../../../../../hooks/useDisplayCurrencyController';
 import {
   normalizeDisplayCurrency,
-  resolveUsdFiatStats,
   SATS_DISPLAY_CURRENCY,
 } from '../../../../../../functions/displayCurrency';
+import useDisplayUsdRate from '../../../../../../hooks/useDisplayUsdRate';
 
 export default function ChildSpendingLimit(props) {
   const navigate = useNavigation();
@@ -53,7 +52,7 @@ export default function ChildSpendingLimit(props) {
     useGlobalContextProvider();
   const { accountMnemoinc, publicKey } = useKeysContext();
   const { fiatStats } = useNodeContext();
-  const { swapUSDPriceDollars } = useFlashnet();
+  const usdFiatStats = useDisplayUsdRate();
   const [limit, setLimit] = useState(
     editChild?.spendingLimit ? String(editChild.spendingLimit) : '',
   );
@@ -62,10 +61,6 @@ export default function ChildSpendingLimit(props) {
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const isCreatingRef = useRef(false);
 
-  const usdFiatStats = useMemo(
-    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
-    [fiatStats, swapUSDPriceDollars],
-  );
   const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
     useDisplayCurrencyController({
       initialCurrency: SATS_DISPLAY_CURRENCY,
@@ -75,14 +70,18 @@ export default function ChildSpendingLimit(props) {
     });
   const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
   const isSats = normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY;
-  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
-    useCurrencyDisplay({
-      displayCurrency,
-      fiatStats,
-      usdFiatStats,
-      currencyRates,
-      masterInfoObject,
-    });
+  const {
+    primaryDisplay,
+    conversionFiatStats,
+    convertDisplayToSats,
+    rateUnavailable,
+  } = useCurrencyDisplay({
+    displayCurrency,
+    fiatStats,
+    usdFiatStats,
+    currencyRates,
+    masterInfoObject,
+  });
   const { exactSats } = useAmountInputConversion({
     amount: limit,
     setAmount: setLimit,
@@ -284,7 +283,9 @@ export default function ChildSpendingLimit(props) {
           title={editChild?.name || name}
           right={
             <BudgetCurrencyButton
-              label={isSats ? 'SAT' : normalizedDisplayCurrency}
+              label={
+                isSats || rateUnavailable ? 'SAT' : normalizedDisplayCurrency
+              }
               onPress={openPicker}
               disabled={isLoadingRate}
               accessibilityLabel={t(

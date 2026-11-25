@@ -22,7 +22,6 @@ import {
 import { SIZES } from '../../../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
-import { useFlashnet } from '../../../../../../context-store/flashnetContext';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import useNWCNotificationsEnabled from '../../../../../hooks/useNWCNotificationsEnabled';
@@ -31,7 +30,6 @@ import useAmountInputConversion from '../../../../../hooks/useAmountInputConvers
 import useDisplayCurrencyController from '../../../../../hooks/useDisplayCurrencyController';
 import {
   getDefaultDisplayCurrency,
-  resolveUsdFiatStats,
   normalizeDisplayCurrency,
   SATS_DISPLAY_CURRENCY,
 } from '../../../../../functions/displayCurrency';
@@ -53,6 +51,7 @@ import AmountHero from '../../../../../functions/CustomElements/redesign/AmountH
 import AnimatedStep, {
   PAGE_DURATION,
 } from '../../../../../functions/CustomElements/redesign/AnimatedStep';
+import useDisplayUsdRate from '../../../../../hooks/useDisplayUsdRate';
 
 const STEP_ORDER = ['request', 'limit', 'loading', 'success', 'error'];
 const LIMIT_HEIGHT = 640;
@@ -387,14 +386,10 @@ function LimitStep({ appName, limit, onBack, onDone }) {
   const { t } = useTranslation();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
-  const { swapUSDPriceDollars } = useFlashnet();
+  const usdFiatStats = useDisplayUsdRate();
   const { tokens } = GetThemeColors();
   const { height: windowHeight } = useWindowDimensions();
 
-  const usdFiatStats = useMemo(
-    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
-    [fiatStats, swapUSDPriceDollars],
-  );
   const initialDisplayCurrency = useMemo(
     () =>
       getDefaultDisplayCurrency({
@@ -418,6 +413,7 @@ function LimitStep({ appName, limit, onBack, onDone }) {
     conversionFiatStats,
     convertDisplayToSats,
     convertSatsToDisplay,
+    rateUnavailable,
   } = useCurrencyDisplay({
     displayCurrency,
     fiatStats,
@@ -511,7 +507,9 @@ function LimitStep({ appName, limit, onBack, onDone }) {
         shouldDismissKeyboard={true}
         right={
           <BudgetCurrencyButton
-            label={isSats ? 'SAT' : normalizedDisplayCurrency}
+            label={
+              isSats || rateUnavailable ? 'SAT' : normalizedDisplayCurrency
+            }
             onPress={openPicker}
             disabled={isLoadingRate}
             accessibilityLabel={t(

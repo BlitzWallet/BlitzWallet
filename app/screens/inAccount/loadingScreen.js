@@ -211,7 +211,8 @@ export default function ConnectingToNodeLoadingScreen() {
           didLoadUserSettings?.response?.fiatCurrency ||
           'USD';
         const cachedRate = await getCachedFiatRate(currency);
-        if (cachedRate?.fiatRate) toggleFiatStats(cachedRate.fiatRate);
+        if (cachedRate?.fiatRate)
+          toggleFiatStats(cachedRate.fiatRate, cachedRate.lastFetched);
 
         // ── Phase 4: Minimum perceived loading time then navigate ─────────
         const elapsed = Date.now() - startTime;

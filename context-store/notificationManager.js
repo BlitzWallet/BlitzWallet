@@ -357,7 +357,7 @@ export const PushNotificationProvider = ({ children }) => {
 
 async function registerForPushNotificationsAsync() {
   try {
-    const hasGooglePlayServics = checkGooglePlayServices();
+    const hasGooglePlayServics = await checkGooglePlayServices();
     if (!hasGooglePlayServics) throw new Error('errormessages.noGooglePlay');
 
     if (Platform.OS === 'android') {

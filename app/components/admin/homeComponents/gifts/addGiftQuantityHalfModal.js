@@ -18,14 +18,13 @@ import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { dollarsToSats } from '../../../../functions/spark/flashnet';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
-import { useNodeContext } from '../../../../../context-store/nodeContext';
+import { formatGiftAmount } from './giftDisplay';
 import AnimatedStep, {
   growThenStep,
   useStepSheetHeight,
 } from '../../../../functions/CustomElements/redesign/AnimatedStep';
 import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
-import { formatGiftAmount } from './giftDisplay';
 
 const SELECT_HEIGHT = 450;
 const CUSTOM_HEIGHT = 560;
@@ -35,12 +34,14 @@ export default function AddGiftQuantityHalfModal({
   amountValue,
   dollarAmount,
   giftDenomination,
+  displayDenomination,
+  displayCurrency,
+  displayFiatStats,
   setContentHeight,
   handleBackPressFunction,
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { fiatStats } = useNodeContext();
   const { tokens } = useTheme();
   const { bitcoinBalance, dollarBalanceToken } = useUserBalanceContext();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -59,8 +60,18 @@ export default function AddGiftQuantityHalfModal({
   const perGiftAmount = formatGiftAmount({
     gift: { denomination: giftDenomination, dollarAmount, amount },
     masterInfoObject,
-    fiatStats,
   });
+
+  const formatMinimumAmount = sats =>
+    displayCorrectDenomination({
+      amount: sats,
+      masterInfoObject: {
+        ...masterInfoObject,
+        userBalanceDenomination: displayDenomination || 'sats',
+      },
+      fiatStats: displayFiatStats,
+      forceCurrency: displayCurrency || false,
+    });
 
   const currentDerivedGiftIndex = masterInfoObject.currentDerivedGiftIndex || 1;
 
@@ -117,18 +128,9 @@ export default function AddGiftQuantityHalfModal({
       if (!canPayBTCtoBTC && !canPayUSDtoBTC) {
         navigate.navigate('ErrorScreen', {
           errorMessage: t('wallet.sendPages.acceptButton.swapMinimumError', {
-            amount: displayCorrectDenomination({
-              amount: dollarsToSats(
-                swapLimits.usd,
-                poolInfoRef.currentPriceAInB,
-              ),
-              masterInfoObject: {
-                ...masterInfoObject,
-                userBalanceDenomination: 'fiat',
-              },
-              fiatStats,
-              forceCurrency: 'USD',
-            }),
+            amount: formatMinimumAmount(
+              dollarsToSats(swapLimits.usd, poolInfoRef.currentPriceAInB),
+            ),
             currency1: t('constants.dollars_upper'),
             currency2: t('constants.bitcoin_upper'),
           }),
@@ -141,15 +143,7 @@ export default function AddGiftQuantityHalfModal({
       if (!canPayUSDtoUSD && !canPayBTCtoUSD) {
         navigate.navigate('ErrorScreen', {
           errorMessage: t('wallet.sendPages.acceptButton.swapMinimumError', {
-            amount: displayCorrectDenomination({
-              amount: swapLimits.bitcoin,
-              masterInfoObject: {
-                ...masterInfoObject,
-                userBalanceDenomination: 'sats',
-              },
-              fiatStats,
-              forceCurrency: 'USD',
-            }),
+            amount: formatMinimumAmount(swapLimits.bitcoin),
             currency1: t('constants.bitcoin_upper'),
             currency2: t('constants.dollars_upper'),
           }),

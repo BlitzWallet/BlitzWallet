@@ -20,7 +20,6 @@ import {
 } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
-import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
@@ -30,7 +29,6 @@ import useAmountInputConversion from '../../../../hooks/useAmountInputConversion
 import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
 import {
   normalizeDisplayCurrency,
-  resolveUsdFiatStats,
   SATS_DISPLAY_CURRENCY,
 } from '../../../../functions/displayCurrency';
 import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
@@ -43,13 +41,14 @@ import AdaptiveButtonRow from '../../../../functions/CustomElements/adaptiveButt
 import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
 import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
+import useDisplayUsdRate from '../../../../hooks/useDisplayUsdRate';
 
 export default function FastPay() {
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
   const { tokens } = useGlobalThemeContext();
   const { fiatStats } = useNodeContext();
-  const { swapUSDPriceDollars } = useFlashnet();
+  const usdFiatStats = useDisplayUsdRate();
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { width } = useWindowDimensions();
@@ -62,10 +61,6 @@ export default function FastPay() {
   const [thresholdInput, setThresholdInput] = useState('0');
   const [isEditing, setIsEditing] = useState(false);
 
-  const usdFiatStats = useMemo(
-    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
-    [fiatStats, swapUSDPriceDollars],
-  );
   const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
     useDisplayCurrencyController({
       initialCurrency: SATS_DISPLAY_CURRENCY,
@@ -75,14 +70,18 @@ export default function FastPay() {
     });
   const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
   const isSats = normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY;
-  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
-    useCurrencyDisplay({
-      displayCurrency,
-      fiatStats,
-      usdFiatStats,
-      currencyRates,
-      masterInfoObject,
-    });
+  const {
+    primaryDisplay,
+    conversionFiatStats,
+    convertDisplayToSats,
+    rateUnavailable,
+  } = useCurrencyDisplay({
+    displayCurrency,
+    fiatStats,
+    usdFiatStats,
+    currencyRates,
+    masterInfoObject,
+  });
   const { exactSats } = useAmountInputConversion({
     amount: thresholdInput,
     setAmount: setThresholdInput,
@@ -195,7 +194,9 @@ export default function FastPay() {
               style={{ opacity: isEditing ? 1 : 0 }}
             >
               <BudgetCurrencyButton
-                label={isSats ? 'SAT' : normalizedDisplayCurrency}
+                label={
+                  isSats || rateUnavailable ? 'SAT' : normalizedDisplayCurrency
+                }
                 onPress={openPicker}
                 disabled={isLoadingRate}
                 accessibilityLabel={t(

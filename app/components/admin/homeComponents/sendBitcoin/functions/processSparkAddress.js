@@ -18,7 +18,6 @@ export default async function processSparkAddress(input, context) {
     comingFromAccept,
     enteredPaymentInfo,
     paymentInfo,
-    fiatStats,
     seletctedToken,
     currentWalletMnemoinc,
     sparkInformation,
@@ -77,9 +76,6 @@ export default async function processSparkAddress(input, context) {
     : addressInfo.amount * 1000;
 
   const amountSat = Math.round(amountMsat / 1000);
-
-  const fiatValue =
-    !!amountMsat && amountSat / (SATSPERBITCOIN / (fiatStats?.value || 65000));
 
   let swapPaymentQuote = {};
   let usdFeeResult = { fee: undefined, supportFee: undefined };
@@ -332,10 +328,6 @@ export default async function processSparkAddress(input, context) {
   const displayAmount =
     enteredPaymentInfo?.fromContacts || comingFromAccept
       ? enteredPaymentInfo.amount
-      : masterInfoObject.userBalanceDenomination != 'fiat'
-      ? amountSat
-      : canEditPayment
-      ? fiatValue
       : amountSat;
 
   return {

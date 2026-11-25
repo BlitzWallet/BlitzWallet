@@ -16,6 +16,7 @@ import { useMemo } from 'react';
 import truncateToTwoDecimals from '../truncateNumber';
 import isFiatDustAmount from '../isFiatDustAmount';
 import DustChevron from './redesign/DustChevron';
+import { isUsableRate } from '../money';
 
 export default function FormattedSatText({
   balance = 0,
@@ -44,13 +45,21 @@ export default function FormattedSatText({
   );
 
   const fiatStats = forceFiatStats || globalFiatStats;
-  const localBalanceDenomination =
+  const requestedDenomination =
     globalBalanceDenomination || masterInfoObject.userBalanceDenomination;
   const currencyText = forceCurrency
     ? forceCurrency
     : showCustomCurrencyLabel
     ? showCustomCurrencyLabel.currency
     : masterInfoObject.fiatCurrency || 'USD';
+  // A fiat label only ever sits next to a number from a rate of that same coin.
+  const localBalanceDenomination =
+    requestedDenomination === 'fiat' &&
+    !useBalance &&
+    !useCustomLabel &&
+    !isUsableRate(fiatStats, currencyText)
+      ? 'sats'
+      : requestedDenomination;
 
   // Fiat above zero but under one cent reads "‹ 0.01" instead of "0.00".
   const isDust =

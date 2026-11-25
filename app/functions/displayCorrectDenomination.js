@@ -8,6 +8,7 @@ import formatBalanceAmount from './formatNumber';
 import formatTokensLabel from './lrc20/formatTokensLabel';
 import numberConverter from './numberConverter';
 import isFiatDustAmount from './isFiatDustAmount';
+import { isUsableRate } from './money';
 
 export default function displayCorrectDenomination({
   amount,
@@ -21,10 +22,17 @@ export default function displayCorrectDenomination({
   roundUpDust = false,
 }) {
   try {
-    const localBalanceDenomination = masterInfoObject.userBalanceDenomination;
     const currencyText = forceCurrency
       ? forceCurrency
       : masterInfoObject.fiatCurrency || 'USD';
+    // A fiat label only ever sits next to a number from a rate of that same coin.
+    const localBalanceDenomination =
+      masterInfoObject.userBalanceDenomination === 'fiat' &&
+      convertAmount &&
+      !useCustomLabel &&
+      !isUsableRate(fiatStats, currencyText)
+        ? 'sats'
+        : masterInfoObject.userBalanceDenomination;
 
     const showSymbol = masterInfoObject.satDisplay === 'symbol';
     const showSats =

@@ -526,6 +526,9 @@ export default function CustomHalfModal(props) {
             amountValue={props?.route?.params?.amountValue}
             dollarAmount={props?.route?.params?.dollarAmount}
             giftDenomination={props?.route?.params?.giftDenomination}
+            displayDenomination={props?.route?.params?.displayDenomination}
+            displayCurrency={props?.route?.params?.displayCurrency}
+            displayFiatStats={props?.route?.params?.displayFiatStats}
             setContentHeight={setContentHeight}
             handleBackPressFunction={handleBackPressFunction}
           />

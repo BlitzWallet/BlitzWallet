@@ -17,7 +17,6 @@ export default async function processBolt11Invoice(input, context) {
     masterInfoObject,
     comingFromAccept,
     enteredPaymentInfo,
-    fiatStats,
     paymentInfo,
     currentWalletMnemoinc,
     t,
@@ -71,8 +70,6 @@ export default async function processBolt11Invoice(input, context) {
 
   const amountSat = Math.round(amountMsat / 1000);
 
-  const fiatValue =
-    !!amountMsat && amountSat / (SATSPERBITCOIN / (fiatStats?.value || 65000));
   let fee = {};
   let usdFee = {};
   let swapPaymentQuote = {};
@@ -195,10 +192,6 @@ export default async function processBolt11Invoice(input, context) {
   const displayAmount =
     enteredPaymentInfo?.fromContacts || comingFromAccept
       ? enteredPaymentInfo.amount
-      : masterInfoObject.userBalanceDenomination != 'fiat'
-      ? amountSat
-      : canEditPayment
-      ? fiatValue
       : amountSat;
 
   return {

@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useRef } from 'react';
-import { SATSPERBITCOIN } from '../constants';
+import {
+  RATE_MAX_INPUT_AGE_MS,
+  fiatToSats,
+  isFreshRate,
+  satsToFiat,
+} from '../functions/money';
 
 /**
  * Unified hook for payment input display logic across send/receive pages
@@ -34,8 +39,15 @@ export default function usePaymentInputDisplay({
   const isDeviceCurrencyUSD = deviceCurrency === 'USD';
   const isUSDMode = paymentMode === 'USD';
 
+  // Only a fresh rate whose coin matches the code is ever used; otherwise null.
+  const now = Date.now();
+  const pickRate = code =>
+    [code === 'USD' ? usdFiatStats : null, fiatStats].find(r =>
+      isFreshRate(r, code, now, RATE_MAX_INPUT_AGE_MS),
+    ) || null;
+
   // PRIMARY DISPLAY - What the user is actively typing/viewing
-  const livePrimaryDisplay = useMemo(() => {
+  const wantedPrimaryDisplay = useMemo(() => {
     if (isUSDMode) {
       if (inputDenomination === 'fiat') {
         // In USD mode, showing fiat = showing USD
@@ -76,6 +88,21 @@ export default function usePaymentInputDisplay({
     deviceCurrency,
     fiatStats,
   ]);
+
+  // A fiat primary without a fresh matching rate is shown (and typed) in sats.
+  const primaryRate =
+    wantedPrimaryDisplay.denomination === 'fiat'
+      ? pickRate(wantedPrimaryDisplay.forceCurrency || deviceCurrency)
+      : null;
+  const rateUnavailable =
+    wantedPrimaryDisplay.denomination === 'fiat' && !primaryRate;
+  const livePrimaryDisplay = useMemo(
+    () =>
+      rateUnavailable
+        ? { denomination: 'sats', forceCurrency: null, forceFiatStats: null }
+        : wantedPrimaryDisplay,
+    [rateUnavailable, wantedPrimaryDisplay],
+  );
 
   // SECONDARY DISPLAY - The converted amount shown below primary
   const liveSecondaryDisplay = useMemo(() => {
@@ -157,25 +184,11 @@ export default function usePaymentInputDisplay({
       : liveSecondaryDisplay;
 
   // CONVERSION STATS - Which fiat stats to use for conversions
-  const conversionFiatStats = useMemo(() => {
-    const isDisplayingUSD =
-      primaryDisplay.denomination === 'fiat' &&
-      (primaryDisplay.forceCurrency === 'USD' ||
-        (!primaryDisplay.forceCurrency && isDeviceCurrencyUSD));
-
-    if (isDisplayingUSD) {
-      // Keep USD conversions stable across BTC/USD payment mode switches.
-      return usdFiatStats || fiatStats;
-    }
-
-    return fiatStats;
-  }, [
-    primaryDisplay.denomination,
-    primaryDisplay.forceCurrency,
-    isDeviceCurrencyUSD,
-    usdFiatStats,
-    fiatStats,
-  ]);
+  const conversionFiatStats = pickRate(
+    primaryDisplay.denomination === 'fiat'
+      ? primaryDisplay.forceCurrency || deviceCurrency
+      : deviceCurrency,
+  );
 
   /**
    * Convert input amount to satoshis
@@ -187,8 +200,7 @@ export default function usePaymentInputDisplay({
 
     if (primaryDisplay.denomination === 'fiat') {
       // Converting from fiat to sats
-      const fiatValue = conversionFiatStats?.value || 65000;
-      return Math.round((SATSPERBITCOIN / fiatValue) * numAmount);
+      return fiatToSats(numAmount, conversionFiatStats) ?? 0;
     } else {
       // Already in sats
       return Math.round(numAmount);
@@ -205,8 +217,8 @@ export default function usePaymentInputDisplay({
 
     if (primaryDisplay.denomination === 'fiat') {
       // Convert sats to fiat for display
-      const fiatValue = conversionFiatStats?.value || 65000;
-      return ((numAmount * fiatValue) / SATSPERBITCOIN).toFixed(2);
+      const fiat = satsToFiat(numAmount, conversionFiatStats);
+      return fiat == null ? numAmount : fiat.toFixed(2);
     } else {
       // Already in sats
       return numAmount;
@@ -223,8 +235,7 @@ export default function usePaymentInputDisplay({
 
     if (primaryDisplay.denomination === 'fiat') {
       // Converting from fiat to sats
-      const fiatValue = conversionFiatStats?.value || 65000;
-      return Math.round((SATSPERBITCOIN / fiatValue) * numAmount);
+      return fiatToSats(numAmount, conversionFiatStats) ?? 0;
     } else {
       // Already in sats
       return Math.round(numAmount);
@@ -296,5 +307,6 @@ export default function usePaymentInputDisplay({
     isUSDMode,
     isDeviceCurrencyUSD,
     deviceCurrency,
+    rateUnavailable,
   };
 }

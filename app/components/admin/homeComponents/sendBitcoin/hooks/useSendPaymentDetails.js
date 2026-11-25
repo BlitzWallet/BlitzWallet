@@ -4,6 +4,7 @@ import { InputTypes } from 'bitcoin-address-parser';
 import { USDB_TOKEN_ID } from '../../../../../constants';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
+import useDisplayUsdRate from '../../../../../hooks/useDisplayUsdRate';
 import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
@@ -13,10 +14,7 @@ import { useFlashnet } from '../../../../../../context-store/flashnetContext';
 import { dollarsToSats } from '../../../../../functions/spark/flashnet';
 import useCurrencyDisplay from '../../../../../hooks/useCurrencyDisplay';
 import useDisplayCurrencyController from '../../../../../hooks/useDisplayCurrencyController';
-import {
-  getDefaultDisplayCurrency,
-  resolveUsdFiatStats,
-} from '../../../../../functions/displayCurrency';
+import { getDefaultDisplayCurrency } from '../../../../../functions/displayCurrency';
 import usePaymentValidation from '../functions/paymentValidation';
 import decodeSendAddress from '../functions/decodeSendAdress';
 import { resolvePaymentMethod } from '../functions/sendFlow';
@@ -68,6 +66,7 @@ export default function useSendPaymentDetails({
     useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { liquidNodeInformation, fiatStats } = useNodeContext();
+  const usdFiatStats = useDisplayUsdRate();
   const { globalContactsInformation } = useGlobalContactsInfo();
 
   const paymentMode =
@@ -187,10 +186,6 @@ export default function useSendPaymentDetails({
       ? lnFeeEstimate + (paymentInfo?.supportFee || 0)
       : paymentFee;
 
-  const usdFiatStats = useMemo(
-    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
-    [fiatStats, swapUSDPriceDollars],
-  );
   // When arriving from a flow where the user already picked a display rate
   // (e.g. a contact send), honor that currency instead of re-deriving the
   // device-based default. Falls back to the legacy default otherwise.
@@ -253,6 +248,17 @@ export default function useSendPaymentDetails({
     ? paymentInfo.enteredDisplayAmount
     : convertSatsToDisplay(sendingAmount);
 
+  // Dollars the user typed (not reconverted from sats). USDB moves at exactly
+  // this amount; going through sats would add the market-vs-pool spread.
+  const typedUsdAmount =
+    !isUsingLRC20 &&
+    (canEditAmount || hasEnteredDisplay) &&
+    primaryDisplay.denomination === 'fiat' &&
+    primaryDisplay.forceCurrency === 'USD' &&
+    Number(displayAmount) > 0
+      ? Number(displayAmount)
+      : null;
+
   const convertedSendAmount = !isUsingLRC20
     ? canEditAmount
       ? paymentInfo?.sendAmountExactSats ??
@@ -285,6 +291,7 @@ export default function useSendPaymentDetails({
     conversionFiatStats,
     sparkInformation,
     poolInfoRef,
+    typedUsdAmount,
   });
 
   // Runs one decode pass and hands the outcome back instead of writing it to a
@@ -302,7 +309,6 @@ export default function useSendPaymentDetails({
       let decoded = null;
       let error = null;
       await decodeSendAddress({
-        fiatStats,
         btcAdress,
         goBackFunction: reason => {
           error =
@@ -346,7 +352,6 @@ export default function useSendPaymentDetails({
       return { decoded, error };
     },
     [
-      fiatStats,
       btcAdress,
       t,
       liquidNodeInformation,
@@ -409,6 +414,7 @@ export default function useSendPaymentDetails({
     resolvedPaymentMethod,
     effectivePaymentFee,
     displayAmount,
+    typedUsdAmount,
     convertedSendAmount,
     paymentValidation,
     decodePayment,

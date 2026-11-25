@@ -7,7 +7,7 @@ import {
   MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
   SATSPERBITCOIN,
 } from '../../constants';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
@@ -33,8 +33,8 @@ import {
   SATS_DISPLAY_CURRENCY,
   normalizeDisplayCurrency,
   resolveFiatStatsForCurrency,
-  resolveUsdFiatStats,
 } from '../../functions/displayCurrency';
+import { resolveDisplayUsdRate } from '../../functions/money';
 import { shareMessage } from '../../functions/handleShare';
 import TopBar from '../../functions/CustomElements/redesign/TopBar';
 import IconButton from '../../functions/CustomElements/redesign/IconButton';
@@ -63,7 +63,7 @@ import { FADE_TOP } from '../../functions/CustomElements/redesign/TopFade';
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
   const guardedNavigate = useGuardedNavigation();
-  const { fiatStats } = useNodeContext();
+  const { fiatStats, usdFiatStats: marketUsdFiatStats } = useNodeContext();
   const { swapLimits, poolInfoRef, swapUSDPriceDollars } = useFlashnet();
   const { sparkInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -303,6 +303,7 @@ export default function ReceivePaymentHome(props) {
     endReceiveType,
     masterInfoObject,
     fiatStats,
+    marketUsdFiatStats,
     swapUSDPriceDollars,
     paymentDisplayCurrency,
     paymentDisplayAmount,
@@ -319,7 +320,10 @@ export default function ReceivePaymentHome(props) {
               ...masterInfoObject,
               userBalanceDenomination: 'fiat',
             },
-            fiatStats: resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
+            fiatStats: resolveDisplayUsdRate(
+              marketUsdFiatStats,
+              swapUSDPriceDollars,
+            ),
             forceCurrency: 'USD',
           }),
         })
@@ -449,13 +453,17 @@ function useInvoiceAmountLines({
   endReceiveType,
   masterInfoObject,
   fiatStats,
+  marketUsdFiatStats,
   swapUSDPriceDollars,
   paymentDisplayCurrency,
   paymentDisplayAmount,
   paymentDisplayFiatStats,
 }) {
   const inputDenomination = endReceiveType === 'USD' ? 'fiat' : 'sats';
-  const usdFiatStats = resolveUsdFiatStats(fiatStats, swapUSDPriceDollars);
+  const usdFiatStats = useMemo(
+    () => resolveDisplayUsdRate(marketUsdFiatStats, swapUSDPriceDollars),
+    [marketUsdFiatStats, swapUSDPriceDollars],
+  );
   const { primaryDisplay, secondaryDisplay } = usePaymentInputDisplay({
     paymentMode: endReceiveType,
     inputDenomination,

@@ -51,7 +51,11 @@ export default function SavingsGoalAmount(props) {
   const { tokens } = GetThemeColors();
 
   const usdFiatStats = useMemo(
-    () => ({ coin: 'USD', value: swapUSDPriceDollars }),
+    () => ({
+      coin: 'USD',
+      value: swapUSDPriceDollars,
+      fetchedAt: Date.now(),
+    }),
     [swapUSDPriceDollars],
   );
   const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
@@ -64,14 +68,18 @@ export default function SavingsGoalAmount(props) {
   const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
   const isUSD = normalizedDisplayCurrency === 'USD';
   const isSats = normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY;
-  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
-    useCurrencyDisplay({
-      displayCurrency,
-      fiatStats,
-      usdFiatStats,
-      currencyRates,
-      masterInfoObject,
-    });
+  const {
+    primaryDisplay,
+    conversionFiatStats,
+    convertDisplayToSats,
+    rateUnavailable,
+  } = useCurrencyDisplay({
+    displayCurrency,
+    fiatStats,
+    usdFiatStats,
+    currencyRates,
+    masterInfoObject,
+  });
   const { exactSats } = useAmountInputConversion({
     amount: amountValue,
     setAmount: setAmountValue,
@@ -118,7 +126,9 @@ export default function SavingsGoalAmount(props) {
           }
           right={
             <BudgetCurrencyButton
-              label={isSats ? 'SAT' : normalizedDisplayCurrency}
+              label={
+                isSats || rateUnavailable ? 'SAT' : normalizedDisplayCurrency
+              }
               onPress={openPicker}
               disabled={isLoadingRate}
               accessibilityLabel={t(
