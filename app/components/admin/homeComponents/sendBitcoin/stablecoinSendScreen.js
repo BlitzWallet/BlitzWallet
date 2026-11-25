@@ -196,6 +196,14 @@ export default function StablecoinSendScreen() {
 
   const convertedSendAmount = exactSats ?? convertDisplayToSats(rawInput);
 
+  // No fresh USD rate -> entry falls back to sats, so rawInput is not dollars.
+  const usdEntryUnavailable =
+    sourceMethod === 'USD' &&
+    !(
+      primaryDisplay.denomination === 'fiat' &&
+      primaryDisplay.forceCurrency === 'USD'
+    );
+
   const { shouldWarn } = useBudgetWarning(convertedSendAmount);
 
   const clearCountdown = useCallback(() => {
@@ -314,7 +322,7 @@ export default function StablecoinSendScreen() {
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (rawInput > 0) {
+    if (rawInput > 0 && !usdEntryUnavailable) {
       const exceedsBalance =
         sourceMethod === 'BTC'
           ? convertedSendAmount > balanceRef.current.bitcoin
@@ -365,6 +373,7 @@ export default function StablecoinSendScreen() {
     rawInput,
     exactSats,
     sourceMethod,
+    usdEntryUnavailable,
     fetchQuote,
     clearCountdown,
     retriggerQuoteFetch,

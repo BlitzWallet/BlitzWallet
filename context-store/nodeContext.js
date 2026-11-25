@@ -16,9 +16,16 @@ import {
   marketRateReducer,
   initialMarketRate,
 } from '../app/functions/marketRateReducer';
-import { RATE_REFRESH_MS, setCurrentMarketRate } from '../app/functions/money';
+import {
+  RATE_REFRESH_MS,
+  isFreshRate,
+  RATE_MAX_INPUT_AGE_MS,
+  setCurrentMarketRate,
+} from '../app/functions/money';
 import { useAppStatus } from './appStatus';
 import { useKeysContext } from './keys';
+import { useSparkWallet } from './sparkContext';
+import { backfillSnapshotFiatValues } from '../app/functions/spark/transactions';
 // import liquidToSparkSwap from '../app/functions/spark/liquidToSparkSwap';
 // BREEZ LIQUID DISABLED: liquid auto-swap + connection imports commented so
 // the SDK chain is never loaded. Original lines kept for re-enable.
@@ -137,7 +144,7 @@ function useMarketRate({
 }
 
 const GLobalNodeContextProider = ({ children }) => {
-  // const { sparkInformation } = useSparkWallet();
+  const { sparkInformation } = useSparkWallet();
   const { contactsPrivateKey, publicKey } = useKeysContext();
   // const { didGetToHomepage, minMaxLiquidSwapAmounts } = useAppStatus();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -174,9 +181,27 @@ const GLobalNodeContextProider = ({ children }) => {
   const usdFiatStats = selectedCoin === 'USD' ? fiatStats : usdState;
   const marketRateStatus = fiatStats.status;
 
+  const backfilledRateRef = useRef(null);
+
   useEffect(() => {
     setCurrentMarketRate(fiatStats.status === 'ready' ? fiatStats : null);
-  }, [fiatStats]);
+
+    // A payment written while the market rate was unavailable has no fiatValue
+    // and is never rewritten, so fill in the recent ones once per fresh rate.
+    const identityPubKey = sparkInformation.identityPubKey;
+    if (!identityPubKey) return;
+    if (
+      !isFreshRate(fiatStats, fiatStats.coin, Date.now(), RATE_MAX_INPUT_AGE_MS)
+    )
+      return;
+    const backfillKey = `${identityPubKey}|${fiatStats.coin}|${fiatStats.fetchedAt}`;
+    if (backfilledRateRef.current === backfillKey) return;
+    backfilledRateRef.current = backfillKey;
+    backfillSnapshotFiatValues({
+      accountId: identityPubKey,
+      rate: fiatStats,
+    }).catch(err => console.log('fiat snapshot backfill error', err));
+  }, [fiatStats, sparkInformation.identityPubKey]);
 
   const SATS_PER_DOLLAR = useMemo(() => {
     return SATSPERBITCOIN / (fiatStats.value ?? 0);

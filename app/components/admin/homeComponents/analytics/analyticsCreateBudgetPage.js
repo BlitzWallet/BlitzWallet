@@ -11,7 +11,7 @@ import {
   ThemeText,
 } from '../../../../functions/CustomElements';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -20,7 +20,6 @@ import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyCo
 import useAmountInputConversion from '../../../../hooks/useAmountInputConversion';
 import BudgetCurrencyButton from '../../../../functions/CustomElements/redesign/CurrencyButton';
 import { useTranslation } from 'react-i18next';
-import { numberConverter } from '../../../../functions';
 import {
   getDefaultDisplayCurrency,
   normalizeDisplayCurrency,
@@ -44,16 +43,6 @@ export default function AnalyticsCreateBudgetPage() {
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const existingBudget = masterInfoObject?.monthlyBudget;
-  const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
-
-  const formattedPresetAmount =
-    userBalanceDenomination === 'fiat'
-      ? numberConverter(existingBudget?.amount || 0, 'fiat', 2, fiatStats) ?? 0
-      : existingBudget?.amount || 0;
-
-  const [amountValue, setAmountValue] = useState(
-    existingBudget?.amount ? String(formattedPresetAmount) : '',
-  );
   const initialDisplayCurrency = useMemo(
     () =>
       getDefaultDisplayCurrency({
@@ -78,6 +67,7 @@ export default function AnalyticsCreateBudgetPage() {
     primaryDisplay,
     conversionFiatStats,
     convertDisplayToSats,
+    convertSatsToDisplay,
     rateUnavailable,
   } = useCurrencyDisplay({
     displayCurrency,
@@ -87,6 +77,23 @@ export default function AnalyticsCreateBudgetPage() {
     masterInfoObject,
   });
 
+  // Prefilled in the input's own unit (same hook), not the stored denomination.
+  const [prefill] = useState(() =>
+    existingBudget?.amount > 0
+      ? {
+          displayValue: String(convertSatsToDisplay(existingBudget.amount)),
+          sats: existingBudget.amount,
+        }
+      : null,
+  );
+  const [amountValue, setAmountValue] = useState(prefill?.displayValue ?? '');
+  // Set on the first keypad press; a currency switch alone doesn't count.
+  const editedRef = useRef(false);
+  const setTypedAmount = useCallback(value => {
+    editedRef.current = true;
+    setAmountValue(value);
+  }, []);
+
   const { exactSats } = useAmountInputConversion({
     amount: amountValue,
     setAmount: setAmountValue,
@@ -94,7 +101,12 @@ export default function AnalyticsCreateBudgetPage() {
     conversionFiatStats,
   });
 
-  const localSatAmount = exactSats ?? convertDisplayToSats(amountValue);
+  const localSatAmount =
+    prefill &&
+    amountValue !== '' &&
+    (!editedRef.current || prefill.displayValue === amountValue)
+      ? prefill.sats
+      : exactSats ?? convertDisplayToSats(amountValue);
 
   const openPicker = useCallback(
     () =>
@@ -163,7 +175,7 @@ export default function AnalyticsCreateBudgetPage() {
         {/* Keyboard */}
         <CustomNumberKeyboard
           usingForBalance={true}
-          setInputValue={setAmountValue}
+          setInputValue={setTypedAmount}
           showDot={primaryDisplay.denomination === 'fiat'}
           fiatStats={conversionFiatStats}
           redesign

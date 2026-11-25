@@ -104,6 +104,18 @@ describe('homeTotalFiat', () => {
       homeTotalFiat({ btcSats: 1000, usdbDollars: 5, rate: usd, usdRate: usd }),
     ).toBe(6);
   });
+  it('values USDB 1:1 for a USD wallet even when usdRate is a distinct object', () => {
+    const stale = { coin: 'USD', value: 90000, fetchedAt: Date.now() - 1e9 };
+    const fresh = { coin: 'USD', value: 100000, fetchedAt: Date.now() };
+    expect(
+      homeTotalFiat({
+        btcSats: 0,
+        usdbDollars: 100,
+        rate: stale,
+        usdRate: fresh,
+      }),
+    ).toBe(100);
+  });
   it('scales dollars by eur/usd for a non-USD rate', () => {
     expect(
       homeTotalFiat({ btcSats: 0, usdbDollars: 100, rate: eur, usdRate: usd }),

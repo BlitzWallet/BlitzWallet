@@ -75,8 +75,9 @@ describe('buildEnteredFiatValue', () => {
 
 describe('buildSnapshotFiatValue', () => {
   const details = { amount: 100000, time: now - 1000 };
+  const freshRate = { coin: 'USD', value: 50000, fetchedAt: now, status: 'ready' };
   it('snapshots the rate within window', () => {
-    expect(buildSnapshotFiatValue(details, rate, now)).toEqual({
+    expect(buildSnapshotFiatValue(details, freshRate, now)).toEqual({
       currency: 'USD',
       rate: 50000,
       source: 'snapshot',
@@ -85,10 +86,10 @@ describe('buildSnapshotFiatValue', () => {
   });
   it('null when old, token, wrong/unusable rate, or already present', () => {
     expect(
-      buildSnapshotFiatValue({ ...details, time: now - 11 * 60000 }, rate, now),
+      buildSnapshotFiatValue({ ...details, time: now - 11 * 60000 }, freshRate, now),
     ).toBeNull();
     expect(
-      buildSnapshotFiatValue({ ...details, isLRC20Payment: true }, rate, now),
+      buildSnapshotFiatValue({ ...details, isLRC20Payment: true }, freshRate, now),
     ).toBeNull();
     expect(buildSnapshotFiatValue(details, null, now)).toBeNull();
     expect(
@@ -97,11 +98,23 @@ describe('buildSnapshotFiatValue', () => {
     expect(
       buildSnapshotFiatValue(
         { ...details, fiatValue: fv('entered') },
-        rate,
+        freshRate,
         now,
       ),
     ).toBeNull();
-    expect(buildSnapshotFiatValue({ amount: 5 }, rate, now)).toBeNull();
+    expect(buildSnapshotFiatValue({ amount: 5 }, freshRate, now)).toBeNull();
+  });
+  it('null when the rate is stale or has no fetchedAt', () => {
+    expect(
+      buildSnapshotFiatValue(
+        details,
+        { ...freshRate, fetchedAt: now - 2 * 60 * 60 * 1000 },
+        now,
+      ),
+    ).toBeNull();
+    expect(
+      buildSnapshotFiatValue(details, { ...freshRate, fetchedAt: undefined }, now),
+    ).toBeNull();
   });
 });
 

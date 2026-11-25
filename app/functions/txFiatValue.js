@@ -1,5 +1,11 @@
 import { SATS_DISPLAY_CURRENCY } from './displayCurrency';
-import { isUsableRate, satsToFiat, SNAPSHOT_WINDOW_MS } from './money';
+import {
+  isFreshRate,
+  isUsableRate,
+  RATE_MAX_INPUT_AGE_MS,
+  satsToFiat,
+  SNAPSHOT_WINDOW_MS,
+} from './money';
 
 // fiatValue = { currency, rate, source: 'entered'|'snapshot', at }
 // The value itself stays in sats (details.amount); fiat is computed on demand
@@ -47,7 +53,7 @@ export const buildSnapshotFiatValue = (details, rate, now) => {
   const time = Number(details.time);
   if (!Number.isFinite(time) || Math.abs(now - time) > SNAPSHOT_WINDOW_MS)
     return null;
-  if (!isUsableRate(rate, rate?.coin)) return null;
+  if (!isFreshRate(rate, rate?.coin, now, RATE_MAX_INPUT_AGE_MS)) return null;
   if (satsToFiat(details.amount, rate) == null) return null;
   return {
     currency: rate.coin,

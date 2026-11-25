@@ -2,7 +2,7 @@ import { SATSPERBITCOIN } from '../constants/math';
 
 export const RATE_MAX_INPUT_AGE_MS = 65 * 60 * 1000;
 export const RATE_REFRESH_MS = 30 * 60 * 1000;
-export const SNAPSHOT_WINDOW_MS = 10 * 60 * 1000;
+export const SNAPSHOT_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 export function isUsableRate(rate, code) {
   if (!code) return false;
@@ -49,7 +49,12 @@ export function homeTotalFiat({ btcSats, usdbDollars, rate, usdRate }) {
   const btc = satsToFiat(btcSats, rate);
   if (btc == null) return null;
   const usdb = Number(usdbDollars) || 0;
-  return btc + (rate === usdRate ? usdb : (usdb * rate.value) / usdRate.value);
+  return (
+    btc +
+    (rate.coin?.toUpperCase() === 'USD'
+      ? usdb
+      : (usdb * rate.value) / usdRate.value)
+  );
 }
 
 // D3: USD rate for display/entry only (never execution). Market USD when
