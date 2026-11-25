@@ -45,6 +45,7 @@ import { getNormalizedWebsiteUrl } from '../../functions/getNormalizedWebsiteUrl
 import ContactAvatar from '../../components/admin/homeComponents/contacts/internalComponents/contactAvatar';
 import { getTokenIcon } from '../../functions/lrc20/utils';
 import formatDate from '../../functions/formatDate';
+import { txFiatAmount } from '../../functions/txFiatValue';
 
 // Sheet chrome around the content: grab area (10 + 5 + 5) + 34 bottom padding.
 const SHEET_CHROME = 54;
@@ -271,6 +272,39 @@ export default function ExpandedTx({
   const showConversionLine =
     transaction?.details?.showSwapLabel &&
     !!transaction?.details?.currentPriceAInB;
+
+  const storedFiat = transaction?.details?.fiatValue;
+  const showFiatValueRows =
+    !transaction?.details?.isLRC20Payment &&
+    !showConversionLine &&
+    txFiatAmount(transaction?.details) != null;
+  const fiatText = (value, currency) =>
+    displayCorrectDenomination({
+      amount: formatBalanceAmount(
+        Number(value).toFixed(2),
+        false,
+        masterInfoObject,
+      ),
+      masterInfoObject: {
+        ...masterInfoObject,
+        userBalanceDenomination: 'fiat',
+      },
+      forceCurrency: currency,
+      convertAmount: false,
+    });
+
+  // The value is stored in sats; fiat is sats x the rate saved with the tx,
+  // so it always matches the amount shown above.
+  const storedValueText = () => {
+    if (masterInfoObject.userBalanceDenomination !== 'sats') {
+      return fiatText(txFiatAmount(transaction.details), storedFiat.currency);
+    }
+    return displayCorrectDenomination({
+      amount: transaction.details.amount,
+      masterInfoObject,
+      convertAmount: false,
+    });
+  };
 
   const isSuccessful = !isFailedPayment && !isPending;
   const paymentDate = new Date(transaction.details.time);
@@ -593,6 +627,27 @@ export default function ExpandedTx({
                 />
               );
             })}
+          </>
+        )}
+        {showFiatValueRows && (
+          <>
+            <DetailRow
+              label={t(
+                `screens.inAccount.expandedTxPage.${
+                  isOutgoing ? 'valueWhenSent' : 'valueWhenReceived'
+                }`,
+              )}
+              value={`${
+                storedFiat.source === 'snapshot' ? '≈ ' : ''
+              }${storedValueText()}`}
+            />
+            <DetailRow
+              label={t('screens.inAccount.expandedTxPage.rateAtTime')}
+              value={`1 BTC = ${fiatText(
+                storedFiat.rate,
+                storedFiat.currency,
+              )}`}
+            />
           </>
         )}
       </Animated.View>

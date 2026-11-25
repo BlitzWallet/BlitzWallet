@@ -1,0 +1,87 @@
+# Fiat rate display (T7, T11, T15): the Home total carries the wallet's own fiat
+# symbol, and a send review keeps its amount across background/foreground.
+# T6 (30-min refresh timing) is covered by the reducer Jest tests, not here.
+#
+# Needs a logged-in throwaway wallet (PIN 1111) on Home, Fast Pay off. Never sends.
+# Lives in the .maestro root, so the keychain-clearing root runner is NOT used
+# for it; run it alone:
+#
+# maestro test -e APP_ID=org.reactjs.native.example.BlitzWallet -e INVOICE=lnbc1... \
+#   --format junit --output e2e-artifacts/report.xml --test-output-dir e2e-artifacts \
+#   .maestro/fiat-rate-display.yaml
+appId: ${APP_ID}
+---
+- launchApp
+- extendedWaitUntil:
+    visible: '(Good (morning|afternoon|evening)|Receive)'
+    timeout: 30000
+- runFlow:
+    when:
+      visible: 'Good (morning|afternoon|evening)'
+    commands:
+      - tapOn: '1'
+      - tapOn: '1'
+      - tapOn: '1'
+      - tapOn: '1'
+- extendedWaitUntil:
+    visible: Receive
+    timeout: 30000
+
+# EUR: Home total uses the euro symbol and a number, no dollar sign.
+- runFlow:
+    file: funded/_set-fiat-display.yaml
+    env:
+      CURRENCY_CODE: EUR
+      CURRENCY_NAME: Euro
+      DISPLAY_CODE: 'fiat'
+- extendedWaitUntil:
+    visible: '(.*€\s?\d.*|.*\d.*€.*)'
+    timeout: 30000
+- assertNotVisible: '.*\$\s?\d.*'
+- takeScreenshot: fiat-rate-home-eur
+
+# USD: Home total uses the dollar sign.
+- runFlow:
+    file: funded/_set-fiat-display.yaml
+    env:
+      CURRENCY_CODE: USD
+      CURRENCY_NAME: US Dollar
+      DISPLAY_CODE: 'fiat'
+- extendedWaitUntil:
+    visible: '.*\$\s?\d.*'
+    timeout: 30000
+- assertNotVisible: '.*€.*'
+- takeScreenshot: fiat-rate-home-usd
+
+# Send review amount survives background -> foreground (T15).
+- tapOn: Send
+- tapOn:
+    text: .*address.*
+- inputText: ${INVOICE}
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn: Next
+- extendedWaitUntil:
+    visible: Pay with
+    timeout: 30000
+- tapOn: '1'
+- tapOn: '0'
+- tapOn: '0'
+- assertVisible: Review # Fast Pay would label it Confirm and send
+- tapOn: Review
+- extendedWaitUntil:
+    visible: Slide to send
+    timeout: 30000
+- copyTextFrom:
+    text: '.*\$\s?\d.*'
+- evalScript: ${output.reviewAmount = maestro.copiedText.replace(/[$.]/g, '\\$&')}
+- takeScreenshot: fiat-rate-review-before
+- pressKey: home # VERIFY on first run: backgrounds the app on iOS
+- waitForAnimationToEnd:
+    timeout: 3000
+- launchApp # no clearState: brings the running app back
+- extendedWaitUntil:
+    visible: Slide to send
+    timeout: 30000
+- assertVisible: ${output.reviewAmount}
+- takeScreenshot: fiat-rate-review-after

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useNavigation } from '@react-navigation/native';
 import { useNodeContext } from '../../../context-store/nodeContext';
+import useDisplayUsdRate from '../../hooks/useDisplayUsdRate';
 import { AMOUNT_HERO_SIZE, CONTENT_KEYBOARD_OFFSET } from '../../constants';
 import CustomNumberKeyboard from './customNumberKeyboard';
 import CustomButton from './button';
@@ -12,7 +13,6 @@ import { satsToDollars } from '../spark/flashnet';
 import {
   getDefaultDisplayCurrency,
   normalizeDisplayCurrency,
-  resolveUsdFiatStats,
   SATS_DISPLAY_CURRENCY,
 } from '../displayCurrency';
 import useDisplayCurrencyController from '../../hooks/useDisplayCurrencyController';
@@ -34,22 +34,15 @@ export default function CustomInputHalfModal(props) {
   } = props;
   const { t } = useTranslation();
   const navigate = useNavigation();
-  const { swapUSDPriceDollars, poolInfoRef } = useFlashnet();
+  const { poolInfoRef } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats: globalFiatStats } = useNodeContext();
+  const usdFiatStats = useDisplayUsdRate();
   const [amountValue, setAmountValue] = useState('');
   const isUSDOnly = returnLocation === 'CreateSplitBill' && forceUSD;
   const fiatStats = useMemo(
-    () =>
-      forceUSD
-        ? resolveUsdFiatStats(globalFiatStats, swapUSDPriceDollars)
-        : globalFiatStats,
-    [forceUSD, swapUSDPriceDollars, globalFiatStats],
-  );
-
-  const usdFiatStats = useMemo(
-    () => resolveUsdFiatStats(globalFiatStats, swapUSDPriceDollars),
-    [globalFiatStats, swapUSDPriceDollars],
+    () => (forceUSD ? usdFiatStats : globalFiatStats),
+    [forceUSD, usdFiatStats, globalFiatStats],
   );
 
   const initialDisplayCurrency = useMemo(
@@ -70,14 +63,18 @@ export default function CustomInputHalfModal(props) {
       masterInfoObject,
     });
 
-  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
-    useCurrencyDisplay({
-      displayCurrency,
-      fiatStats,
-      usdFiatStats,
-      currencyRates,
-      masterInfoObject,
-    });
+  const {
+    primaryDisplay,
+    conversionFiatStats,
+    convertDisplayToSats,
+    rateUnavailable,
+  } = useCurrencyDisplay({
+    displayCurrency,
+    fiatStats,
+    usdFiatStats,
+    currencyRates,
+    masterInfoObject,
+  });
   const { exactSats } = useAmountInputConversion({
     amount: amountValue,
     setAmount: setAmountValue,
@@ -154,7 +151,9 @@ export default function CustomInputHalfModal(props) {
         )}
         <View style={styles.budgetButton}>
           <BudgetCurrencyButton
-            label={isSats ? 'SAT' : normalizedDisplayCurrency}
+            label={
+              isSats || rateUnavailable ? 'SAT' : normalizedDisplayCurrency
+            }
             onPress={openPicker}
             disabled={isLoadingRate}
             accessibilityLabel={t(

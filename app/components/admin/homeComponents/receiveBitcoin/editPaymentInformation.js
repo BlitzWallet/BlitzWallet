@@ -10,10 +10,7 @@ import {
 } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useCallback, useMemo, useState } from 'react';
-import {
-  CustomKeyboardAvoidingView,
-  ThemeText,
-} from '../../../../functions/CustomElements';
+import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useTranslation } from 'react-i18next';
@@ -22,9 +19,9 @@ import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
 import BudgetCurrencyButton from '../../../../functions/CustomElements/redesign/CurrencyButton';
 import formatBalanceAmount from '../../../../functions/formatNumber';
-import { useTheme } from '../../../../../context-store/theme';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
+import useDisplayUsdRate from '../../../../hooks/useDisplayUsdRate';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import customUUID from '../../../../functions/customUUID';
@@ -33,11 +30,9 @@ import displayCorrectDenomination from '../../../../functions/displayCorrectDeno
 import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
 import useAmountInputConversion from '../../../../hooks/useAmountInputConversion';
 import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
-import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import {
   getDefaultDisplayCurrency,
   normalizeDisplayCurrency,
-  resolveUsdFiatStats,
   SATS_DISPLAY_CURRENCY,
 } from '../../../../functions/displayCurrency';
 import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
@@ -45,14 +40,13 @@ import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
 
 export default function EditReceivePaymentInformation(props) {
   const navigate = useNavigation();
-  const { swapUSDPriceDollars } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
+  const usdFiatStats = useDisplayUsdRate();
   const [amountValue, setAmountValue] = useState('');
   const [isKeyboardFocused, setIsKeyboardFocused] = useState(false);
   const { bottomPadding } = useGlobalInsets();
   const { t } = useTranslation();
-  const { tokens } = useTheme();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const { isUsingAltAccount } = useActiveCustodyAccount();
@@ -68,10 +62,6 @@ export default function EditReceivePaymentInformation(props) {
   const incomingDisplayFiatStats = props.route.params.paymentDisplayFiatStats;
   const incomingDisplayAmount = props.route.params.paymentDisplayAmount;
 
-  const usdFiatStats = useMemo(
-    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
-    [fiatStats, swapUSDPriceDollars],
-  );
   // Open the editor in the currency the amount was originally entered in (if
   // one was passed through), otherwise fall back to the device-based default.
   const initialDisplayCurrency = useMemo(

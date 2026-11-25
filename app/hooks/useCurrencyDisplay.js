@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useRef } from 'react';
-import { SATSPERBITCOIN } from '../constants';
+import {
+  RATE_MAX_INPUT_AGE_MS,
+  fiatToSats,
+  isFreshRate,
+  satsToFiat,
+} from '../functions/money';
 import {
   SATS_DISPLAY_CURRENCY,
   normalizeDisplayCurrency,
@@ -26,8 +31,25 @@ export default function useCurrencyDisplay({
   const isDeviceCurrencyUSD = deviceCurrency === 'USD';
   const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
 
+  // Only a fresh rate whose coin matches the code is ever used; otherwise null.
+  const now = Date.now();
+  const pickRate = code =>
+    [
+      code === 'USD' ? usdFiatStats : null,
+      currencyRates?.[code],
+      fiatStats,
+    ].find(r => isFreshRate(r, code, now, RATE_MAX_INPUT_AGE_MS)) || null;
+
+  const primaryCode =
+    normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY
+      ? null
+      : normalizedDisplayCurrency;
+  const primaryRate = primaryCode ? pickRate(primaryCode) : null;
+  const secondaryRate = primaryCode === null ? pickRate(deviceCurrency) : null;
+  const rateUnavailable = !!primaryCode && !primaryRate;
+
   const livePrimaryDisplay = useMemo(() => {
-    if (normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY) {
+    if (!primaryCode || !primaryRate) {
       return {
         denomination: 'sats',
         forceCurrency: null,
@@ -35,26 +57,12 @@ export default function useCurrencyDisplay({
       };
     }
 
-    if (normalizedDisplayCurrency === 'USD') {
-      return {
-        denomination: 'fiat',
-        forceCurrency: 'USD',
-        forceFiatStats: usdFiatStats || fiatStats,
-      };
-    }
-
-    const rate =
-      currencyRates?.[normalizedDisplayCurrency] ||
-      (normalizedDisplayCurrency === fiatStats?.coin?.toUpperCase()
-        ? fiatStats
-        : null);
-
     return {
       denomination: 'fiat',
-      forceCurrency: normalizedDisplayCurrency,
-      forceFiatStats: rate,
+      forceCurrency: primaryCode,
+      forceFiatStats: primaryRate,
     };
-  }, [normalizedDisplayCurrency, usdFiatStats, fiatStats, currencyRates]);
+  }, [primaryCode, primaryRate]);
 
   // SECONDARY DISPLAY - The converted amount shown below primary
   const liveSecondaryDisplay = useMemo(() => {
@@ -62,10 +70,8 @@ export default function useCurrencyDisplay({
       // Primary is sats → secondary shows the device fiat currency
       return {
         denomination: 'fiat',
-        forceCurrency: isDeviceCurrencyUSD ? 'USD' : deviceCurrency,
-        forceFiatStats: isDeviceCurrencyUSD
-          ? usdFiatStats || fiatStats
-          : fiatStats,
+        forceCurrency: deviceCurrency,
+        forceFiatStats: secondaryRate,
       };
     }
 
@@ -75,33 +81,9 @@ export default function useCurrencyDisplay({
       forceCurrency: null,
       forceFiatStats: null,
     };
-  }, [
-    normalizedDisplayCurrency,
-    isDeviceCurrencyUSD,
-    deviceCurrency,
-    usdFiatStats,
-    fiatStats,
-  ]);
+  }, [normalizedDisplayCurrency, deviceCurrency, secondaryRate]);
 
-  const liveConversionFiatStats = useMemo(() => {
-    const isDisplayingUSD =
-      livePrimaryDisplay.denomination === 'fiat' &&
-      (livePrimaryDisplay.forceCurrency === 'USD' ||
-        (!livePrimaryDisplay.forceCurrency && isDeviceCurrencyUSD));
-
-    if (isDisplayingUSD) {
-      return usdFiatStats || fiatStats;
-    }
-
-    return livePrimaryDisplay.forceFiatStats || fiatStats;
-  }, [
-    livePrimaryDisplay.denomination,
-    livePrimaryDisplay.forceCurrency,
-    livePrimaryDisplay.forceFiatStats,
-    isDeviceCurrencyUSD,
-    usdFiatStats,
-    fiatStats,
-  ]);
+  const liveConversionFiatStats = livePrimaryDisplay.forceFiatStats;
 
   useEffect(() => {
     if (isSendingPayment && !wasSendingPaymentRef.current) {
@@ -147,40 +129,22 @@ export default function useCurrencyDisplay({
     const numAmount = Number(inputAmount) || 0;
 
     if (primaryDisplay.denomination === 'fiat') {
-      // Converting from fiat to sats
-      const fiatValue = conversionFiatStats?.value || 65000;
-      return Math.round((SATSPERBITCOIN / fiatValue) * numAmount);
-    } else {
-      // Already in sats
-      return Math.round(numAmount);
+      return fiatToSats(numAmount, conversionFiatStats) ?? 0;
     }
+    return Math.round(numAmount);
   };
 
   const convertSatsToDisplay = satsAmount => {
     const numAmount = Number(satsAmount) || 0;
 
     if (primaryDisplay.denomination === 'fiat') {
-      // Convert sats to fiat for display
-      const fiatValue = conversionFiatStats?.value || 65000;
-      return ((numAmount * fiatValue) / SATSPERBITCOIN).toFixed(2);
-    } else {
-      // Already in sats
-      return numAmount;
+      const fiat = satsToFiat(numAmount, conversionFiatStats);
+      return fiat == null ? numAmount : fiat.toFixed(2);
     }
+    return numAmount;
   };
 
-  const convertDisplayToSats = displayAmount => {
-    const numAmount = Number(displayAmount) || 0;
-
-    if (primaryDisplay.denomination === 'fiat') {
-      // Converting from fiat to sats
-      const fiatValue = conversionFiatStats?.value || 65000;
-      return Math.round((SATSPERBITCOIN / fiatValue) * numAmount);
-    } else {
-      // Already in sats
-      return Math.round(numAmount);
-    }
-  };
+  const convertDisplayToSats = convertToSats;
 
   const buildAmountSnapshot = enteredValue => {
     return {
@@ -205,5 +169,6 @@ export default function useCurrencyDisplay({
     showDot: primaryDisplay.denomination === 'fiat',
     deviceCurrency,
     isDeviceCurrencyUSD,
+    rateUnavailable,
   };
 }

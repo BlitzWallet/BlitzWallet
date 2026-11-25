@@ -51,6 +51,7 @@ export default function usePaymentValidation({
   //can perform swap
   sparkInformation,
   poolInfoRef,
+  typedUsdAmount = null,
 }) {
   const validation = useMemo(() => {
     const result = {
@@ -142,6 +143,12 @@ export default function usePaymentValidation({
         result.errors.push('BELOW_USD_BTC_LN_MINIMUM');
         return result;
       }
+
+      // The decode asked for a USD quote at this amount and was refused.
+      if (finalPaymentMethod === 'USD' && paymentInfo?.usdQuoteError) {
+        result.errors.push('USD_QUOTE_FAILED');
+        return result;
+      }
     }
 
     // 3B. On-chain Bitcoin — validates and returns early (no swap supported)
@@ -202,7 +209,11 @@ export default function usePaymentValidation({
       }
 
       if (isDirectUsdToUsd) {
-        if (dollarBalanceSat < totalCost) {
+        if (
+          typedUsdAmount != null
+            ? typedUsdAmount > Number(dollarBalanceToken)
+            : dollarBalanceSat < totalCost
+        ) {
           result.errors.push('INSUFFICIENT_BALANCE');
           return result;
         }
@@ -325,6 +336,7 @@ export default function usePaymentValidation({
     maxLNURLSatAmount,
     isDecoding,
     canEditAmount,
+    typedUsdAmount,
     sparkInformation?.didConnectToFlashnet,
     sparkInformation?.didConnect,
   ]);
@@ -455,6 +467,7 @@ export default function usePaymentValidation({
       ),
     };
 
+    if (errorCode === 'USD_QUOTE_FAILED') return paymentInfo?.usdQuoteError;
     return errorMessages[errorCode] || errorCode;
   };
 

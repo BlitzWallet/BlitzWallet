@@ -2967,7 +2967,11 @@
         "moreDetails": "Plus de détails",
         "showLess": "Afficher moins",
         "waitingForConfirmations": "En attente de {{count}} confirmations",
-        "claimError": "Erreur lors de la réclamation du paiement."
+        "claimError": "Erreur lors de la réclamation du paiement.",
+        "valueWhenSent": "Valeur à l’envoi",
+        "valueWhenReceived": "Valeur à la réception",
+        "rateAtTime": "Taux à ce moment-là",
+        "valueToday": "Valeur aujourd’hui"
       },
       "explorePage": {
         "timeLeft": "({{time}} restantes)",

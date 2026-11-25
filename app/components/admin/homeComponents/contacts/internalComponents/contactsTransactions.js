@@ -164,6 +164,7 @@ const ConfirmedOrSentTransaction = React.memo(
               ...(didDeclinePayment && { color: tokens.danger }),
             }}
             balance={balanceValue}
+            neverHideBalance={true}
             useMillionDenomination
             useBalance={txParsed?.paymentDenomination === 'USD'}
             useCustomLabel={txParsed?.paymentDenomination === 'USD'}

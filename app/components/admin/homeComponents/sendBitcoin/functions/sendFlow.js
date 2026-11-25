@@ -61,6 +61,7 @@ export function resolvePaymentMethod({
   const canUse = method => {
     if (method === 'USD') {
       if (Number(dollarBalanceToken) < 0.01) return false;
+      if (paymentInfo?.usdQuoteError) return false;
       if (receiverExpectsTokens) return dollarBalanceSat >= amountSat;
       return (
         flashnetReady &&

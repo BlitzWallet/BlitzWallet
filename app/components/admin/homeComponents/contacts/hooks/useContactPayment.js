@@ -9,6 +9,7 @@ import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
+import useDisplayUsdRate from '../../../../../hooks/useDisplayUsdRate';
 import { useServerTimeOnly } from '../../../../../../context-store/serverTime';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
@@ -35,7 +36,6 @@ import { resolveContactPaymentDefault } from './resolveContactPaymentDefault';
 import {
   getDefaultDisplayCurrency,
   normalizeDisplayCurrency,
-  resolveUsdFiatStats,
 } from '../../../../../functions/displayCurrency';
 import {
   lnurlCurrencyToRate,
@@ -64,12 +64,13 @@ export default function useContactPayment({
 }) {
   const { dollarBalanceSat, dollarBalanceToken, bitcoinBalance } =
     useUserBalanceContext();
-  const { poolInfoRef, swapLimits, swapUSDPriceDollars } = useFlashnet();
+  const { poolInfoRef, swapLimits } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { sparkInformation } = useSparkWallet();
   const { contactsPrivateKey } = useKeysContext();
   const { isConnectedToTheInternet } = useAppStatus();
   const { fiatStats } = useNodeContext();
+  const usdFiatStats = useDisplayUsdRate();
   const { globalContactsInformation, getContactReceiveOption } =
     useGlobalContactsInfo();
   const getServerTime = useServerTimeOnly();
@@ -264,10 +265,6 @@ export default function useContactPayment({
         : endReceiveType || 'BTC'
       : paymentMethod;
 
-  const usdFiatStats = useMemo(
-    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
-    [fiatStats, swapUSDPriceDollars],
-  );
   const initialDisplayCurrency = useMemo(
     () =>
       getDefaultDisplayCurrency({
@@ -327,6 +324,13 @@ export default function useContactPayment({
   });
 
   const convertedSendAmount = exactSats ?? convertDisplayToSats(amountValue);
+  // Dollars as typed; USD amounts use these instead of a sats round trip.
+  const typedUsdAmount =
+    primaryDisplay.denomination === 'fiat' &&
+    primaryDisplay.forceCurrency === 'USD' &&
+    Number(amountValue) > 0
+      ? Number(amountValue)
+      : null;
 
   // Phone-number payments encode the destination currency in the address domain
   // (e.g. @bitcoin.co.ke → KES), so we can switch immediately without waiting for
@@ -817,10 +821,12 @@ export default function useContactPayment({
       sendObject.paymentDenomination = resolvedEndReceiveType;
       sendObject.amountDollars =
         resolvedEndReceiveType === 'USD'
-          ? satsToDollars(
-              convertedSendAmount,
-              poolInfoRefSnapshotRef.current.currentPriceAInB,
-            ).toFixed(2)
+          ? paymentMethod === 'USD' && typedUsdAmount != null
+            ? typedUsdAmount.toFixed(2)
+            : satsToDollars(
+                convertedSendAmount,
+                poolInfoRefSnapshotRef.current.currentPriceAInB,
+              ).toFixed(2)
           : null;
 
       const snapshot = buildAmountSnapshot(amountValue);
@@ -929,10 +935,12 @@ export default function useContactPayment({
       const { sendObject } = base;
       sendObject.amountDollars =
         paymentMethod === 'USD'
-          ? satsToDollars(
-              convertedSendAmount,
-              poolInfoRefSnapshotRef.current.currentPriceAInB,
-            ).toFixed(2)
+          ? typedUsdAmount != null
+            ? typedUsdAmount.toFixed(2)
+            : satsToDollars(
+                convertedSendAmount,
+                poolInfoRefSnapshotRef.current.currentPriceAInB,
+              ).toFixed(2)
           : null;
       sendObject.description = descriptionValue;
       sendObject.isRequest = true;

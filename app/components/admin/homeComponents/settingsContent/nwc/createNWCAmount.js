@@ -23,14 +23,12 @@ import BudgetCurrencyButton from '../../../../../functions/CustomElements/redesi
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import { useTheme } from '../../../../../../context-store/theme';
-import { useFlashnet } from '../../../../../../context-store/flashnetContext';
 import useCurrencyDisplay from '../../../../../hooks/useCurrencyDisplay';
 import useAmountInputConversion from '../../../../../hooks/useAmountInputConversion';
 import useDisplayCurrencyController from '../../../../../hooks/useDisplayCurrencyController';
 import {
   getDefaultDisplayCurrency,
   normalizeDisplayCurrency,
-  resolveUsdFiatStats,
   SATS_DISPLAY_CURRENCY,
 } from '../../../../../functions/displayCurrency';
 import { saveNWCAccount } from '../../../../../functions/nwc';
@@ -38,14 +36,15 @@ import createNWCConnectionString, {
   getNWCLud16,
 } from '../../../../../functions/nwc/createConnectionString';
 import { useGlobalContactsInfo } from '../../../../../../context-store/globalContacts';
+import useDisplayUsdRate from '../../../../../hooks/useDisplayUsdRate';
 
 export default function CreateNWCAmount(props) {
   const navigate = useNavigation();
-  const { swapUSDPriceDollars } = useFlashnet();
   const { tokens } = useTheme();
   const { masterInfoObject, toggleNWCInformation } = useGlobalContextProvider();
   const { globalContactsInformation } = useGlobalContactsInfo();
   const { fiatStats } = useNodeContext();
+  const usdFiatStats = useDisplayUsdRate();
   const { t } = useTranslation();
   const { height: windowHeight } = useWindowDimensions();
 
@@ -80,10 +79,6 @@ export default function CreateNWCAmount(props) {
     setAmountValue(value);
   }, []);
 
-  const usdFiatStats = useMemo(
-    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
-    [fiatStats, swapUSDPriceDollars],
-  );
   const initialDisplayCurrency = useMemo(
     () =>
       getDefaultDisplayCurrency({
@@ -106,6 +101,7 @@ export default function CreateNWCAmount(props) {
     conversionFiatStats,
     convertDisplayToSats,
     convertSatsToDisplay,
+    rateUnavailable,
   } = useCurrencyDisplay({
     displayCurrency,
     fiatStats,
@@ -276,7 +272,9 @@ export default function CreateNWCAmount(props) {
           shouldDismissKeyboard={true}
           right={
             <BudgetCurrencyButton
-              label={isSats ? 'SAT' : normalizedDisplayCurrency}
+              label={
+                isSats || rateUnavailable ? 'SAT' : normalizedDisplayCurrency
+              }
               onPress={openPicker}
               disabled={isLoadingRate}
               accessibilityLabel={t(

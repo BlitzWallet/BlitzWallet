@@ -1,6 +1,6 @@
 import { getLocalStorageItem, setLocalStorageItem } from './localStorage';
 import getFiatPrice from './getFiatPrice';
-import { isMoreThan40MinOld } from './rotateAddressDateChecker';
+import { RATE_REFRESH_MS } from './money';
 
 export async function getCachedFiatRate(selectedCurrency) {
   try {
@@ -31,12 +31,16 @@ export default async function loadNewFiatData(
       selectedCurrency.toLowerCase() ===
       (masterInfoObject.fiatCurrency?.toLowerCase() || 'usd');
 
-    if (cachedResponse && !isMoreThan40MinOld(cachedResponse.lastFetched)) {
+    if (
+      cachedResponse &&
+      Date.now() - cachedResponse.lastFetched < RATE_REFRESH_MS
+    ) {
       if (isMainCurrency) await updateMainCurrency(cachedResponse.fiatRate);
       return {
         didWork: true,
         fiatRateResponse: cachedResponse.fiatRate,
         usingCache: true,
+        fetchedAt: cachedResponse.lastFetched,
       };
     }
 
@@ -52,10 +56,11 @@ export default async function loadNewFiatData(
 
     if (!fiatRateResponse) throw new Error('error loading fiat rates');
 
+    const fetchedAt = new Date().getTime();
     await setLocalStorageItem(
       cacheKey,
       JSON.stringify({
-        lastFetched: new Date().getTime(),
+        lastFetched: fetchedAt,
         fiatRate: fiatRateResponse,
       }),
     );
@@ -64,7 +69,7 @@ export default async function loadNewFiatData(
       await updateMainCurrency(fiatRateResponse);
     }
 
-    return { didWork: true, fiatRateResponse, usingCache: false };
+    return { didWork: true, fiatRateResponse, usingCache: false, fetchedAt };
   } catch (err) {
     console.log('error loading fiat rates', err);
     return { didWork: false, error: err.message, usingCache: false };

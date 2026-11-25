@@ -3,6 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useKeysContext } from '../../context-store/keys';
 import { useToast } from '../../context-store/toastManager';
+import { isUsableRate } from '../functions/money';
 import loadNewFiatData from '../functions/saveAndUpdateFiatData';
 import {
   SATS_DISPLAY_CURRENCY,
@@ -36,7 +37,9 @@ export default function useDisplayCurrencyController({
     else if (fiatStats?.coin?.toUpperCase() === 'USD') rates.USD = fiatStats;
     if (additionalRates) {
       for (const [code, rate] of Object.entries(additionalRates)) {
-        if (rate?.value) rates[code.toUpperCase()] = rate;
+        // Pinned entry-time rates may carry no fetchedAt; stamp when absent.
+        if (rate?.value)
+          rates[code.toUpperCase()] = { fetchedAt: Date.now(), ...rate };
       }
     }
     return rates;
@@ -72,9 +75,9 @@ export default function useDisplayCurrencyController({
 
       if (
         normalizedCode === SATS_DISPLAY_CURRENCY ||
-        normalizedCode === 'USD' ||
+        (normalizedCode === 'USD' && isUsableRate(usdFiatStats, 'USD')) ||
         normalizedCode === deviceCurrency ||
-        currencyRates[normalizedCode]
+        isUsableRate(currencyRates[normalizedCode], normalizedCode)
       ) {
         setDisplayCurrency(normalizedCode);
         return { didWork: true };
@@ -110,7 +113,10 @@ export default function useDisplayCurrencyController({
 
         setCurrencyRates(prev => ({
           ...prev,
-          [normalizedCode]: response.fiatRateResponse,
+          [normalizedCode]: {
+            ...response.fiatRateResponse,
+            fetchedAt: response.fetchedAt,
+          },
         }));
         setDisplayCurrency(normalizedCode);
         return response;
@@ -132,6 +138,7 @@ export default function useDisplayCurrencyController({
       masterInfoObject,
       deviceCurrency,
       currencyRates,
+      usdFiatStats,
       navigate,
     ],
   );
@@ -169,7 +176,10 @@ export default function useDisplayCurrencyController({
     (code, rate, { setAsDisplay = false } = {}) => {
       const normalizedCode = normalizeDisplayCurrency(code);
       if (rate?.value) {
-        setCurrencyRates(prev => ({ ...prev, [normalizedCode]: rate }));
+        setCurrencyRates(prev => ({
+          ...prev,
+          [normalizedCode]: { fetchedAt: Date.now(), ...rate },
+        }));
       }
       if (setAsDisplay && !hasUserSelectedRef.current) {
         setDisplayCurrency(normalizedCode);

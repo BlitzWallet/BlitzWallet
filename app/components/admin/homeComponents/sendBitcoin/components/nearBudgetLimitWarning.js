@@ -11,7 +11,6 @@ import { useTranslation } from 'react-i18next';
 import KeyValueRow from '../../../../../functions/CustomElements/redesign/KeyValueRow';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
-import { HIDDEN_BALANCE_CLOSE } from '../../../../../constants';
 
 // SendLimits.dc.html "Heads up · budget": warn disc, one line, the over/left
 // amount and the monthly budget, Continue. Shown on the first slide.
@@ -49,21 +48,21 @@ export default function BudgetWarningModal({
 
   const isBalanceHidden =
     masterInfoObject?.userBalanceDenomination === 'hidden';
-  const overByAmountText = isBalanceHidden
-    ? HIDDEN_BALANCE_CLOSE
-    : displayCorrectDenomination({
-        amount: Math.abs(amountAfterSend),
-        masterInfoObject,
-        fiatStats,
-      });
+  // Hidden preference shows sats here, not a mask.
+  const displayInfo = isBalanceHidden
+    ? { ...masterInfoObject, userBalanceDenomination: 'sats' }
+    : masterInfoObject;
+  const overByAmountText = displayCorrectDenomination({
+    amount: Math.abs(amountAfterSend),
+    masterInfoObject: displayInfo,
+    fiatStats,
+  });
 
-  const budgetAmountText = isBalanceHidden
-    ? HIDDEN_BALANCE_CLOSE
-    : displayCorrectDenomination({
-        amount: budget?.amount || 0,
-        masterInfoObject,
-        fiatStats,
-      });
+  const budgetAmountText = displayCorrectDenomination({
+    amount: budget?.amount || 0,
+    masterInfoObject: displayInfo,
+    fiatStats,
+  });
 
   return (
     <View style={styles.sheet}>

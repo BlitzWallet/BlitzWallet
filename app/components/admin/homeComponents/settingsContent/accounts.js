@@ -24,7 +24,6 @@ import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
 import TopHeader from '../../../../functions/CustomElements/redesign/TopHeader';
-import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 
 export default function CreateCustodyAccounts() {
   const navigate = useNavigation();

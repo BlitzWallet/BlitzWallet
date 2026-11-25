@@ -2993,7 +2993,11 @@
         "moreDetails": "Подробнее",
         "showLess": "Показать меньше",
         "waitingForConfirmations": "Ожидание подтверждений: {{count}}",
-        "claimError": "Ошибка при получении платежа."
+        "claimError": "Ошибка при получении платежа.",
+        "valueWhenSent": "Стоимость на момент отправки",
+        "valueWhenReceived": "Стоимость на момент получения",
+        "rateAtTime": "Курс на тот момент",
+        "valueToday": "Стоимость сегодня"
       },
       "explorePage": {
         "timeLeft": "(осталось {{time}})",

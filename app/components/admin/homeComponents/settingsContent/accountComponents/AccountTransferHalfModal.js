@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useFlashnet } from '../../../../../../context-store/flashnetContext';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
+import useDisplayUsdRate from '../../../../../hooks/useDisplayUsdRate';
 import { useTheme } from '../../../../../../context-store/theme';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useUserBalanceContext } from '../../../../../../context-store/userBalanceContext';
@@ -16,7 +17,6 @@ import { useToast } from '../../../../../../context-store/toastManager';
 import {
   getDefaultDisplayCurrency,
   normalizeDisplayCurrency,
-  resolveUsdFiatStats,
   SATS_DISPLAY_CURRENCY,
 } from '../../../../../functions/displayCurrency';
 import useDisplayCurrencyController from '../../../../../hooks/useDisplayCurrencyController';
@@ -91,6 +91,7 @@ export default function AccountTransferHalfModal({
   const { swapUSDPriceDollars } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
+  const usdFiatStats = useDisplayUsdRate();
   const { tokens } = useTheme();
   const { accountMnemoinc, contactsPrivateKey } = useKeysContext();
   const { globalContactsInformation } = useGlobalContactsInfo();
@@ -358,11 +359,6 @@ export default function AccountTransferHalfModal({
 
   useHandleBackPressNew(handleBackPress);
 
-  const usdFiatStats = useMemo(
-    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
-    [fiatStats, swapUSDPriceDollars],
-  );
-
   const initialDisplayCurrency = useMemo(
     () =>
       getDefaultDisplayCurrency({
@@ -384,14 +380,18 @@ export default function AccountTransferHalfModal({
   const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
   const isSats = normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY;
 
-  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
-    useCurrencyDisplay({
-      displayCurrency,
-      fiatStats,
-      usdFiatStats,
-      currencyRates,
-      masterInfoObject,
-    });
+  const {
+    primaryDisplay,
+    conversionFiatStats,
+    convertDisplayToSats,
+    rateUnavailable,
+  } = useCurrencyDisplay({
+    displayCurrency,
+    fiatStats,
+    usdFiatStats,
+    currencyRates,
+    masterInfoObject,
+  });
 
   // USD moves dollars, so the entry is locked to USD fiat; the currency
   // switcher is hidden. BTC keeps the user's display currency (and switcher).
@@ -743,7 +743,9 @@ export default function AccountTransferHalfModal({
           onBack={handleBackPress}
           right={
             <BudgetCurrencyButton
-              label={isSats ? 'SAT' : normalizedDisplayCurrency}
+              label={
+                isSats || rateUnavailable ? 'SAT' : normalizedDisplayCurrency
+              }
               onPress={openCurrencyPicker}
               disabled={isLoadingRate}
               accessibilityLabel={t(

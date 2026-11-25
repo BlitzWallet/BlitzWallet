@@ -27,7 +27,7 @@ import {
 import CustomButton from '../../../../functions/CustomElements/button';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
-import { useNodeContext } from '../../../../../context-store/nodeContext';
+import useDisplayUsdRate from '../../../../hooks/useDisplayUsdRate';
 import { useNavigation } from '@react-navigation/native';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -105,7 +105,7 @@ export default function CreateGiftDuration(props) {
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
-  const { fiatStats } = useNodeContext();
+  const usdFiatStats = useDisplayUsdRate();
   const { tokens } = useTheme();
   const { t } = useTranslation();
   const { width } = useWindowDimensions();
@@ -475,7 +475,7 @@ export default function CreateGiftDuration(props) {
                 userBalanceDenomination:
                   giftDenomination === 'USD' ? 'fiat' : 'sats',
               },
-              fiatStats,
+              fiatStats: usdFiatStats,
               forceCurrency: 'USD',
             }),
             currency1:

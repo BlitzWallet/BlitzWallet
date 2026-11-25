@@ -11,54 +11,38 @@ import {
   ThemeText,
 } from '../../../../functions/CustomElements';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
-import { useFlashnet } from '../../../../../context-store/flashnetContext';
 import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
 import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
 import useAmountInputConversion from '../../../../hooks/useAmountInputConversion';
 import BudgetCurrencyButton from '../../../../functions/CustomElements/redesign/CurrencyButton';
 import { useTranslation } from 'react-i18next';
-import { numberConverter } from '../../../../functions';
 import {
   getDefaultDisplayCurrency,
   normalizeDisplayCurrency,
-  resolveUsdFiatStats,
   SATS_DISPLAY_CURRENCY,
 } from '../../../../functions/displayCurrency';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
 import GetThemeColors from '../../../../hooks/themeColors';
+import useDisplayUsdRate from '../../../../hooks/useDisplayUsdRate';
 
 export default function AnalyticsCreateBudgetPage() {
   const navigate = useNavigation();
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
-  const { swapUSDPriceDollars } = useFlashnet();
   const { tokens } = GetThemeColors();
   const { fiatStats } = useNodeContext();
+  const usdFiatStats = useDisplayUsdRate();
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslation();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const existingBudget = masterInfoObject?.monthlyBudget;
-  const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
-
-  const formattedPresetAmount =
-    userBalanceDenomination === 'fiat'
-      ? numberConverter(existingBudget?.amount || 0, 'fiat', 2, fiatStats)
-      : existingBudget?.amount || 0;
-
-  const [amountValue, setAmountValue] = useState(
-    existingBudget?.amount ? String(formattedPresetAmount) : '',
-  );
-  const usdFiatStats = useMemo(
-    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
-    [fiatStats, swapUSDPriceDollars],
-  );
   const initialDisplayCurrency = useMemo(
     () =>
       getDefaultDisplayCurrency({
@@ -79,14 +63,36 @@ export default function AnalyticsCreateBudgetPage() {
   const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
   const isSats = normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY;
 
-  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
-    useCurrencyDisplay({
-      displayCurrency,
-      fiatStats,
-      usdFiatStats,
-      currencyRates,
-      masterInfoObject,
-    });
+  const {
+    primaryDisplay,
+    conversionFiatStats,
+    convertDisplayToSats,
+    convertSatsToDisplay,
+    rateUnavailable,
+  } = useCurrencyDisplay({
+    displayCurrency,
+    fiatStats,
+    usdFiatStats,
+    currencyRates,
+    masterInfoObject,
+  });
+
+  // Prefilled in the input's own unit (same hook), not the stored denomination.
+  const [prefill] = useState(() =>
+    existingBudget?.amount > 0
+      ? {
+          displayValue: String(convertSatsToDisplay(existingBudget.amount)),
+          sats: existingBudget.amount,
+        }
+      : null,
+  );
+  const [amountValue, setAmountValue] = useState(prefill?.displayValue ?? '');
+  // Set on the first keypad press; a currency switch alone doesn't count.
+  const editedRef = useRef(false);
+  const setTypedAmount = useCallback(value => {
+    editedRef.current = true;
+    setAmountValue(value);
+  }, []);
 
   const { exactSats } = useAmountInputConversion({
     amount: amountValue,
@@ -95,7 +101,12 @@ export default function AnalyticsCreateBudgetPage() {
     conversionFiatStats,
   });
 
-  const localSatAmount = exactSats ?? convertDisplayToSats(amountValue);
+  const localSatAmount =
+    prefill &&
+    amountValue !== '' &&
+    (!editedRef.current || prefill.displayValue === amountValue)
+      ? prefill.sats
+      : exactSats ?? convertDisplayToSats(amountValue);
 
   const openPicker = useCallback(
     () =>
@@ -127,7 +138,9 @@ export default function AnalyticsCreateBudgetPage() {
           title={t('analytics.budget.monthlyBudget')}
           right={
             <BudgetCurrencyButton
-              label={isSats ? 'SAT' : normalizedDisplayCurrency}
+              label={
+                isSats || rateUnavailable ? 'SAT' : normalizedDisplayCurrency
+              }
               onPress={openPicker}
               disabled={isLoadingRate}
               accessibilityLabel={t(
@@ -162,7 +175,7 @@ export default function AnalyticsCreateBudgetPage() {
         {/* Keyboard */}
         <CustomNumberKeyboard
           usingForBalance={true}
-          setInputValue={setAmountValue}
+          setInputValue={setTypedAmount}
           showDot={primaryDisplay.denomination === 'fiat'}
           fiatStats={conversionFiatStats}
           redesign

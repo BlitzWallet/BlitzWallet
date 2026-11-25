@@ -11,7 +11,7 @@ import AmountHero from '../../../../../functions/CustomElements/redesign/AmountH
 import BudgetCurrencyButton from '../../../../../functions/CustomElements/redesign/CurrencyButton';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
-import { useFlashnet } from '../../../../../../context-store/flashnetContext';
+import useDisplayUsdRate from '../../../../../hooks/useDisplayUsdRate';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import useCurrencyDisplay from '../../../../../hooks/useCurrencyDisplay';
 import useAmountInputConversion from '../../../../../hooks/useAmountInputConversion';
@@ -19,7 +19,6 @@ import useDisplayCurrencyController from '../../../../../hooks/useDisplayCurrenc
 import {
   getDefaultDisplayCurrency,
   normalizeDisplayCurrency,
-  resolveUsdFiatStats,
   SATS_DISPLAY_CURRENCY,
 } from '../../../../../functions/displayCurrency';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
@@ -39,14 +38,10 @@ export default function PoolAmountKeypad({
   const { t } = useTranslation();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
-  const { swapUSDPriceDollars } = useFlashnet();
+  const usdFiatStats = useDisplayUsdRate();
   const { tokens } = GetThemeColors();
   const [amountValue, setAmountValue] = useState('');
 
-  const usdFiatStats = useMemo(
-    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
-    [fiatStats, swapUSDPriceDollars],
-  );
   const initialDisplayCurrency = useMemo(
     () =>
       getDefaultDisplayCurrency({
@@ -65,14 +60,18 @@ export default function PoolAmountKeypad({
     });
   const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
   const isSats = normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY;
-  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
-    useCurrencyDisplay({
-      displayCurrency,
-      fiatStats,
-      usdFiatStats,
-      currencyRates,
-      masterInfoObject,
-    });
+  const {
+    primaryDisplay,
+    conversionFiatStats,
+    convertDisplayToSats,
+    rateUnavailable,
+  } = useCurrencyDisplay({
+    displayCurrency,
+    fiatStats,
+    usdFiatStats,
+    currencyRates,
+    masterInfoObject,
+  });
   const { exactSats } = useAmountInputConversion({
     amount: amountValue,
     setAmount: setAmountValue,
@@ -124,7 +123,9 @@ export default function PoolAmountKeypad({
         showBack={!!onBack}
         right={
           <BudgetCurrencyButton
-            label={isSats ? 'SAT' : normalizedDisplayCurrency}
+            label={
+              isSats || rateUnavailable ? 'SAT' : normalizedDisplayCurrency
+            }
             onPress={openPicker}
             disabled={isLoadingRate}
             accessibilityLabel={t(

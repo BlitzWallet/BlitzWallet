@@ -30,7 +30,6 @@ export default async function processLNUrlPay(input, context) {
     masterInfoObject,
     comingFromAccept,
     enteredPaymentInfo,
-    fiatStats,
     paymentInfo,
     currentWalletMnemoinc,
     t,
@@ -122,10 +121,9 @@ export default async function processLNUrlPay(input, context) {
       : input.data.minSendable;
   const amountSat = Math.round(amountMsat / 1000);
 
-  const fiatValue =
-    !!amountMsat && amountSat / (SATSPERBITCOIN / (fiatStats?.value || 65000));
-
   let swapPaymentQuote = {};
+  // USD quote refused (e.g. below the backend minimum) while BTC still works.
+  let usdQuoteError = null;
   let paymentFee = 0;
   let supportFee = 0;
   let usdPaymentFee = 0;
@@ -321,6 +319,7 @@ export default async function processLNUrlPay(input, context) {
         const paymentQuote = results[usdPromiseIndex];
         if (!paymentQuote.didWork && !needBtcFee)
           throw new Error(paymentQuote.error);
+        if (!paymentQuote.didWork) usdQuoteError = paymentQuote.error;
         if (paymentQuote.didWork) {
           swapPaymentQuote = {
             ...paymentQuote.quote,
@@ -385,10 +384,6 @@ export default async function processLNUrlPay(input, context) {
   const displayAmount =
     enteredPaymentInfo?.fromContacts || comingFromAccept
       ? enteredAmount / 1000 // the re-quoted amount when it was re-quoted above
-      : masterInfoObject.userBalanceDenomination != 'fiat'
-      ? amountSat
-      : canEditPayment
-      ? fiatValue
       : amountSat;
 
   return {
@@ -404,6 +399,7 @@ export default async function processLNUrlPay(input, context) {
     usdPaymentFee,
     usdSupportFee,
     swapPaymentQuote: swapPaymentQuote,
+    usdQuoteError,
     type: InputTypes.LNURL_PAY,
     paymentNetwork: 'lightning',
     sendAmount: enteredAmount ? `${displayAmount}` : '',

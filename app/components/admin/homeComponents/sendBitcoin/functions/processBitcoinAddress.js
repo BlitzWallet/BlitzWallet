@@ -14,7 +14,6 @@ export default async function processBitcoinAddress(input, context) {
     masterInfoObject,
     comingFromAccept,
     enteredPaymentInfo,
-    fiatStats,
     paymentInfo,
     currentWalletMnemoinc,
     bitcoinBalance,
@@ -40,9 +39,6 @@ export default async function processBitcoinAddress(input, context) {
   const amountSat = comingFromAccept
     ? enteredPaymentInfo.amount
     : bip21AmountSat || 0;
-
-  const fiatValue =
-    Number(amountSat) / (SATSPERBITCOIN / (fiatStats?.value || 65000));
 
   let newPaymentInfo = {
     address: input.data.address,
@@ -99,10 +95,6 @@ export default async function processBitcoinAddress(input, context) {
 
   const displayAmount = comingFromAccept
     ? enteredPaymentInfo.amount
-    : masterInfoObject.userBalanceDenomination != 'fiat'
-    ? Math.round(Number(amountSat))
-    : canEditPayment
-    ? fiatValue.toFixed(2)
     : Math.round(Number(amountSat));
 
   return {

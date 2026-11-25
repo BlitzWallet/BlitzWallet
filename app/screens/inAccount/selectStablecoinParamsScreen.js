@@ -13,7 +13,7 @@ import Note from '../../functions/CustomElements/redesign/Note';
 import { middleEllipsis } from '../../functions/CustomElements/redesign/KeyValueRow';
 import useContentWidth from '../../functions/CustomElements/redesign/useContentWidth';
 import GetThemeColors from '../../hooks/themeColors';
-import { CENTER, ICONS } from '../../constants';
+import { CENTER, CONTENT_KEYBOARD_OFFSET, ICONS } from '../../constants';
 import { Image } from 'expo-image';
 import BottomActions from '../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../functions/CustomElements/redesign/BottomFade';
@@ -84,7 +84,7 @@ export default function SelectStablecoinParamsScreen() {
         />
         <ThemeText
           variant="body"
-          styles={[styles.sub, { color: tokens.muted }]}
+          styles={[styles.sub, { color: tokens.muted, marginTop: FADE_TOP }]}
           content={
             isNonEvm
               ? t('wallet.stablecoinSend.sendingToOn', {
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     ...CENTER,
   },
   sub: { marginTop: 20 },
-  scrollContent: { flexGrow: 1, paddingTop: FADE_TOP },
+  scrollContent: { flexGrow: 1, paddingTop: CONTENT_KEYBOARD_OFFSET },
   note: { paddingVertical: 12, paddingHorizontal: 4 },
   button: { ...CENTER },
   cardIcon: {

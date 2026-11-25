@@ -31,6 +31,7 @@ import {
 } from '../../../../constants';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
+import useDisplayUsdRate from '../../../../hooks/useDisplayUsdRate';
 import { useKeysContext } from '../../../../../context-store/keys';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import {
@@ -65,7 +66,6 @@ import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
 import {
   getDefaultDisplayCurrency,
   normalizeDisplayCurrency,
-  resolveUsdFiatStats,
 } from '../../../../functions/displayCurrency';
 import { Image } from 'expo-image';
 import { formatCountdown } from '../../../../functions/timeFormatter';
@@ -101,13 +101,14 @@ export default function StablecoinSendScreen() {
   const contentWidth = useContentWidth();
   const didWarnAboutBudget = useRef(null);
   const { fiatStats } = useNodeContext();
+  const usdFiatStats = useDisplayUsdRate();
   const { masterInfoObject } = useGlobalContextProvider();
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { sparkInformation } = useSparkWallet();
   const { bitcoinBalance, dollarBalanceToken, dollarBalanceSat } =
     useUserBalanceContext();
-  const { swapUSDPriceDollars, poolInfoRef } = useFlashnet();
+  const { poolInfoRef } = useFlashnet();
   // Provider-owned auth-reset counter. A long-background/logout reset bumps it
   // AND navigates to SplashReload (login); it also tears down the WebView
   // bridge, which settles any in-flight/held send with a fabricated cleanup
@@ -120,9 +121,7 @@ export default function StablecoinSendScreen() {
   const { authResetkeyRef } = useAuthContext();
 
   const [screenMode, setScreenMode] = useState('EDIT_AMOUNT'); // 'EDIT_AMOUNT' | 'CONFIRM_PAYMENT'
-  const [rawInput, setRawInput] = useState(
-    prefillAmount != null ? String(prefillAmount) : '',
-  );
+  const [rawInput, setRawInput] = useState('');
   console.log(rawInput);
 
   const [quote, setQuote] = useState(null);
@@ -146,20 +145,17 @@ export default function StablecoinSendScreen() {
   balanceRef.current.dollarToken = dollarBalanceToken;
 
   const sourceMethod = selectedPaymentMethod || 'BTC';
-  const usdFiatStats = useMemo(
-    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
-    [fiatStats, swapUSDPriceDollars],
-  );
   const initialDisplayCurrency = useMemo(
     () =>
-      sourceMethod === 'USD'
+      // A URI amount is in stablecoin (dollar) units, so it is entered as USD.
+      sourceMethod === 'USD' || prefillAmount != null
         ? 'USD'
         : getDefaultDisplayCurrency({
             paymentMode: sourceMethod,
             masterInfoObject,
             fiatStats,
           }),
-    [sourceMethod, masterInfoObject, fiatStats],
+    [sourceMethod, prefillAmount, masterInfoObject, fiatStats],
   );
 
   const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
@@ -198,6 +194,28 @@ export default function StablecoinSendScreen() {
   }, [primaryDisplay]);
 
   const convertedSendAmount = exactSats ?? convertDisplayToSats(rawInput);
+
+  // Apply the URI amount once, and only while entry is in USD, so dollars are
+  // never read as sats (or another currency).
+  const didPrefillRef = useRef(false);
+  useEffect(() => {
+    if (didPrefillRef.current || prefillAmount == null) return;
+    if (
+      primaryDisplay.denomination !== 'fiat' ||
+      primaryDisplay.forceCurrency !== 'USD'
+    )
+      return;
+    didPrefillRef.current = true;
+    setRawInput(String(prefillAmount));
+  }, [prefillAmount, primaryDisplay]);
+
+  // No fresh USD rate -> entry falls back to sats, so rawInput is not dollars.
+  const usdEntryUnavailable =
+    sourceMethod === 'USD' &&
+    !(
+      primaryDisplay.denomination === 'fiat' &&
+      primaryDisplay.forceCurrency === 'USD'
+    );
 
   const { shouldWarn } = useBudgetWarning(convertedSendAmount);
 
@@ -317,7 +335,7 @@ export default function StablecoinSendScreen() {
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (rawInput > 0) {
+    if (rawInput > 0 && !usdEntryUnavailable) {
       const exceedsBalance =
         sourceMethod === 'BTC'
           ? convertedSendAmount > balanceRef.current.bitcoin
@@ -368,6 +386,7 @@ export default function StablecoinSendScreen() {
     rawInput,
     exactSats,
     sourceMethod,
+    usdEntryUnavailable,
     fetchQuote,
     clearCountdown,
     retriggerQuoteFetch,
@@ -770,7 +789,13 @@ export default function StablecoinSendScreen() {
               )}
               {sourceMethod !== 'USD' && (
                 <CurrencyButton
-                  label={currencyCode === 'SATS' ? 'SAT' : currencyCode}
+                  label={
+                    // No fresh rate → entry falls back to sats; the chip must say so.
+                    currencyCode === 'SATS' ||
+                    primaryDisplay.denomination === 'sats'
+                      ? 'SAT'
+                      : currencyCode
+                  }
                   onPress={openPicker}
                   disabled={isLoadingRate}
                   accessibilityLabel={t(

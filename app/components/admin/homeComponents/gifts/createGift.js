@@ -10,6 +10,7 @@ import {
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
+import useDisplayUsdRate from '../../../../hooks/useDisplayUsdRate';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useFlashnet } from '../../../../../context-store/flashnetContext';
@@ -25,7 +26,6 @@ import {
 import {
   getDefaultDisplayCurrency,
   normalizeDisplayCurrency,
-  resolveUsdFiatStats,
   SATS_DISPLAY_CURRENCY,
 } from '../../../../functions/displayCurrency';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
@@ -34,10 +34,11 @@ import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero
 import PaymentMethod from '../../../../functions/CustomElements/redesign/PaymentMethod';
 
 export default function CreateGift(props) {
-  const { swapUSDPriceDollars, poolInfoRef } = useFlashnet();
+  const { poolInfoRef } = useFlashnet();
   const navigate = useNavigation();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
+  const usdFiatStats = useDisplayUsdRate();
   const { t } = useTranslation();
   const { bitcoinBalance, dollarBalanceToken } = useUserBalanceContext();
   const [amountValue, setAmountValue] = useState('');
@@ -45,10 +46,6 @@ export default function CreateGift(props) {
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const determinePaymentMethod =
     props.route?.params?.selectedPaymentMethod || 'BTC';
-  const usdFiatStats = useMemo(
-    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
-    [fiatStats, swapUSDPriceDollars],
-  );
   const initialDisplayCurrency = useMemo(
     () =>
       getDefaultDisplayCurrency({
@@ -69,14 +66,18 @@ export default function CreateGift(props) {
   const normalizedDisplayCurrency = normalizeDisplayCurrency(displayCurrency);
   const isSats = normalizedDisplayCurrency === SATS_DISPLAY_CURRENCY;
 
-  const { primaryDisplay, conversionFiatStats, convertDisplayToSats } =
-    useCurrencyDisplay({
-      displayCurrency,
-      fiatStats,
-      usdFiatStats,
-      currencyRates,
-      masterInfoObject,
-    });
+  const {
+    primaryDisplay,
+    conversionFiatStats,
+    convertDisplayToSats,
+    rateUnavailable,
+  } = useCurrencyDisplay({
+    displayCurrency,
+    fiatStats,
+    usdFiatStats,
+    currencyRates,
+    masterInfoObject,
+  });
   const { exactSats } = useAmountInputConversion({
     amount: amountValue,
     setAmount: setAmountValue,
@@ -85,10 +86,18 @@ export default function CreateGift(props) {
   });
 
   const localSatAmount = exactSats ?? convertDisplayToSats(amountValue);
-  const dollarAmount = satsToDollars(
-    localSatAmount,
-    poolInfoRef.currentPriceAInB,
-  );
+  // A USD gift keeps the dollars as typed; going through sats would add the
+  // market-vs-pool spread.
+  const typedUsdAmount =
+    determinePaymentMethod === 'USD' &&
+    primaryDisplay.denomination === 'fiat' &&
+    primaryDisplay.forceCurrency === 'USD' &&
+    Number(amountValue) > 0
+      ? Number(amountValue)
+      : null;
+  const dollarAmount =
+    typedUsdAmount ??
+    satsToDollars(localSatAmount, poolInfoRef.currentPriceAInB);
 
   const openPicker = () =>
     navigate.navigate('CustomHalfModal', {
@@ -116,7 +125,9 @@ export default function CreateGift(props) {
           title={t('screens.inAccount.giftPages.createGift.header')}
           right={
             <BudgetCurrencyButton
-              label={isSats ? 'SAT' : normalizedDisplayCurrency}
+              label={
+                isSats || rateUnavailable ? 'SAT' : normalizedDisplayCurrency
+              }
               onPress={openPicker}
               disabled={isLoadingRate}
               accessibilityLabel={t(
@@ -174,6 +185,9 @@ export default function CreateGift(props) {
               dollarAmount: convertToDecimals(dollarAmount),
               amountValue,
               giftDenomination: determinePaymentMethod,
+              displayDenomination: primaryDisplay.denomination,
+              displayCurrency: primaryDisplay.forceCurrency,
+              displayFiatStats: conversionFiatStats,
             });
           }}
           size={'regular'}

@@ -2967,7 +2967,11 @@
         "moreDetails": "Weitere Details",
         "showLess": "Weniger anzeigen",
         "waitingForConfirmations": "Warten auf {{count}} Bestätigungen",
-        "claimError": "Fehler beim Einfordern der Zahlung."
+        "claimError": "Fehler beim Einfordern der Zahlung.",
+        "valueWhenSent": "Wert beim Senden",
+        "valueWhenReceived": "Wert beim Empfang",
+        "rateAtTime": "Kurs zum Zeitpunkt",
+        "valueToday": "Heutiger Wert"
       },
       "explorePage": {
         "timeLeft": "({{time}} verbleibend)",

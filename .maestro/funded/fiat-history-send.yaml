@@ -1,0 +1,126 @@
+# MAINNET, real funds, <= $0.50. Sends USD 0.50 to a receiver and checks that the
+# entered value is stored and shown exactly (T1, T7): confirm `$0.50`, history row
+# `-$0.50` with no approximation sign, details "Value when sent" + "Rate at the time",
+# `≈` on the row once the display currency is EUR (details keep $0.50), and
+# exactly `-$0.50` again after switching back.
+#
+# Needs a logged-in funded throwaway wallet (PIN 1111), Fast Pay off. RECEIVER is a
+# test receiver's invoice/address that accepts the amount you type (a no-amount
+# invoice or a Spark/LNURL address). Never point at a wallet with real savings.
+#
+# maestro test -e APP_ID=org.reactjs.native.example.BlitzWallet -e RECEIVER=... \
+#   --format junit --output e2e-artifacts/report.xml --test-output-dir e2e-artifacts \
+#   .maestro/funded/fiat-history-send.yaml
+appId: ${APP_ID}
+---
+- launchApp
+- extendedWaitUntil:
+    visible: '(Good (morning|afternoon|evening)|Receive)'
+    timeout: 30000
+- runFlow:
+    when:
+      visible: 'Good (morning|afternoon|evening)'
+    commands:
+      - tapOn: '1'
+      - tapOn: '1'
+      - tapOn: '1'
+      - tapOn: '1'
+- extendedWaitUntil:
+    visible: Receive
+    timeout: 30000
+
+- runFlow:
+    file: _set-fiat-display.yaml
+    env:
+      CURRENCY_CODE: USD
+      CURRENCY_NAME: US Dollar
+      DISPLAY_CODE: 'fiat'
+
+# Send $0.50.
+- tapOn: Send
+- tapOn:
+    text: .*address.*
+- inputText: ${RECEIVER}
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn: Next
+- extendedWaitUntil:
+    visible: Pay with
+    timeout: 30000
+- tapOn: '5'
+- tapOn: '0'
+- assertVisible: '.*\$\s?0\.50.*'
+- assertVisible: Review
+- tapOn: Review
+- extendedWaitUntil:
+    visible: Slide to send
+    timeout: 30000
+- assertVisible: '.*\$\s?0\.50.*'
+- takeScreenshot: fiat-send-review
+- swipe: # VERIFY on first run: drag the slider across
+    from:
+      text: Slide to send
+    direction: RIGHT
+    duration: 800
+- extendedWaitUntil:
+    visible: '.*\$\s?0\.50.*'
+    timeout: 90000
+- assertVisible: Done
+- takeScreenshot: fiat-send-confirm
+- tapOn: Done
+- extendedWaitUntil:
+    visible: Receive
+    timeout: 30000
+
+# History row reads exactly -$0.50, no approximation sign.
+- tapOn: Activity
+- extendedWaitUntil:
+    visible: '-\$0\.50'
+    timeout: 30000
+- assertNotVisible: '.*≈.*\$\s?0\.50.*'
+- takeScreenshot: fiat-history-usd
+
+# Details: stored value and its rate.
+- tapOn: '-\$0\.50'
+- extendedWaitUntil:
+    visible: Value when sent
+    timeout: 15000
+- assertVisible: '.*\$\s?0\.50.*'
+- scrollUntilVisible:
+    element: Rate at the time
+- assertVisible: Rate at the time
+- takeScreenshot: fiat-details-usd
+- tapOn: Back # VERIFY: or swipe the sheet down if there is no Back
+
+# EUR: row is approximate; details still show the entered $0.50.
+- runFlow:
+    file: _set-fiat-display.yaml
+    env:
+      CURRENCY_CODE: EUR
+      CURRENCY_NAME: Euro
+      DISPLAY_CODE: 'fiat'
+- tapOn: Activity
+- extendedWaitUntil:
+    visible: '.*≈.*€.*'
+    timeout: 30000
+- takeScreenshot: fiat-history-eur
+- tapOn: '.*≈.*€.*'
+- extendedWaitUntil:
+    visible: Value when sent
+    timeout: 15000
+- assertVisible: '.*\$\s?0\.50.*'
+- takeScreenshot: fiat-details-eur
+- tapOn: Back
+
+# Back to USD: exactly -$0.50 again.
+- runFlow:
+    file: _set-fiat-display.yaml
+    env:
+      CURRENCY_CODE: USD
+      CURRENCY_NAME: US Dollar
+      DISPLAY_CODE: 'fiat'
+- tapOn: Activity
+- extendedWaitUntil:
+    visible: '-\$0\.50'
+    timeout: 30000
+- takeScreenshot: fiat-history-usd-again

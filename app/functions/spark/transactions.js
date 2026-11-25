@@ -8,6 +8,11 @@ import {
 } from './spendAndReplaceStorage';
 import { labelSpendAndReplaceIncoming } from './spendAndReplaceCorrelation';
 import { isFlashnetTransfer } from './handleFlashnetTransferIds';
+import {
+  buildSnapshotFiatValue,
+  shouldReplaceFiatValue,
+} from '../txFiatValue';
+import { getCurrentMarketRate, SNAPSHOT_WINDOW_MS } from '../money';
 
 export const SPARK_TRANSACTIONS_DATABASE_NAME = 'SPARK_INFORMATION_DATABASE';
 export const SPARK_TRANSACTIONS_TABLE_NAME = 'SPARK_TRANSACTIONS';
@@ -75,12 +80,98 @@ const isMeaningfulDetailValue = (key, value, shouldUpdateDescription) =>
   (value !== '' && value !== null && value !== undefined && value !== 0) ||
   (key === 'description' && shouldUpdateDescription);
 
-const shouldUseIncomingDetailValue = (
+const withSnapshotFiatValue = details => {
+  const fiatValue = buildSnapshotFiatValue(
+    details,
+    getCurrentMarketRate(),
+    Date.now(),
+  );
+  return fiatValue ? { ...details, fiatValue } : details;
+};
+
+// Rows written before a usable market rate existed carry no fiatValue, and
+// nothing rewrites them afterwards: snapshots are only taken on insert
+// (paymentIngest skips existing rows). Fill those rows in once a fresh rate is
+// available, while their payment time is still inside the snapshot window.
+export const backfillSnapshotFiatValues = async ({
+  accountId,
+  rate,
+  now = Date.now(),
+}) => {
+  if (!accountId) return 0;
+  return runSerializedSparkDbWrite(async () => {
+    try {
+      await ensureSparkDatabaseReady();
+      const rows = await sqlLiteDB.getAllAsync(
+        `SELECT sparkID, details FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+         WHERE accountId = ?
+           AND json_valid(details)
+           AND json_extract(details, '$.fiatValue') IS NULL
+           AND json_extract(details, '$.isLRC20Payment') IS NULL
+           AND json_extract(details, '$.time') BETWEEN ? AND ?
+         ORDER BY json_extract(details, '$.time') DESC
+         LIMIT 500`,
+        [String(accountId), now - SNAPSHOT_WINDOW_MS, now + SNAPSHOT_WINDOW_MS],
+      );
+      if (!rows?.length) return 0;
+
+      const updates = [];
+      for (const row of rows) {
+        let details;
+        try {
+          details = JSON.parse(row.details);
+        } catch {
+          continue;
+        }
+        const fiatValue = buildSnapshotFiatValue(details, rate, now);
+        if (!fiatValue) continue;
+        updates.push({
+          sparkID: row.sparkID,
+          details: JSON.stringify({ ...details, fiatValue }),
+        });
+      }
+      if (!updates.length) return 0;
+
+      await sqlLiteDB.execAsync('BEGIN TRANSACTION');
+      for (const update of updates) {
+        await sqlLiteDB.runAsync(
+          `UPDATE ${SPARK_TRANSACTIONS_TABLE_NAME}
+             SET details = ?
+             WHERE sparkID = ? AND accountId = ?
+               AND json_extract(details, '$.fiatValue') IS NULL`,
+          [update.details, update.sparkID, String(accountId)],
+        );
+      }
+      await sqlLiteDB.execAsync('COMMIT');
+
+      handleEventEmitterPost(
+        sparkTransactionsEventEmitter,
+        SPARK_TX_UPDATE_ENVENT_NAME,
+        'transactions',
+      );
+      return updates.length;
+    } catch (error) {
+      console.error('Error backfilling snapshot fiat values:', error);
+      try {
+        await sqlLiteDB.execAsync('ROLLBACK');
+      } catch (rollbackError) {
+        console.error('Error rolling back fiat backfill:', rollbackError);
+      }
+      return 0;
+    }
+  });
+};
+
+export const shouldUseIncomingDetailValue = (
   key,
   incomingValue,
   existingValue,
   shouldUpdateDescription,
 ) => {
+  if (key === 'fiatValue') {
+    return shouldReplaceFiatValue(incomingValue, existingValue);
+  }
+
   if (key === 'fee') {
     const incomingFee = Number(incomingValue);
     const existingFee = Number(existingValue) || 0;
@@ -123,7 +214,7 @@ export const insertSparkTransactionPlaceholders = async (
             tx.paymentType || 'unknown',
             accountId,
             JSON.stringify({
-              ...(tx.details ?? {}),
+              ...withSnapshotFiatValue(tx.details ?? {}),
               dateAddedToDb: Date.now(),
             }),
             sparkID,
@@ -1739,7 +1830,7 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
               processedTx.paymentType,
               processedTx.accountId,
               JSON.stringify({
-                ...processedTx.details,
+                ...withSnapshotFiatValue(processedTx.details),
                 dateAddedToDb: Date.now(),
               }),
             ],
@@ -1784,34 +1875,39 @@ export const addSingleSparkTransaction = async (
     return false;
   }
 
-  try {
-    await ensureSparkDatabaseReady();
-    const newDetails = tx.details;
-    await sqlLiteDB.runAsync(
-      `INSERT INTO ${SPARK_TRANSACTIONS_TABLE_NAME}
-       (sparkID, paymentStatus, paymentType, accountId, details)
-       VALUES (?, ?, ?, ?, ?)`,
-      [
-        tx.id,
-        tx.paymentStatus,
-        tx.paymentType ?? 'unknown',
-        tx.accountId ?? 'unknown',
-        JSON.stringify({ ...newDetails, dateAddedToDb: Date.now() }),
-      ],
-    );
-    // Emit event
+  return runSerializedSparkDbWrite(async () => {
+    try {
+      await ensureSparkDatabaseReady();
+      const newDetails = tx.details;
+      await sqlLiteDB.runAsync(
+        `INSERT INTO ${SPARK_TRANSACTIONS_TABLE_NAME}
+         (sparkID, paymentStatus, paymentType, accountId, details)
+         VALUES (?, ?, ?, ?, ?)`,
+        [
+          tx.id,
+          tx.paymentStatus,
+          tx.paymentType ?? 'unknown',
+          tx.accountId ?? 'unknown',
+          JSON.stringify({
+            ...withSnapshotFiatValue(newDetails ?? {}),
+            dateAddedToDb: Date.now(),
+          }),
+        ],
+      );
+      // Emit event
 
-    handleEventEmitterPost(
-      sparkTransactionsEventEmitter,
-      SPARK_TX_UPDATE_ENVENT_NAME,
-      updateType,
-    );
+      handleEventEmitterPost(
+        sparkTransactionsEventEmitter,
+        SPARK_TX_UPDATE_ENVENT_NAME,
+        updateType,
+      );
 
-    return true;
-  } catch (error) {
-    console.error('Error adding spark transaction:', error);
-    return false;
-  }
+      return true;
+    } catch (error) {
+      console.error('Error adding spark transaction:', error);
+      return false;
+    }
+  });
 };
 
 export const deleteSparkTransaction = async sparkID => {

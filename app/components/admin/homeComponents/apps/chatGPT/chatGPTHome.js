@@ -29,12 +29,13 @@ import { useGlobalContactsInfo } from '../../../../../../context-store/globalCon
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import fetchBackend from '../../../../../../db/handleBackend';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
-import { useNodeContext } from '../../../../../../context-store/nodeContext';
+import useDisplayUsdRate from '../../../../../hooks/useDisplayUsdRate';
 import { useKeysContext } from '../../../../../../context-store/keys';
 import { keyboardNavigate } from '../../../../../functions/customNavigation';
 import customUUID from '../../../../../functions/customUUID';
 import { useToast } from '../../../../../../context-store/toastManager';
 import { useTranslation } from 'react-i18next';
+import { isUsableRate } from '../../../../../functions/money';
 import { ONEMILLION } from '../../../../../constants/math';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import IconButton from '../../../../../functions/CustomElements/redesign/IconButton';
@@ -131,7 +132,7 @@ export default function ChatGPTHome(props) {
   const navigate = useNavigation();
   const { showToast } = useToast();
   const { contactsPrivateKey, publicKey } = useKeysContext();
-  const { fiatStats } = useNodeContext();
+  const usdFiatStats = useDisplayUsdRate();
   const { theme, tokens } = useGlobalThemeContext();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
@@ -287,7 +288,7 @@ export default function ChatGPTHome(props) {
 
         const data = response;
         const [textInfo] = data.choices;
-        const satsPerDollar = SATSPERBITCOIN / (fiatStats.value || 60000);
+        const satsPerDollar = SATSPERBITCOIN / usdFiatStats.value;
 
         const price =
           (filteredModel.inputPrice / ONEMILLION) * data.usage.prompt_tokens +
@@ -343,7 +344,7 @@ export default function ChatGPTHome(props) {
       globalContactsInformation.myProfile.uuid,
       contactsPrivateKey,
       publicKey,
-      fiatStats.value,
+      usdFiatStats,
       totalAvailableCredits,
       toggleGlobalAppDataInformation,
       globalAppDataInformation.chatGPT.conversation,
@@ -359,6 +360,14 @@ export default function ChatGPTHome(props) {
       if (totalAvailableCredits < 30) {
         navigate.navigate('ErrorScreen', {
           errorMessage: t('apps.chatGPT.chatGPTHome.noAvailableCreditsError'),
+        });
+        return;
+      }
+
+      // Model prices are in USD; never price them with a non-USD or missing rate.
+      if (!isUsableRate(usdFiatStats, 'USD')) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('errormessages.genericError'),
         });
         return;
       }
@@ -387,7 +396,15 @@ export default function ChatGPTHome(props) {
       setUserChatText('');
       getChatResponse(userChatObject, filteredModel);
     },
-    [totalAvailableCredits, model, aiModels, navigate, t, getChatResponse],
+    [
+      totalAvailableCredits,
+      model,
+      aiModels,
+      navigate,
+      t,
+      getChatResponse,
+      usdFiatStats,
+    ],
   );
 
   const userChatHistory = useMemo(() => {

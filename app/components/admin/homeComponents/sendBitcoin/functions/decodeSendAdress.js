@@ -48,7 +48,6 @@ export default async function decodeSendAddress(props) {
     setLoadingMessage,
     paymentInfo,
     parsedInvoice,
-    fiatStats,
     fromPage,
     sparkInformation,
     seletctedToken,
@@ -355,7 +354,6 @@ export default async function decodeSendAddress(props) {
 
       [processedPaymentInfo, brantaVerification] = await Promise.all([
         processInputType(input, {
-          fiatStats,
           liquidNodeInformation,
           masterInfoObject,
           navigate,

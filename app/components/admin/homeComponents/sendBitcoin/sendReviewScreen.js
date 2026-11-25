@@ -56,6 +56,7 @@ import {
   formatFeeText,
   formatSecondaryText,
 } from './functions/formatSendText';
+import { buildEnteredFiatValue } from '../../../../functions/txFiatValue';
 import useBlockSendDuringExit from '../../../../functions/unilateralExit/useBlockSendDuringExit';
 import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
@@ -131,9 +132,11 @@ export default function SendReviewScreen(props) {
     resolvedPaymentMethod,
     effectivePaymentFee,
     displayAmount,
+    typedUsdAmount,
     convertedSendAmount,
     paymentValidation,
     primaryDisplay,
+    conversionFiatStats,
     isLNURLPayment,
     userPaymentMethod,
     flashnetReady,
@@ -167,13 +170,18 @@ export default function SendReviewScreen(props) {
   const rateAtConfirmEntryRef = useRef(null);
   const uiState = rateChangeDetected ? 'SWAP_RATES_CHANGED' : 'CONFIRM_PAYMENT';
 
-  // use stablepool info ref so the fiat amount doesnt change in between inputs leading to a false amount being sent.
+  // USD balance paying USD: send the typed dollars as-is. Otherwise use stablepool
+  // info ref so the fiat amount doesnt change in between inputs leading to a false amount being sent.
+  const literalUsdAmount =
+    resolvedPaymentMethod === 'USD' ? typedUsdAmount : null;
   const fiatValueConvertedSendAmount = Math.round(
-    satsToDollars(
-      convertedSendAmount,
-      enteredPaymentInfo?.stablePoolInfoRef?.currentPriceAInB ||
-        poolInfoRef.currentPriceAInB,
-    ).toFixed(2) * Math.pow(10, 6),
+    (literalUsdAmount != null
+      ? literalUsdAmount.toFixed(2)
+      : satsToDollars(
+          convertedSendAmount,
+          enteredPaymentInfo?.stablePoolInfoRef?.currentPriceAInB ||
+            poolInfoRef.currentPriceAInB,
+        ).toFixed(2)) * Math.pow(10, 6),
   );
 
   const { shouldWarn } = useBudgetWarning(convertedSendAmount);
@@ -347,10 +355,12 @@ export default function SendReviewScreen(props) {
           paymentInfo.data.expectedReceive === 'tokens' ? 'USD' : 'BTC',
         amountDollars:
           paymentInfo.data.expectedReceive === 'tokens'
-            ? satsToDollars(
-                convertedSendAmount,
-                poolInfoRef.currentPriceAInB,
-              ).toFixed(2)
+            ? literalUsdAmount != null
+              ? literalUsdAmount.toFixed(2)
+              : satsToDollars(
+                  convertedSendAmount,
+                  poolInfoRef.currentPriceAInB,
+                ).toFixed(2)
             : null,
         ...(globalContactsInformation.myProfile?.uniqueName
           ? {
@@ -433,6 +443,16 @@ export default function SendReviewScreen(props) {
           ? enteredPaymentInfo?.description || combinedPaymentDescription
           : combinedPaymentDescription || enteredPaymentInfo?.description;
 
+      // Same currency/rate the confirm page shows; null for sats entry
+      // and token sends (the insert-time snapshot covers those).
+      const enteredFiatValue = isUsingLRC20
+        ? null
+        : buildEnteredFiatValue({
+            displayCurrency: primaryDisplay?.forceCurrency,
+            rate: conversionFiatStats,
+            now: Date.now(),
+          });
+
       const paymentObject = {
         getFee: false,
         ...formattedSparkPaymentInfo,
@@ -457,12 +477,15 @@ export default function SendReviewScreen(props) {
         paymentInfo,
         fiatValueConvertedSendAmount,
         poolInfoRef,
-        extraDetails: paymentInfo?.isUsingBranta
-          ? {
-              brantaMerchantName: paymentInfo.brantaMerchantName,
-              brantaMerchantLogo: paymentInfo.brantaMerchantLogo,
-            }
-          : {},
+        extraDetails: {
+          ...(paymentInfo?.isUsingBranta
+            ? {
+                brantaMerchantName: paymentInfo.brantaMerchantName,
+                brantaMerchantLogo: paymentInfo.brantaMerchantLogo,
+              }
+            : {}),
+          ...(enteredFiatValue ? { fiatValue: enteredFiatValue } : {}),
+        },
       };
 
       const paymentResponse = await sparkPaymenWrapper(paymentObject);
@@ -621,6 +644,8 @@ export default function SendReviewScreen(props) {
     fiatValueConvertedSendAmount,
     paymentValidation,
     displayAmount,
+    primaryDisplay,
+    conversionFiatStats,
     displayTokenTicker,
     selectedContactInfo,
     isOverChildLimit,

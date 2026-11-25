@@ -79,7 +79,7 @@ export default function FiatCurrencyPage() {
 
         if (!response.didWork) throw new Error('error saving fiat data');
 
-        toggleFiatStats(response.fiatRateResponse);
+        toggleFiatStats(response.fiatRateResponse, response.fetchedAt);
         toggleMasterInfoObject({ fiatCurrency: selectedCurrency });
         if (isGoingBackRef.current) return;
         isGoingBackRef.current = true;

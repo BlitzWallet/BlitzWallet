@@ -153,6 +153,26 @@ export default function SendAmountScreen(props) {
     },
     [invalidateNext],
   );
+  // Decoders hand over an editable amount in sats; the display unit is decided
+  // here, once, so a sats value is never read as fiat.
+  const [didSeedAmount, setDidSeedAmount] = useState(false);
+  if (!didSeedAmount) {
+    setDidSeedAmount(true);
+    if (
+      !lockedAmount &&
+      !isUsingLRC20 &&
+      draft?.canEditPayment === true &&
+      Number(draft?.sendAmount) > 0 &&
+      primaryDisplay.denomination === 'fiat'
+    ) {
+      const sats = Number(draft.sendAmount);
+      setDraft(prev => ({
+        ...prev,
+        sendAmount: String(details.convertSatsToDisplay(sats)),
+        sendAmountExactSats: sats,
+      }));
+    }
+  }
   useAmountInputConversion({
     amount: draft?.sendAmount ?? '',
     setAmount: setAmountFromConversion,
@@ -464,7 +484,13 @@ export default function SendAmountScreen(props) {
               style={{ opacity: !isUsingLRC20 && !lockedAmount ? 1 : 0 }}
             >
               <CurrencyButton
-                label={currencyCode === 'SATS' ? 'SAT' : currencyCode}
+                label={
+                  // No fresh rate → entry falls back to sats; the chip must say so.
+                  currencyCode === 'SATS' ||
+                  primaryDisplay.denomination === 'sats'
+                    ? 'SAT'
+                    : currencyCode
+                }
                 onPress={openCurrencyPicker}
                 disabled={details.isLoadingRate}
                 accessibilityLabel={t(

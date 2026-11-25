@@ -10,6 +10,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
+import useDisplayUsdRate from '../../../../hooks/useDisplayUsdRate';
 import ErrorWithPayment from './components/errorScreen';
 import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
 import {
@@ -60,10 +61,7 @@ import { validateSplitPayment } from '../../../../functions/payments/validateSpl
 import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
 import useDisplayCurrencyController from '../../../../hooks/useDisplayCurrencyController';
 import { useBudgetWarning } from '../../../../hooks/useBudgetWarning';
-import {
-  getDefaultDisplayCurrency,
-  resolveUsdFiatStats,
-} from '../../../../functions/displayCurrency';
+import { getDefaultDisplayCurrency } from '../../../../functions/displayCurrency';
 import { useAuthContext } from '../../../../../context-store/authContext';
 import { waitForForground } from '../../../../hooks/useWaitForForground';
 import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
@@ -107,6 +105,7 @@ export default function ConfirmSplitPayment(props) {
   const { sparkInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
+  const usdFiatStats = useDisplayUsdRate();
   const { globalContactsInformation } = useGlobalContacts();
   const contentWidth = useContentWidth();
   // Provider-owned auth-reset counter. A long-background/logout reset bumps it
@@ -154,10 +153,6 @@ export default function ConfirmSplitPayment(props) {
     return (cents || 0) / 100;
   }, [isUSDSplit, splitRecipients]);
 
-  const usdFiatStats = useMemo(
-    () => resolveUsdFiatStats(fiatStats, swapUSDPriceDollars),
-    [fiatStats, swapUSDPriceDollars],
-  );
   const initialDisplayCurrency = useMemo(
     () =>
       getDefaultDisplayCurrency({
