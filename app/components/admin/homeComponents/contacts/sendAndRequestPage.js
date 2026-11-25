@@ -185,7 +185,7 @@ export default function SendAndRequestPage(props) {
           userBalanceDenomination: payment.primaryDisplay.denomination,
         },
         forceCurrency: payment.primaryDisplay.forceCurrency,
-        name: selectedContact?.name || selectedContact?.uniqueName,
+        selectedContact,
       });
     }
   }, [navigate, payment, paymentType, selectedContact]);

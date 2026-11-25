@@ -122,6 +122,8 @@ export default async function processLNUrlPay(input, context) {
   const amountSat = Math.round(amountMsat / 1000);
 
   let swapPaymentQuote = {};
+  // USD quote refused (e.g. below the backend minimum) while BTC still works.
+  let usdQuoteError = null;
   let paymentFee = 0;
   let supportFee = 0;
   let usdPaymentFee = 0;
@@ -317,6 +319,7 @@ export default async function processLNUrlPay(input, context) {
         const paymentQuote = results[usdPromiseIndex];
         if (!paymentQuote.didWork && !needBtcFee)
           throw new Error(paymentQuote.error);
+        if (!paymentQuote.didWork) usdQuoteError = paymentQuote.error;
         if (paymentQuote.didWork) {
           swapPaymentQuote = {
             ...paymentQuote.quote,
@@ -396,6 +399,7 @@ export default async function processLNUrlPay(input, context) {
     usdPaymentFee,
     usdSupportFee,
     swapPaymentQuote: swapPaymentQuote,
+    usdQuoteError,
     type: InputTypes.LNURL_PAY,
     paymentNetwork: 'lightning',
     sendAmount: enteredAmount ? `${displayAmount}` : '',

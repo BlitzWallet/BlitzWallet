@@ -73,6 +73,8 @@ export default async function processBolt11Invoice(input, context) {
   let fee = {};
   let usdFee = {};
   let swapPaymentQuote = {};
+  // USD quote refused (e.g. below the backend minimum) while BTC still works.
+  let usdQuoteError = null;
 
   if (amountMsat) {
     const needUsdFee =
@@ -143,6 +145,7 @@ export default async function processBolt11Invoice(input, context) {
         const paymentQuote = results[usdPromiseIndex];
         if (!paymentQuote.didWork && !needBtcFee)
           throw new Error(paymentQuote.error);
+        if (!paymentQuote.didWork) usdQuoteError = paymentQuote.error;
         if (paymentQuote.didWork) {
           swapPaymentQuote = {
             ...paymentQuote.quote,
@@ -205,6 +208,7 @@ export default async function processBolt11Invoice(input, context) {
     address: input.data.address,
     usingZeroAmountInvoice: !input.data.amountMsat,
     swapPaymentQuote: swapPaymentQuote,
+    usdQuoteError,
     sendAmount: !amountMsat ? '' : `${displayAmount}`,
     canEditPayment,
     amountSat: amountSat,
