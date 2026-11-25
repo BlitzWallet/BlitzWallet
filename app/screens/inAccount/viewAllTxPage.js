@@ -2,21 +2,18 @@ import { useIsFocused, useNavigation } from '@react-navigation/native';
 import {
   SectionList,
   StyleSheet,
-  TouchableOpacity,
   useWindowDimensions,
   View,
 } from 'react-native';
 import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../constants';
-import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
+import { GlobalThemeView } from '../../functions/CustomElements';
 import { useTranslation } from 'react-i18next';
-import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSparkWallet } from '../../../context-store/sparkContext';
 import { useActivitySeen } from '../../../context-store/activitySeen';
 import { useFlashnet } from '../../../context-store/flashnetContext';
 import { getFilteredTransactions } from '../../functions/spark/transactions';
-import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import TopBar from '../../functions/CustomElements/redesign/TopBar';
 import IconButton from '../../functions/CustomElements/redesign/IconButton';
 import EmptyState from '../../functions/CustomElements/redesign/EmptyState';
@@ -32,15 +29,14 @@ import { FONT } from '../../constants/theme';
 import { exportTransactionsCsv } from '../../components/admin/homeComponents/exportTransactions/exportTracker';
 import TxFilterHalfModal from '../../components/admin/homeComponents/homeLightning/txFilterHalfModal';
 import useAfterTransition from '../../hooks/useAfterTransition';
-import TopHeader from '../../functions/CustomElements/redesign/TopHeader';
 import {
   FADE_TOP,
   FADE_TOP_BUFFER,
 } from '../../functions/CustomElements/redesign/TopFade';
+import { useGlobalInsets } from '../../../context-store/insetsProvider';
 
 const EMPTY_FILTER = { directions: [], dateRange: null, types: [] };
 const NS = 'screens.inAccount.viewAllTxPage';
-const DIRECTION_LABELS = { sent: 'filterSent', received: 'filterReceived' };
 const SKELETON_ROWS = [0, 1, 2, 3, 4, 5];
 
 // Rows sit in a per-row ListCard so the SectionList stays virtualised; only
@@ -61,11 +57,11 @@ export default function ViewAllTxPage() {
   const { hasUnseenActivity, markActivitySeen } = useActivitySeen();
   const { poolInfoRef, swapLimits } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { tokens } = useGlobalThemeContext();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const requestIdRef = useRef(0);
   const { t } = useTranslation();
+  const { bottomPadding } = useGlobalInsets();
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
 
   // Skeleton shows while the push animation runs; the SQL read waits for it.
@@ -155,14 +151,6 @@ export default function ViewAllTxPage() {
     currentFilter.dateRange !== null ||
     currentFilter.types.length > 0;
 
-  const filterSummary = [
-    ...currentFilter.directions.map(dir => t(`${NS}.${DIRECTION_LABELS[dir]}`)),
-    ...(currentFilter.dateRange
-      ? [t(`${NS}.filterDate${currentFilter.dateRange}`)]
-      : []),
-    ...currentFilter.types.map(type => t(`${NS}.filter${type}`)),
-  ].join(' · ');
-
   const renderItem = useCallback(
     ({ item, index, section }) => (
       <ListCard
@@ -204,7 +192,7 @@ export default function ViewAllTxPage() {
   );
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
           fade
@@ -225,32 +213,6 @@ export default function ViewAllTxPage() {
             </>
           }
         />
-        {hasActiveFilters && (
-          <View style={styles.filterBar}>
-            <ThemeText
-              styles={[styles.filterText, { color: tokens.muted }]}
-              content={
-                <>
-                  {t(`${NS}.filterShowing`)}{' '}
-                  <ThemeText
-                    styles={[styles.filterText, { color: tokens.ink }]}
-                    content={filterSummary}
-                  />
-                </>
-              }
-            />
-            <TouchableOpacity
-              style={[styles.clearButton, { backgroundColor: tokens.surface }]}
-              onPress={() => applyFilter(EMPTY_FILTER)}
-            >
-              <ThemeText
-                styles={styles.filterText}
-                content={t(`${NS}.filterClear`)}
-              />
-              <ThemeIcon redesign iconName="X" size={16} />
-            </TouchableOpacity>
-          </View>
-        )}
         {!sections ? (
           <ListCard style={styles.skeleton}>
             {SKELETON_ROWS.map(key => (
@@ -285,7 +247,10 @@ export default function ViewAllTxPage() {
             maxToRenderPerBatch={12}
             windowSize={11}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.listContent}
+            contentContainerStyle={[
+              styles.listContent,
+              { paddingBottom: bottomPadding },
+            ]}
           />
         )}
       </View>
@@ -302,7 +267,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 160,
   },
-  listContent: { paddingTop: FADE_TOP, paddingBottom: 24 },
+  listContent: { paddingTop: FADE_TOP },
   skeleton: { marginTop: FADE_TOP },
   squareTop: { borderTopLeftRadius: 0, borderTopRightRadius: 0 },
   squareBottom: { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 },

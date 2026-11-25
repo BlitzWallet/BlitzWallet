@@ -39,6 +39,7 @@ import ActivityRow, {
   buildActivitySections,
 } from '../../components/admin/homeComponents/viewAllComponents/activityRow';
 import { FADE_TOP } from '../../functions/CustomElements/redesign/TopFade';
+import { useGlobalInsets } from '../../../context-store/insetsProvider';
 
 const PAGE = 20;
 const SKELETON_ROWS = [0, 1, 2, 3, 4, 5];
@@ -60,6 +61,7 @@ export default function ManagedAccountActivityPage() {
   const { accountMnemoinc } = useKeysContext();
   const { getAccountMnemonic, custodyAccountsList } = useActiveCustodyAccount();
   const { t } = useTranslation();
+  const { bottomPadding } = useGlobalInsets();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
@@ -268,7 +270,7 @@ export default function ManagedAccountActivityPage() {
   ) : null;
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar fade title={t('settings.childAccounts.transactions.title')} />
         {isLoading ? (
@@ -300,7 +302,10 @@ export default function ManagedAccountActivityPage() {
             maxToRenderPerBatch={12}
             windowSize={11}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.listContent}
+            contentContainerStyle={[
+              styles.listContent,
+              { paddingBottom: bottomPadding },
+            ]}
             ListFooterComponent={loadMoreButton}
           />
         )}
@@ -317,7 +322,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 160,
   },
-  listContent: { paddingTop: FADE_TOP, paddingBottom: 24 },
+  listContent: { paddingTop: FADE_TOP },
   skeleton: { marginTop: FADE_TOP },
   squareTop: { borderTopLeftRadius: 0, borderTopRightRadius: 0 },
   squareBottom: { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 },

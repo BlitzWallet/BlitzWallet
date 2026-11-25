@@ -86,7 +86,7 @@ export default function AnalyticsBudgetPage() {
   }
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
           fade

@@ -110,7 +110,7 @@ export default function SettingsHub(props) {
 
   if (isDoomsday) {
     return (
-      <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
+      <GlobalThemeView edgeToEdge useStandardWidth={true}>
         <View style={[styles.doomedayContianer, { width: contentWidth }]}>
           <TopBar title={t('settings.index.settingsHead')} />
           <View style={styles.doomedayCard}>
@@ -206,7 +206,7 @@ export default function SettingsHub(props) {
   ].filter(Boolean);
 
   return (
-    <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
           fade
@@ -220,8 +220,10 @@ export default function SettingsHub(props) {
           }
         />
         <CustomScrollView
-          styles={{ paddingBottom: bottomPadding }}
-          contentContainerStyle={{ paddingTop: FADE_TOP }}
+          contentContainerStyle={{
+            paddingTop: FADE_TOP,
+            paddingBottom: bottomPadding,
+          }}
         >
           <ProfileCard
             profileImage={myProfileImage}
@@ -254,11 +256,8 @@ export default function SettingsHub(props) {
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {
-    paddingBottom: 0,
-  },
   container: { flex: 1, ...CENTER },
-  rowsCard: { marginTop: 12, marginBottom: 20 },
+  rowsCard: { marginTop: 12 },
   rowTitle: { fontSize: 15, lineHeight: 22 },
   doomedayContianer: {
     flex: 1,

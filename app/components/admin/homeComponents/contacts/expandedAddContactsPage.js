@@ -140,12 +140,8 @@ export default function ExpandedAddContactsPage(props) {
     return () => keyboardGoBack(navigate);
   }, [navigate]);
 
-  const themeBottomPadding = useMemo(() => {
-    return { paddingBottom: isContactAdded ? 0 : bottomPadding };
-  }, [bottomPadding, isContactAdded]);
-
   return (
-    <GlobalThemeView styles={themeBottomPadding} useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge={isContactAdded} useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopHeader>
           <MemoizedNavBar

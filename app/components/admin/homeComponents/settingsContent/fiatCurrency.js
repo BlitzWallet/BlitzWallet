@@ -22,6 +22,7 @@ import HideOnScrollView from '../../../../functions/CustomElements/redesign/Hide
 import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 import CurrencyRow from '../currencyPicker/currencyRow';
 import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 
 export default function FiatCurrencyPage() {
   const { masterInfoObject, toggleMasterInfoObject } =
@@ -29,6 +30,7 @@ export default function FiatCurrencyPage() {
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const { toggleFiatStats, fiatStats } = useNodeContext();
   const { tokens } = useGlobalThemeContext();
+  const { bottomPadding } = useGlobalInsets();
   const isGoingBackRef = useRef(false);
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
@@ -117,7 +119,7 @@ export default function FiatCurrencyPage() {
     : undefined;
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
         <TopBar
           fade
@@ -127,6 +129,7 @@ export default function FiatCurrencyPage() {
         <HideOnScrollView
           topInset={FADE_TOP}
           keyboardShouldPersistTaps="always"
+          contentContainerStyle={{ paddingBottom: bottomPadding }}
           header={
             <SearchField
               pill

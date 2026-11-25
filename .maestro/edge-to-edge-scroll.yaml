@@ -1,0 +1,173 @@
+# Edge-to-edge scroll standardization (Task 5): verifies that edge-to-edge
+# scroll screens reach the bottom edge with the last item resting bottomPadding
+# above it, while screens with bottom buttons keep their inset.
+#
+# Needs a logged-in throwaway wallet (PIN 1111) on Home, English locale.
+#
+# maestro test -e APP_ID=org.reactjs.native.example.BlitzWallet \
+#   --format junit --output e2e-artifacts/report.xml --test-output-dir e2e-artifacts \
+#   .maestro/edge-to-edge-scroll.yaml
+appId: ${APP_ID}
+---
+- launchApp
+- extendedWaitUntil:
+    visible: '(Good (morning|afternoon|evening)|Receive)'
+    timeout: 30000
+- runFlow:
+    when:
+      visible: 'Good (morning|afternoon|evening)'
+    commands:
+      - tapOn: '1'
+      - tapOn: '1'
+      - tapOn: '1'
+      - tapOn: '1'
+- extendedWaitUntil:
+    visible: Receive
+    timeout: 30000
+
+# 1. View all transactions (from Home -> Bitcoin -> View all, or View all on Home)
+- scrollUntilVisible:
+    element:
+      text: 'View all'
+    direction: DOWN
+    timeout: 15000
+- tapOn: 'View all'
+- extendedWaitUntil:
+    visible: 'Activity'
+    timeout: 15000
+- scroll
+- takeScreenshot: e2e-view-all-tx-bottom
+- tapOn: Back
+
+# 2. Settings hub (Profile)
+- tapOn: Profile
+- extendedWaitUntil:
+    visible: 'Profile'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      text: 'Nostr'
+    direction: DOWN
+    timeout: 15000
+- takeScreenshot: e2e-settings-hub-bottom
+
+# Child link code QR + Code tab (if the wallet has a child account)
+- runFlow:
+    when:
+      visible: 'Child accounts|Accounts'
+    commands:
+      - tapOn: 'Accounts'
+      - runFlow:
+          when:
+            visible: 'Share|Pair'
+          commands:
+            - tapOn: 'Share|Pair'
+            - extendedWaitUntil:
+                visible: 'Generate code'
+                timeout: 15000
+            - takeScreenshot: e2e-child-link-code-bottom
+            - tapOn: 'QR'
+            - scroll
+            - takeScreenshot: e2e-child-link-qr-bottom
+            - tapOn: Back
+      - tapOn: Back
+
+# 3. Settings index
+- tapOn: Settings
+- extendedWaitUntil:
+    visible: 'Settings'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      text: 'Delete wallet'
+    direction: DOWN
+    timeout: 15000
+- scroll
+- takeScreenshot: e2e-settings-index-bottom
+
+# 4. Delete wallet (assert button is visible; never tap it)
+- tapOn: 'Delete wallet'
+- extendedWaitUntil:
+    visible: 'Are you sure\?'
+    timeout: 15000
+- assertVisible: 'Delete wallet'
+- takeScreenshot: e2e-delete-wallet-bottom
+- tapOn: Back
+
+# 5. About
+- scrollUntilVisible:
+    element:
+      text: 'About'
+    direction: DOWN
+    timeout: 15000
+- tapOn: 'About'
+- extendedWaitUntil:
+    visible: 'Software'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      text: 'Version'
+    direction: DOWN
+    timeout: 15000
+- takeScreenshot: e2e-about-bottom
+- tapOn: Back
+
+# 6. Login mode
+- scrollUntilVisible:
+    element:
+      text: 'Login mode'
+    direction: DOWN
+    timeout: 15000
+- tapOn: 'Login mode'
+- extendedWaitUntil:
+    visible: 'Login mode'
+    timeout: 15000
+- scroll
+- takeScreenshot: e2e-login-mode-bottom
+- tapOn: Back
+
+# 7. Display options
+- scrollUntilVisible:
+    element:
+      text: 'Display options'
+    direction: DOWN
+    timeout: 15000
+- tapOn: 'Display options'
+- extendedWaitUntil:
+    visible: 'Display options'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      text: 'Hide unknown senders'
+    direction: DOWN
+    timeout: 15000
+- takeScreenshot: e2e-display-options-bottom
+- tapOn: Back
+
+# 8. Language
+- scrollUntilVisible:
+    element:
+      text: 'Language'
+    direction: DOWN
+    timeout: 15000
+- tapOn: 'Language'
+- extendedWaitUntil:
+    visible: 'Language'
+    timeout: 15000
+- scroll
+- takeScreenshot: e2e-language-bottom
+- tapOn: Back
+
+# 9. Currency (Fiat currency)
+- scrollUntilVisible:
+    element:
+      text: 'Currency'
+    direction: DOWN
+    timeout: 15000
+- tapOn: 'Currency'
+- extendedWaitUntil:
+    visible: 'Currency'
+    timeout: 15000
+- scroll
+- takeScreenshot: e2e-fiat-currency-bottom
+- tapOn: Back

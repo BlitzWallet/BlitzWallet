@@ -24,6 +24,7 @@ import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 
 export default function SpendAndReplace() {
   const { t } = useTranslation();
@@ -32,6 +33,7 @@ export default function SpendAndReplace() {
   const { fiatStats } = useNodeContext();
   const { dollarBalanceToken } = useUserBalanceContext();
   const { tokens } = useGlobalThemeContext();
+  const { bottomPadding } = useGlobalInsets();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
@@ -53,7 +55,7 @@ export default function SpendAndReplace() {
   });
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
         <TopBar
           fade
@@ -61,7 +63,10 @@ export default function SpendAndReplace() {
         />
         <CustomScrollView
           style={styles.scroll}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: bottomPadding },
+          ]}
         >
           <ListCard style={styles.firstCard}>
             <ListRow
@@ -120,7 +125,7 @@ export default function SpendAndReplace() {
 const styles = StyleSheet.create({
   content: { alignSelf: 'center', flex: 1 },
   scroll: { flex: 1 },
-  scrollContent: { paddingTop: FADE_TOP, paddingBottom: 40 },
+  scrollContent: { paddingTop: FADE_TOP },
   firstCard: { marginTop: 0 },
   rowTitle: { fontSize: 15, lineHeight: 21 },
   balanceCard: {

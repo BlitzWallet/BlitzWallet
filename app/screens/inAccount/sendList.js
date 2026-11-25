@@ -17,8 +17,9 @@ import ListRow from '../../functions/CustomElements/redesign/ListRow';
 import SectionHeader from '../../functions/CustomElements/redesign/SectionHeader';
 import ContactAvatarDisc from '../../components/admin/homeComponents/contacts/internalComponents/contactAvatar';
 import { formatDisplayName } from '../../components/admin/homeComponents/contacts/utils/formatListDisplayName';
-import { FADE } from '../../functions/CustomElements/redesign/BottomFade';
+import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { FADE_TOP } from '../../functions/CustomElements/redesign/TopFade';
+import { FADE } from '../../functions/CustomElements/redesign/BottomFade';
 
 export default function SendList() {
   const { t } = useTranslation();
@@ -26,6 +27,7 @@ export default function SendList() {
   // Set when Send was opened from the Bitcoin or Dollars page.
   const preSelectedPaymentMethod = useRoute().params?.preSelectedPaymentMethod;
   const contentWidth = useContentWidth();
+  const { bottomPadding } = useGlobalInsets();
   const { decodedAddedContacts, contactsMessags } = useGlobalContacts();
   const { cache } = useImageCache();
 
@@ -101,7 +103,6 @@ export default function SendList() {
   return (
     <CustomKeyboardAvoidingView
       useStandardWidth={false}
-      styles={styles.screen}
       useTouchableWithoutFeedback={true}
     >
       <View style={[styles.container, { width: contentWidth }]}>
@@ -138,7 +139,6 @@ export default function SendList() {
   );
 }
 const styles = StyleSheet.create({
-  screen: { paddingBottom: 0 },
   container: { flex: 1, ...CENTER },
   list: { paddingTop: FADE_TOP, paddingBottom: FADE },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center' },

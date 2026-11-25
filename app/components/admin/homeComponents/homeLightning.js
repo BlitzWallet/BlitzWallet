@@ -58,6 +58,7 @@ import {
 } from '../../../functions/money';
 import formatBalanceAmount from '../../../functions/formatNumber';
 import handleDBStateChange from '../../../functions/handleDBStateChange';
+import TopFade from '../../../functions/CustomElements/redesign/TopFade';
 
 const PRICE_WAIT_MS = 10000;
 
@@ -65,6 +66,7 @@ const MemoizedStickyNavbarContainer = memo(
   function MemoizedStickyNavbarContainer({
     backgroundColor,
     onLayout,
+    navbarHeight,
     balanceDenomination,
     totalBalance,
     isTotalPreformatted,
@@ -80,20 +82,22 @@ const MemoizedStickyNavbarContainer = memo(
           },
         ]}
       >
-        <HomeNav />
-
-        <Animated.View
-          style={[styles.navbarBalance, balanceOpacityStyle]}
-          pointerEvents="none"
-        >
-          <FormattedSatText
-            styles={styles.navbarBalanceText}
-            globalBalanceDenomination={balanceDenomination}
-            balance={totalBalance}
-            useBalance={isTotalPreformatted}
-            useSizing={true}
-          />
-        </Animated.View>
+        <TopFade height={navbarHeight} solid={0} />
+        <View style={styles.navbarContent}>
+          <HomeNav />
+          <Animated.View
+            style={[styles.navbarBalance, balanceOpacityStyle]}
+            pointerEvents="none"
+          >
+            <FormattedSatText
+              styles={styles.navbarBalanceText}
+              globalBalanceDenomination={balanceDenomination}
+              balance={totalBalance}
+              useBalance={isTotalPreformatted}
+              useSizing={true}
+            />
+          </Animated.View>
+        </View>
       </View>
     );
   },
@@ -266,7 +270,7 @@ export default function HomeLightning() {
   }, [bottomPadding]);
 
   return (
-    <GlobalThemeView styles={styles.themeViewStyle} useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <Animated.ScrollView
           alwaysBounceVertical={false}
@@ -281,6 +285,7 @@ export default function HomeLightning() {
           <MemoizedStickyNavbarContainer
             backgroundColor={backgroundColor}
             onLayout={handleNavbarLayout}
+            navbarHeight={navbarHeight}
             balanceDenomination={
               heroTotalProps.masterInfoObject.userBalanceDenomination
             }
@@ -390,13 +395,10 @@ export default function HomeLightning() {
 }
 
 const styles = StyleSheet.create({
-  themeViewStyle: {
-    paddingBottom: 0,
-  },
   container: { flex: 1, ...CENTER },
   amountLabel: {
     fontFamily: FONT.Title_Medium,
-    marginTop: 26,
+    marginTop: 46,
     fontSize: 14,
     includeFontPadding: false,
   },
@@ -420,12 +422,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingBottom: 10,
   },
+  navbarContent: { width: '100%', zIndex: 11 },
   navbarBalance: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    bottom: 0,
+    height: 44,
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1,

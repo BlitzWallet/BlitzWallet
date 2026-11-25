@@ -49,7 +49,7 @@ export default function AppStore() {
   useTabScrollToTop(scrollViewRef);
 
   return (
-    <GlobalThemeView styles={styles.container} useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
         <TopHeader>
           <View style={styles.header}>
@@ -151,7 +151,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   card: { marginTop: 12 },
-  container: { paddingBottom: 0 },
 
   scrollContent: {
     flexGrow: 1,

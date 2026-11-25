@@ -16,12 +16,14 @@ import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import KeyValueRow from '../../../../functions/CustomElements/redesign/KeyValueRow';
 import TextButton from '../../../../functions/CustomElements/redesign/TextButton';
 import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 
 export default function BlitzFeeInformation() {
   const { masterInfoObject } = useGlobalContextProvider();
   const { tokens } = useTheme();
   const { t } = useTranslation();
   const navigate = useNavigation();
+  const { bottomPadding } = useGlobalInsets();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
@@ -48,7 +50,7 @@ export default function BlitzFeeInformation() {
   ];
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
         <TopBar
           fade
@@ -56,7 +58,10 @@ export default function BlitzFeeInformation() {
         />
         <CustomScrollView
           style={styles.scroll}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: bottomPadding },
+          ]}
         >
           <ThemeText
             content={t('settings.feeInformation.description')}
@@ -94,7 +99,7 @@ export default function BlitzFeeInformation() {
 const styles = StyleSheet.create({
   content: { alignSelf: 'center', flex: 1 },
   scroll: { flex: 1 },
-  scrollContent: { paddingTop: FADE_TOP, paddingBottom: 40 },
+  scrollContent: { paddingTop: FADE_TOP },
   intro: {
     fontSize: 15,
     lineHeight: 22,

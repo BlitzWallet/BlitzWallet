@@ -82,7 +82,7 @@ export default function ReceiveHomeRedesign() {
   }, [sortedContacts, cache, navigate, t]);
 
   return (
-    <GlobalThemeView useStandardWidth={false} styles={styles.screen}>
+    <GlobalThemeView edgeToEdge useStandardWidth={false}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
           fade
@@ -128,7 +128,6 @@ export default function ReceiveHomeRedesign() {
 }
 
 const styles = StyleSheet.create({
-  screen: { paddingBottom: 0 },
   container: { flex: 1, ...CENTER },
   list: { paddingTop: FADE_TOP, paddingBottom: FADE },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center' },

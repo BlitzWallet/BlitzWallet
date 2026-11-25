@@ -14,6 +14,7 @@ import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 
 function parseExplainer(text) {
   const lines = String(text || '')
@@ -35,6 +36,7 @@ export default function CrashReportingSettingsPage() {
   const isInitialLoad = useRef(true);
   const { t } = useTranslation();
   const { tokens } = useTheme();
+  const { bottomPadding } = useGlobalInsets();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
@@ -54,7 +56,7 @@ export default function CrashReportingSettingsPage() {
   );
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
         <TopBar
           fade
@@ -62,7 +64,10 @@ export default function CrashReportingSettingsPage() {
         />
         <CustomScrollView
           style={styles.scroll}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: bottomPadding },
+          ]}
         >
           <ListCard style={styles.switchCard}>
             <ListRow
@@ -115,7 +120,7 @@ export default function CrashReportingSettingsPage() {
 const styles = StyleSheet.create({
   content: { alignSelf: 'center', flex: 1 },
   scroll: { flex: 1 },
-  scrollContent: { paddingTop: FADE_TOP, paddingBottom: 40 },
+  scrollContent: { paddingTop: FADE_TOP },
   switchCard: { marginTop: 0 },
   rowTitle: { fontSize: 15, lineHeight: 21 },
   explainerCard: {

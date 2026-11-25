@@ -35,6 +35,7 @@ import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import PickRow from '../../../../functions/CustomElements/redesign/PickRow';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 
 import {
   createPasskey,
@@ -181,6 +182,7 @@ function WebChangePassword({ canUsePasskey, onChanged }) {
   const { accountMnemoinc } = useKeysContext();
   const { t } = useTranslation();
   const { tokens } = GetThemeColors();
+  const { bottomPadding } = useGlobalInsets();
   const { showToast } = useToast();
   const [currentPassword, setCurrentPassword] = useState('');
   const [step, setStep] = useState(1);
@@ -358,7 +360,10 @@ function WebChangePassword({ canUsePasskey, onChanged }) {
   return (
     <CustomScrollView
       style={styles.innerContainer}
-      contentContainerStyle={styles.scrollContent}
+      contentContainerStyle={[
+        styles.scrollContent,
+        { paddingBottom: bottomPadding },
+      ]}
     >
       <WebUnlockMethodRows
         canUsePasskey={canUsePasskey}
@@ -468,6 +473,7 @@ function WebPasskeySettings({ passkeyInfo, onChanged }) {
   const { accountMnemoinc } = useKeysContext();
   const { t } = useTranslation();
   const { tokens } = GetThemeColors();
+  const { bottomPadding } = useGlobalInsets();
   const { showToast } = useToast();
   const [step, setStep] = useState(1);
   const [error, setError] = useState('');
@@ -567,7 +573,10 @@ function WebPasskeySettings({ passkeyInfo, onChanged }) {
   return (
     <CustomScrollView
       style={styles.innerContainer}
-      contentContainerStyle={styles.scrollContent}
+      contentContainerStyle={[
+        styles.scrollContent,
+        { paddingBottom: bottomPadding },
+      ]}
     >
       <WebUnlockMethodRows
         isPasskey
@@ -600,6 +609,7 @@ function LoginSecurityNative({ extraData }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { tokens } = GetThemeColors();
+  const { bottomPadding } = useGlobalInsets();
 
   const updateSecuritySettings = async newSettings => {
     setSecurityLoginSettings(newSettings);
@@ -810,7 +820,10 @@ function LoginSecurityNative({ extraData }) {
   return (
     <CustomScrollView
       style={styles.innerContainer}
-      contentContainerStyle={styles.scrollContent}
+      contentContainerStyle={[
+        styles.scrollContent,
+        { paddingBottom: bottomPadding },
+      ]}
     >
       {securityLoginSettings.isSecurityEnabled === false && (
         <ListCard style={styles.firstCard}>
@@ -918,7 +931,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingTop: FADE_TOP,
-    paddingBottom: 40,
   },
   firstCard: {
     marginTop: 16,

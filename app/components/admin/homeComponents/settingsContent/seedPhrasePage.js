@@ -16,6 +16,7 @@ import {
   FADE_TOP,
   FADE_TOP_BUFFER,
 } from '../../../../functions/CustomElements/redesign/TopFade';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 
 export default function SeedPhrasePage({ extraData, route }) {
   const { accountMnemoinc: contextMnemonic } = useKeysContext();
@@ -28,6 +29,7 @@ export default function SeedPhrasePage({ extraData, route }) {
   const navigate = useNavigation();
   const { tokens } = useGlobalThemeContext();
   const { t } = useTranslation();
+  const { bottomPadding } = useGlobalInsets();
   const [seedContainerHeight, setSeedContainerHeight] = useState();
   const [selectedDisplayOption, setSelectedDisplayOption] = useState('words');
   const canViewQrCode =
@@ -69,7 +71,10 @@ export default function SeedPhrasePage({ extraData, route }) {
     <View style={styles.container}>
       <CustomScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: bottomPadding },
+        ]}
       >
         <ThemeText
           styles={[styles.title, { color: tokens.ink }]}
@@ -123,7 +128,7 @@ export default function SeedPhrasePage({ extraData, route }) {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scroll: { flex: 1 },
-  scrollContent: { paddingTop: FADE_TOP + FADE_TOP_BUFFER, paddingBottom: 24 },
+  scrollContent: { paddingTop: FADE_TOP + FADE_TOP_BUFFER },
   title: {
     fontFamily: FONT.Title_Medium,
     fontSize: 28,

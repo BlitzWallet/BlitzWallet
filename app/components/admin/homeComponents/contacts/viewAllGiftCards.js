@@ -25,6 +25,7 @@ import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { formatDisplayName } from './utils/formatListDisplayName';
 import formatDate from '../../../../functions/formatDate';
 import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 
 function formatCardDate(timestamp) {
   return formatDate(timestamp, 'day');
@@ -35,6 +36,7 @@ export default function ViewAllGiftCards() {
   const { giftCardsList } = useGlobalContactsMessages();
   const { decodedAddedContacts } = useGlobalContactsInfo();
   const { tokens } = useTheme();
+  const { bottomPadding } = useGlobalInsets();
   const { t } = useTranslation();
   const [allCardsWithInfo, setAllCardsWithInfo] = useState([]);
 
@@ -172,7 +174,7 @@ export default function ViewAllGiftCards() {
   };
 
   return (
-    <GlobalThemeView useStandardWidth={true} styles={styles.page}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true} styles={styles.page}>
       <View style={[styles.inner, { width: INSET_WINDOW_WIDTH }, CENTER]}>
         <TopBar
           fade
@@ -192,7 +194,7 @@ export default function ViewAllGiftCards() {
           <CustomScrollView
             contentContainerStyle={{
               paddingTop: FADE_TOP,
-              paddingBottom: 20,
+              paddingBottom: bottomPadding,
             }}
           >
             <ListCard dividerInset={68}>

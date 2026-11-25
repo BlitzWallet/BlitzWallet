@@ -21,6 +21,7 @@ import Disc from '../../../../functions/CustomElements/redesign/Disc';
 import GetThemeColors from '../../../../hooks/themeColors';
 import useAfterTransition from '../../../../hooks/useAfterTransition';
 import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 
 export default function SavingsGoalDetails(props) {
   const navigate = useNavigation();
@@ -35,6 +36,7 @@ export default function SavingsGoalDetails(props) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { tokens } = GetThemeColors();
+  const { bottomPadding } = useGlobalInsets();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
@@ -86,7 +88,7 @@ export default function SavingsGoalDetails(props) {
       : 0;
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
           fade
@@ -94,7 +96,12 @@ export default function SavingsGoalDetails(props) {
             selectedGoal?.name || t('savings.goalDetails.screenTitleFallback')
           }`}
         />
-        <CustomScrollView contentContainerStyle={styles.scrollContent}>
+        <CustomScrollView
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: bottomPadding },
+          ]}
+        >
           <View style={styles.progressWrap}>
             <CircularProgress
               current={goalProgress * 100}
@@ -161,7 +168,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingTop: FADE_TOP,
-    paddingBottom: 20,
   },
   progressWrap: {
     alignItems: 'center',

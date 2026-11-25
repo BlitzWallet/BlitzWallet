@@ -311,7 +311,7 @@ export default function MoneyTab() {
   ].filter(Boolean);
 
   return (
-    <GlobalThemeView styles={styles.container} useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
         <TopHeader>
           <View style={styles.header}>
@@ -353,7 +353,6 @@ export default function MoneyTab() {
 }
 
 const styles = StyleSheet.create({
-  container: { paddingBottom: 0 },
   content: { alignSelf: 'center', width: '100%', flex: 1 },
   header: {
     minHeight: 44,

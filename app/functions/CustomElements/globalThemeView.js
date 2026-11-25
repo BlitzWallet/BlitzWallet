@@ -16,6 +16,7 @@ const GlobalThemeView = memo(function GlobalThemeView({
   styles,
   useStandardWidth,
   globalContainerStyles,
+  edgeToEdge = false,
 }) {
   const { topPadding, bottomPadding, leftPadding, rightPadding } =
     useGlobalInsets();
@@ -38,20 +39,20 @@ const GlobalThemeView = memo(function GlobalThemeView({
       ...referenceStyles.widthContainer,
       ...(isWeb && { maxWidth: MAX_WEB_CONTENT_WIDTH }),
       paddingTop: topPadding,
-      paddingBottom: bottomPadding,
+      paddingBottom: edgeToEdge ? 0 : bottomPadding,
       ...styles,
     };
-  }, [referenceStyles, styles, topPadding, bottomPadding]);
+  }, [referenceStyles, styles, topPadding, bottomPadding, edgeToEdge]);
 
   const nonStandardWithStyles = useMemo(() => {
     return {
       flex: 1,
       backgroundColor: backgroundColor,
       paddingTop: topPadding,
-      paddingBottom: bottomPadding,
+      paddingBottom: edgeToEdge ? 0 : bottomPadding,
       ...styles,
     };
-  }, [backgroundColor, styles, topPadding, bottomPadding]);
+  }, [backgroundColor, styles, topPadding, bottomPadding, edgeToEdge]);
 
   if (useStandardWidth) {
     return (
@@ -80,7 +81,7 @@ const GlobalThemeView = memo(function GlobalThemeView({
             width: '100%',
             maxWidth: MAX_WEB_CONTENT_WIDTH,
             paddingTop: topPadding,
-            paddingBottom: bottomPadding,
+            paddingBottom: edgeToEdge ? 0 : bottomPadding,
             ...styles,
             flex: 1,
           }}

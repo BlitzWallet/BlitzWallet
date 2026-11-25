@@ -64,6 +64,7 @@ import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
 import AmountHero from '../../../../../functions/CustomElements/redesign/AmountHero';
 import useAfterTransition from '../../../../../hooks/useAfterTransition';
 import { FADE_TOP } from '../../../../../functions/CustomElements/redesign/TopFade';
+import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 
 const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
 
@@ -98,6 +99,7 @@ export default function EditAccountPage(props) {
   const { accountMnemoinc } = useKeysContext();
   const { globalContactsInformation } = useGlobalContacts();
   const { tokens } = GetThemeColors();
+  const { bottomPadding } = useGlobalInsets();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const { t } = useTranslation();
@@ -550,7 +552,7 @@ export default function EditAccountPage(props) {
   }
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
           fade
@@ -580,7 +582,10 @@ export default function EditAccountPage(props) {
         />
         <CustomScrollView
           keyboardShouldPersistTaps={'handled'}
-          contentContainerStyle={{ paddingTop: FADE_TOP }}
+          contentContainerStyle={{
+            paddingTop: FADE_TOP,
+            paddingBottom: bottomPadding,
+          }}
         >
           <View style={styles.avatarContainer}>
             <TouchableOpacity

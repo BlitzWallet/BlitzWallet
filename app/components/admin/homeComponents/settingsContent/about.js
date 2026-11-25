@@ -18,6 +18,7 @@ import ListCard, {
 } from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 
 function Card({ children, style }) {
   const { tokens } = useTheme();
@@ -52,6 +53,7 @@ function LeadIcon({ icon }) {
 export default function AboutPage() {
   const { t } = useTranslation();
   const navigate = useNavigation();
+  const { bottomPadding } = useGlobalInsets();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const deviceVersion = DeviceInfo.getVersion();
@@ -66,12 +68,15 @@ export default function AboutPage() {
   }
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
         <TopBar fade title={t('screens.inAccount.settingsContent.about')} />
         <CustomScrollView
           style={styles.scroll}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: bottomPadding },
+          ]}
         >
           <SectionHeader first title={t('settings.about.licenseHeader')} />
           <ListCard>
@@ -256,7 +261,7 @@ export default function AboutPage() {
 const styles = StyleSheet.create({
   content: { alignSelf: 'center', flex: 1 },
   scroll: { flex: 1 },
-  scrollContent: { paddingTop: FADE_TOP, paddingBottom: 40 },
+  scrollContent: { paddingTop: FADE_TOP },
   card: {
     borderRadius: 20,
     paddingHorizontal: 16,

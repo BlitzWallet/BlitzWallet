@@ -89,7 +89,7 @@ export default function CustomWebView(props) {
   const originWhitelist = isHTML || !allowedOrigin ? null : [allowedOrigin];
 
   return (
-    <GlobalThemeView useStandardWidth={true} styles={{ paddingBottom: 0 }}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
         <TopBar
           title={props.route.params?.headerText}

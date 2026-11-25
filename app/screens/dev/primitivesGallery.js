@@ -20,6 +20,7 @@ import EmptyState from '../../functions/CustomElements/redesign/EmptyState';
 import Note from '../../functions/CustomElements/redesign/Note';
 import { SheetSurface } from '../../functions/CustomElements/redesign/sheetSurface';
 import useContentWidth from '../../functions/CustomElements/redesign/useContentWidth';
+import { useGlobalInsets } from '../../../context-store/insetsProvider';
 
 // Dev-only proof surface (audit/IMPLEMENTATION_PLAN.md §10 T9). Every T7/T8
 // part in every mode × skin, plus the token roles the owner signs off.
@@ -82,6 +83,7 @@ function DemoLabel({ children }) {
 export default function PrimitivesGallery() {
   const { t, i18n } = useTranslation();
   const { tokens, mode } = useTheme();
+  const { bottomPadding } = useGlobalInsets();
   const {
     theme,
     darkModeType,
@@ -149,7 +151,7 @@ export default function PrimitivesGallery() {
   const show = id => section === 'all' || section === id;
 
   return (
-    <GlobalThemeView styles={styles.page}>
+    <GlobalThemeView edgeToEdge styles={styles.page}>
       <View style={styles.topBarWrap}>
         <TopBar
           title="Primitives gallery"
@@ -212,7 +214,10 @@ export default function PrimitivesGallery() {
 
       <ScrollView
         style={styles.body}
-        contentContainerStyle={styles.bodyContent}
+        contentContainerStyle={[
+          styles.bodyContent,
+          { paddingBottom: bottomPadding },
+        ]}
         keyboardShouldPersistTaps="handled"
       >
         {show('type') && (
@@ -634,7 +639,7 @@ const styles = StyleSheet.create({
   chip: { borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7 },
   chipText: { fontSize: 13, lineHeight: 19, includeFontPadding: false },
   body: { flex: 1, width: '100%' },
-  bodyContent: { paddingTop: 4, paddingBottom: 48 },
+  bodyContent: { paddingTop: 4 },
   section: { width: '100%' },
   sectionContent: { paddingHorizontal: 16, gap: 12 },
   demoLabel: { marginBottom: -4 },

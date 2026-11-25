@@ -15,10 +15,12 @@ import { getWalletTokens } from '../../../../functions/lrc20/utils';
 import TokenRow from './tokenRow';
 import useAfterTransition from '../../../../hooks/useAfterTransition';
 import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 
 export default function AllTokensPage() {
   const { sparkInformation } = useSparkWallet();
   const { t } = useTranslation();
+  const { bottomPadding } = useGlobalInsets();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const [search, setSearch] = useState('');
@@ -44,12 +46,13 @@ export default function AllTokensPage() {
   }, [sparkInformation.tokens, search, isReady]);
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar fade title={t('wallet.homeLightning.balancePage.allTokens')} />
         <HideOnScrollView
           topInset={FADE_TOP}
           keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ paddingBottom: bottomPadding }}
           header={
             <SearchField
               pill
@@ -82,6 +85,6 @@ export default function AllTokensPage() {
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
   search: { marginTop: 24, width: '100%' },
-  card: { paddingVertical: 4, marginBottom: 20 },
+  card: { paddingVertical: 4 },
   empty: { textAlign: 'center', marginTop: 24 },
 });

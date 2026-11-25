@@ -19,6 +19,7 @@ import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import KeyValueRow from '../../../../functions/CustomElements/redesign/KeyValueRow';
 import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 
 export default function SparkInfo() {
   const reduced = useReducedMotion();
@@ -28,6 +29,7 @@ export default function SparkInfo() {
   const { sparkInformation, showTokensInformation } = useSparkWallet();
   const { tokens: themeTokens } = useTheme();
   const { t } = useTranslation();
+  const { bottomPadding } = useGlobalInsets();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
@@ -67,7 +69,7 @@ export default function SparkInfo() {
   }, [navigate, selectedToken, tokenOptions]);
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
         <TopBar
           fade
@@ -75,7 +77,10 @@ export default function SparkInfo() {
         />
         <CustomScrollView
           style={styles.scroll}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: bottomPadding },
+          ]}
         >
           <SectionHeader first title={t('settings.sparkInfo.title')} />
           <ListCard dividerInset={0} style={styles.infoCard}>
@@ -145,7 +150,7 @@ export default function SparkInfo() {
 const styles = StyleSheet.create({
   content: { alignSelf: 'center', flex: 1 },
   scroll: { flex: 1 },
-  scrollContent: { paddingTop: FADE_TOP, paddingBottom: 40 },
+  scrollContent: { paddingTop: FADE_TOP },
   infoCard: { marginVertical: 6 },
   rowTitle: { fontSize: 15, lineHeight: 21 },
   note: { marginTop: 8, marginHorizontal: 4 },

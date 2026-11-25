@@ -110,7 +110,10 @@ export default function SettingsContentIndex(props) {
           {selectedPage?.toLowerCase() === 'logs' && <SdkLogs />}
         </>
       ) : (
-        <GlobalThemeView useStandardWidth={true}>
+        <GlobalThemeView
+          edgeToEdge={page === 'login mode' || page === 'show seed phrase'}
+          useStandardWidth={true}
+        >
           <View style={[styles.largeDeviceWrapper, { width: contentWidth }]}>
             <TopBar
               fade

@@ -24,6 +24,7 @@ import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
 import Spinner from '../../../../functions/CustomElements/redesign/Spinner';
 import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 
 const SERVICE_ROWS = [
   { service: 'contactPayments', key: 'contact' },
@@ -44,6 +45,7 @@ export default function NotificationPreferances() {
   } = usePushNotification();
   const { t } = useTranslation();
   const { tokens } = useGlobalThemeContext();
+  const { bottomPadding } = useGlobalInsets();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const notificationData = masterInfoObject.pushNotifications;
@@ -105,7 +107,7 @@ export default function NotificationPreferances() {
   );
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
         <TopBar
           fade
@@ -113,7 +115,10 @@ export default function NotificationPreferances() {
         />
         <CustomScrollView
           style={styles.scroll}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: bottomPadding },
+          ]}
         >
           <ListCard style={styles.firstCard}>
             <ListRow
@@ -166,7 +171,7 @@ export default function NotificationPreferances() {
 const styles = StyleSheet.create({
   content: { alignSelf: 'center', flex: 1 },
   scroll: { flex: 1 },
-  scrollContent: { paddingTop: FADE_TOP, paddingBottom: 40 },
+  scrollContent: { paddingTop: FADE_TOP },
   firstCard: { marginTop: 0 },
   rowTitle: { fontSize: 15, lineHeight: 21 },
   openButton: {

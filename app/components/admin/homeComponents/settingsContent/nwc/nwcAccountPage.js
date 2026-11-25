@@ -17,6 +17,7 @@ import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
 import { FADE_TOP } from '../../../../../functions/CustomElements/redesign/TopFade';
+import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 
 export default function NWCAccountPage(props) {
   const navigate = useNavigation();
@@ -26,6 +27,7 @@ export default function NWCAccountPage(props) {
   const savedData = masterInfoObject?.NWC?.accounts?.[accountID] || {};
   const { fiatStats } = useNodeContext();
   const { t } = useTranslation();
+  const { bottomPadding } = useGlobalInsets();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
@@ -92,7 +94,7 @@ export default function NWCAccountPage(props) {
   ];
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
           fade
@@ -115,7 +117,12 @@ export default function NWCAccountPage(props) {
             />
           }
         />
-        <CustomScrollView contentContainerStyle={styles.scrollContent}>
+        <CustomScrollView
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: bottomPadding },
+          ]}
+        >
           <ListCard>
             {editableItems.map((item, index) => (
               <ListRow

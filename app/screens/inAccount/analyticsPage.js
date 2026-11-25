@@ -111,7 +111,7 @@ export default function AnalyticsPage() {
   const budgetStatus = getBudgetStatus(spentPercent, t, tokens);
 
   return (
-    <GlobalThemeView styles={{ paddingBottom: 0 }} useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
           fade

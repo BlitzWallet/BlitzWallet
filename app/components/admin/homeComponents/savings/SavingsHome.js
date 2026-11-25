@@ -35,11 +35,13 @@ import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
 import useAfterTransition from '../../../../hooks/useAfterTransition';
 import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 
 export default function SavingsHome() {
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { tokens } = GetThemeColors();
+  const { bottomPadding } = useGlobalInsets();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const {
@@ -132,7 +134,7 @@ export default function SavingsHome() {
   }
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
           fade
@@ -148,7 +150,12 @@ export default function SavingsHome() {
             />
           }
         />
-        <CustomScrollView contentContainerStyle={styles.scrollContent}>
+        <CustomScrollView
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: bottomPadding },
+          ]}
+        >
           <View style={styles.heroCard}>
             <ThemeText
               styles={[styles.balanceLabel, { color: tokens.muted }]}
@@ -265,7 +272,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingTop: FADE_TOP,
-    paddingBottom: 20,
   },
   heroCard: {
     width: '100%',

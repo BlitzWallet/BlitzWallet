@@ -27,6 +27,7 @@ import {
   getSdkLogsHeader,
 } from '../../../../functions/spark/sdkLogs';
 import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 
 // Newest first; the share file has every buffered line.
 const VISIBLE_LINES = 300;
@@ -35,6 +36,7 @@ export default function SdkLogs() {
   const { t } = useTranslation();
   const navigate = useNavigation();
   const { tokens } = useTheme();
+  const { bottomPadding } = useGlobalInsets();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const [lines, setLines] = useState(() => [...getSdkLogs()]);
@@ -63,12 +65,15 @@ export default function SdkLogs() {
   const isEmpty = !lines.length;
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
         <TopBar fade title={t('screens.inAccount.settingsContent.logs')} />
         <CustomScrollView
           style={styles.scroll}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: bottomPadding },
+          ]}
           refreshControl={
             <RefreshControl
               refreshing={false}
@@ -125,7 +130,7 @@ export default function SdkLogs() {
 const styles = StyleSheet.create({
   content: { alignSelf: 'center', flex: 1 },
   scroll: { flex: 1 },
-  scrollContent: { paddingTop: FADE_TOP, paddingBottom: 40 },
+  scrollContent: { paddingTop: FADE_TOP },
   actionsCard: { marginTop: 0 },
   note: { marginTop: 16, marginBottom: 16 },
   rowTitle: { fontSize: 15, lineHeight: 21, includeFontPadding: false },

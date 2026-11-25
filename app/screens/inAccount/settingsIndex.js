@@ -15,6 +15,7 @@ import { useGlobalContextProvider } from '../../../context-store/context';
 import { useAppStatus } from '../../../context-store/appStatus';
 import { supportedLanguagesList } from '../../../locales/localeslist';
 import { useTheme } from '../../../context-store/theme';
+import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import openWebBrowser from '../../functions/openWebBrowser';
 import TopBar from '../../functions/CustomElements/redesign/TopBar';
 import ListCard from '../../functions/CustomElements/redesign/ListCard';
@@ -143,6 +144,7 @@ export default function SettingsIndex() {
   const { masterInfoObject } = useGlobalContextProvider();
   const { isConnectedToTheInternet } = useAppStatus();
   const { tokens } = useTheme();
+  const { bottomPadding } = useGlobalInsets();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
@@ -250,12 +252,15 @@ export default function SettingsIndex() {
       : TECHNICAL_ROWS;
 
   return (
-    <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
         <TopBar fade title={t('settings.index.settingsHead')} />
         <CustomScrollView
           style={styles.scroll}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: bottomPadding },
+          ]}
         >
           {renderSection(
             preferencesRows,
@@ -299,10 +304,9 @@ export default function SettingsIndex() {
 }
 
 const styles = StyleSheet.create({
-  globalContainer: { paddingBottom: 0 },
   content: { alignSelf: 'center', flex: 1 },
   scroll: { flex: 1 },
-  scrollContent: { paddingTop: FADE_TOP, paddingBottom: 24 },
+  scrollContent: { paddingTop: FADE_TOP },
   section: { width: '100%' },
   cardSpacing: { marginTop: 24 },
   rowTitle: { fontSize: 15, lineHeight: 21 },

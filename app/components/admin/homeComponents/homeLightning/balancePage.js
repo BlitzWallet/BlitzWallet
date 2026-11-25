@@ -36,13 +36,18 @@ export default function BalancePage(props) {
   const isEmpty = isBitcoin ? !balance : balance < 0.01;
 
   return (
-    <GlobalThemeView styles={styles.page} useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
           fade
           title={t(`constants.${isBitcoin ? 'bitcoin' : 'dollars'}_upper`)}
         />
-        <CustomScrollView contentContainerStyle={styles.scrollContent}>
+        <CustomScrollView
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: bottomPadding },
+          ]}
+        >
           <ThemeText
             content={t('constants.balance')}
             variant={'hint'}
@@ -89,7 +94,7 @@ export default function BalancePage(props) {
                 isBitcoin ? 'emptyBitcoin' : 'emptyDollars'
               }`,
             )}
-            style={[styles.activity, { marginBottom: bottomPadding + 20 }]}
+            style={styles.activity}
           />
         </CustomScrollView>
       </View>
@@ -98,7 +103,6 @@ export default function BalancePage(props) {
 }
 
 const styles = StyleSheet.create({
-  page: { paddingBottom: 0 },
   container: { flex: 1, ...CENTER },
   hero: { alignItems: 'flex-start', minHeight: 84, justifyContent: 'center' },
   scrollContent: { paddingTop: FADE_TOP },

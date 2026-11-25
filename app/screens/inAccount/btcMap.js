@@ -419,9 +419,9 @@ export default function BTCMapScreen() {
 
   return (
     <GlobalThemeView
+      edgeToEdge
       styles={{
         paddingTop: 0,
-        paddingBottom: 0,
       }}
     >
       <View style={styles.container}>

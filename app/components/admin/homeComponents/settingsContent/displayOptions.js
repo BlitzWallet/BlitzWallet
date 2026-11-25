@@ -24,6 +24,7 @@ import Segmented from '../../../../functions/CustomElements/redesign/Segmented';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 
 export default function DisplayOptions() {
   const { toggleMasterInfoObject, setMasterInfoObject, masterInfoObject } =
@@ -33,6 +34,7 @@ export default function DisplayOptions() {
   const { theme, darkModeType, toggleDarkModeType, toggleTheme, tokens } =
     useGlobalThemeContext();
   const { t } = useTranslation();
+  const { bottomPadding } = useGlobalInsets();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const initialValueRef = useRef(masterInfoObject.userBalanceDenomination);
@@ -70,13 +72,18 @@ export default function DisplayOptions() {
   const hiddenBalance = HIDDEN_BALANCE_CLOSE;
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
         <TopBar
           fade
           title={t('screens.inAccount.settingsContent.display options')}
         />
-        <CustomScrollView contentContainerStyle={{ paddingTop: FADE_TOP }}>
+        <CustomScrollView
+          contentContainerStyle={{
+            paddingTop: FADE_TOP,
+            paddingBottom: bottomPadding,
+          }}
+        >
           <View
             style={[styles.previewCard, { backgroundColor: tokens.surface }]}
           >

@@ -40,10 +40,15 @@ export default function TokensPage() {
   });
 
   return (
-    <GlobalThemeView styles={styles.page} useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar fade title={t('constants.tokens')} />
-        <CustomScrollView contentContainerStyle={styles.scrollContent}>
+        <CustomScrollView
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: bottomPadding },
+          ]}
+        >
           <ThemeText
             content={t('wallet.homeLightning.balancePage.balances')}
             variant={'hint'}
@@ -86,7 +91,7 @@ export default function TokensPage() {
           <ActivityCard
             scrollPosition={'tokens'}
             emptyText={t('wallet.homeLightning.balancePage.emptyTokens')}
-            style={[styles.activity, { marginBottom: bottomPadding + 20 }]}
+            style={styles.activity}
           />
         </CustomScrollView>
       </View>
@@ -95,7 +100,6 @@ export default function TokensPage() {
 }
 
 const styles = StyleSheet.create({
-  page: { paddingBottom: 0 },
   container: { flex: 1, ...CENTER },
   scrollContent: { paddingTop: FADE_TOP },
   label: { marginTop: 16, fontSize: 14, lineHeight: 21, marginBottom: 8 },

@@ -33,12 +33,14 @@ import useQrSize from '../../../../../../hooks/useQrSize';
 import CustomScrollView from '../../../../../../functions/CustomElements/scrollView';
 import TopHeader from '../../../../../../functions/CustomElements/redesign/TopHeader';
 import { FADE_TOP } from '../../../../../../functions/CustomElements/redesign/TopFade';
+import { useGlobalInsets } from '../../../../../../../context-store/insetsProvider';
 
 export default function ChildLinkCode(props) {
   const reduced = useReducedMotion();
   const navigate = useNavigation();
   const { t } = useTranslation();
   const { tokens } = useTheme();
+  const { bottomPadding } = useGlobalInsets();
   const {
     parentUniqueName,
     startPairing,
@@ -180,7 +182,12 @@ export default function ChildLinkCode(props) {
       </View>
     ) : (
       <View style={styles.tabContent}>
-        <CustomScrollView contentContainerStyle={{ paddingTop: FADE_TOP }}>
+        <CustomScrollView
+          contentContainerStyle={{
+            paddingTop: FADE_TOP,
+            paddingBottom: bottomPadding,
+          }}
+        >
           <PageHeader
             title={t('settings.childAccounts.pairing.qrTitle')}
             sub={t('settings.childAccounts.pairing.qrSubtitle')}
@@ -221,7 +228,7 @@ export default function ChildLinkCode(props) {
   );
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge={isQrTab} useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopHeader>
           <TopBar

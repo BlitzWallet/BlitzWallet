@@ -36,6 +36,7 @@ import IconButton from '../../functions/CustomElements/redesign/IconButton';
 import EmptyState from '../../functions/CustomElements/redesign/EmptyState';
 import formatDate from '../../functions/formatDate';
 import { FADE_TOP } from '../../functions/CustomElements/redesign/TopFade';
+import { useGlobalInsets } from '../../../context-store/insetsProvider';
 
 export default function ExploreUsers() {
   const reduced = useReducedMotion();
@@ -48,6 +49,7 @@ export default function ExploreUsers() {
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
   const { tokens } = useTheme();
+  const { bottomPadding } = useGlobalInsets();
   const { t } = useTranslation();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
@@ -201,7 +203,7 @@ export default function ExploreUsers() {
     !!Object.keys(masterInfoObject.exploreData).length;
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
         <TopBar
           fade
@@ -262,7 +264,10 @@ export default function ExploreUsers() {
         ) : (
           <CustomScrollView
             style={styles.scroll}
-            contentContainerStyle={styles.scrollContent}
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingBottom: bottomPadding },
+            ]}
           >
             <ThemeText
               content={t('screens.inAccount.explorePage.title')}
@@ -378,7 +383,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scroll: { flex: 1 },
-  scrollContent: { paddingTop: FADE_TOP, paddingBottom: 40 },
+  scrollContent: { paddingTop: FADE_TOP },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   label: {
     fontSize: 14,

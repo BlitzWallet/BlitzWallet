@@ -131,10 +131,7 @@ export default function ViewPOSTransactions() {
   }
 
   return (
-    <CustomKeyboardAvoidingView
-      styles={styles.globalContainer}
-      useStandardWidth={true}
-    >
+    <CustomKeyboardAvoidingView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
           fade
@@ -173,7 +170,6 @@ export default function ViewPOSTransactions() {
 }
 
 const styles = StyleSheet.create({
-  globalContainer: { paddingBottom: 0 },
   container: { flex: 1, ...CENTER },
   card: { marginTop: 16, flexShrink: 1 },
   title: { fontSize: 15 },

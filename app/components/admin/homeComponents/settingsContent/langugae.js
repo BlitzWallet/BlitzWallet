@@ -15,11 +15,13 @@ import HideOnScrollView from '../../../../functions/CustomElements/redesign/Hide
 import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
 import PickRow from '../../../../functions/CustomElements/redesign/PickRow';
 import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 
 export default function ChooseLangugae() {
   const { masterInfoObject, toggleMasterInfoObject } =
     useGlobalContextProvider();
   const { t } = useTranslation();
+  const { bottomPadding } = useGlobalInsets();
   const [searchInput, setSearchInput] = useState('');
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const { width } = useWindowDimensions();
@@ -47,7 +49,6 @@ export default function ChooseLangugae() {
 
   return (
     <CustomKeyboardAvoidingView
-      useLocalPadding={true}
       isKeyboardActive={isKeyboardActive}
       useStandardWidth={true}
       useTouchableWithoutFeedback={true}
@@ -57,6 +58,7 @@ export default function ChooseLangugae() {
         <HideOnScrollView
           topInset={FADE_TOP}
           keyboardShouldPersistTaps="always"
+          contentContainerStyle={{ paddingBottom: bottomPadding }}
           header={
             <SearchField
               pill

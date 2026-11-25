@@ -46,6 +46,7 @@ import Disc from '../../../../functions/CustomElements/redesign/Disc';
 import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
 import formatDate from '../../../../functions/formatDate';
 import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 
 const MAX_VISIBLE_ACTIVITY = 3;
 
@@ -72,6 +73,7 @@ export default function PoolDetailScreen(props) {
   const [noPool, setNoPool] = useState(false);
   const didHandleSave = useRef(false);
   const { t } = useTranslation();
+  const { bottomPadding } = useGlobalInsets();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
@@ -329,7 +331,7 @@ export default function PoolDetailScreen(props) {
   }
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
           fade
@@ -364,7 +366,10 @@ export default function PoolDetailScreen(props) {
         />
         <CustomScrollView
           refreshControl={refreshControl}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: bottomPadding },
+          ]}
         >
           {/* ── Section 1: Hero — Progress Ring ── */}
           <View style={styles.heroContainer}>

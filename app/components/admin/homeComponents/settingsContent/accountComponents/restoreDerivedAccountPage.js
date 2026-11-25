@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -14,10 +14,11 @@ import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import ListCard, {
-  ListDivider,
-} from '../../../../../functions/CustomElements/redesign/ListCard';
+import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
+import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import { useTheme } from '../../../../../../context-store/theme';
+import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
+import { FADE_TOP } from '../../../../../functions/CustomElements/redesign/TopFade';
 
 export default function RestoreDerivedAccountPage() {
   const navigate = useNavigation();
@@ -28,6 +29,7 @@ export default function RestoreDerivedAccountPage() {
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
   const { tokens } = useTheme();
+  const { bottomPadding } = useGlobalInsets();
   const [isRestoring, setIsRestoring] = useState(0);
 
   const restorableIndices = getRestorableIndices(
@@ -94,6 +96,7 @@ export default function RestoreDerivedAccountPage() {
     const restoring = isRestoring === index;
     return (
       <AccountCard
+        key={account.uuid}
         account={account}
         onPress={() => handleRestore(index)}
         showChevron={false}
@@ -115,9 +118,13 @@ export default function RestoreDerivedAccountPage() {
   };
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <GlobalThemeView
+      edgeToEdge={restorableIndices.length > 0}
+      useStandardWidth={true}
+    >
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          fade={restorableIndices.length > 0}
           title={t('settings.accountComponents.restoreDerivedAccount.title')}
         />
 
@@ -134,24 +141,24 @@ export default function RestoreDerivedAccountPage() {
             />
           </View>
         ) : (
-          <View style={styles.listWrap}>
+          <CustomScrollView
+            contentContainerStyle={{
+              paddingTop: FADE_TOP,
+              paddingBottom: bottomPadding,
+            }}
+          >
             <ThemeText
               content={t(
                 'settings.accountComponents.restoreDerivedAccount.subtitle',
               )}
               styles={[styles.subtitle, { color: tokens.muted }]}
             />
-            <ListCard dividerInset={68} style={styles.card}>
-              <FlatList
-                data={restorableElements}
-                renderItem={renderAccountCard}
-                extraData={isRestoring}
-                keyExtractor={item => `restorable-${item.derivationIndex}`}
-                ItemSeparatorComponent={ListDivider}
-                showsVerticalScrollIndicator={false}
-              />
+            <ListCard dividerInset={68}>
+              {restorableElements.map(account =>
+                renderAccountCard({ item: account }),
+              )}
             </ListCard>
-          </View>
+          </CustomScrollView>
         )}
       </View>
     </GlobalThemeView>
@@ -168,7 +175,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  listWrap: { flex: 1 },
   subtitle: {
     textAlign: 'center',
     fontSize: 14,
@@ -177,7 +183,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingHorizontal: 12,
   },
-  card: { flexShrink: 1 },
   restoreText: {
     fontSize: 14,
     lineHeight: 20,

@@ -539,6 +539,7 @@ export default function BitrefillShopModal() {
 
   return (
     <GlobalThemeView
+      edgeToEdge={!isWeb && !showEmailScreen}
       styles={
         isWeb
           ? undefined
@@ -720,7 +721,6 @@ const styles = StyleSheet.create({
   // WebView step: run the page to the bottom edge too.
   webViewPage: {
     paddingTop: 30,
-    paddingBottom: 0,
   },
   helperText: {
     marginTop: 10,
