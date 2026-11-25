@@ -121,9 +121,7 @@ export default function StablecoinSendScreen() {
   const { authResetkeyRef } = useAuthContext();
 
   const [screenMode, setScreenMode] = useState('EDIT_AMOUNT'); // 'EDIT_AMOUNT' | 'CONFIRM_PAYMENT'
-  const [rawInput, setRawInput] = useState(
-    prefillAmount != null ? String(prefillAmount) : '',
-  );
+  const [rawInput, setRawInput] = useState('');
   console.log(rawInput);
 
   const [quote, setQuote] = useState(null);
@@ -149,14 +147,15 @@ export default function StablecoinSendScreen() {
   const sourceMethod = selectedPaymentMethod || 'BTC';
   const initialDisplayCurrency = useMemo(
     () =>
-      sourceMethod === 'USD'
+      // A URI amount is in stablecoin (dollar) units, so it is entered as USD.
+      sourceMethod === 'USD' || prefillAmount != null
         ? 'USD'
         : getDefaultDisplayCurrency({
             paymentMode: sourceMethod,
             masterInfoObject,
             fiatStats,
           }),
-    [sourceMethod, masterInfoObject, fiatStats],
+    [sourceMethod, prefillAmount, masterInfoObject, fiatStats],
   );
 
   const { displayCurrency, currencyRates, isLoadingRate, selectCurrency } =
@@ -195,6 +194,20 @@ export default function StablecoinSendScreen() {
   }, [primaryDisplay]);
 
   const convertedSendAmount = exactSats ?? convertDisplayToSats(rawInput);
+
+  // Apply the URI amount once, and only while entry is in USD, so dollars are
+  // never read as sats (or another currency).
+  const didPrefillRef = useRef(false);
+  useEffect(() => {
+    if (didPrefillRef.current || prefillAmount == null) return;
+    if (
+      primaryDisplay.denomination !== 'fiat' ||
+      primaryDisplay.forceCurrency !== 'USD'
+    )
+      return;
+    didPrefillRef.current = true;
+    setRawInput(String(prefillAmount));
+  }, [prefillAmount, primaryDisplay]);
 
   // No fresh USD rate -> entry falls back to sats, so rawInput is not dollars.
   const usdEntryUnavailable =

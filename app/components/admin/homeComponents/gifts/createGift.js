@@ -86,10 +86,18 @@ export default function CreateGift(props) {
   });
 
   const localSatAmount = exactSats ?? convertDisplayToSats(amountValue);
-  const dollarAmount = satsToDollars(
-    localSatAmount,
-    poolInfoRef.currentPriceAInB,
-  );
+  // A USD gift keeps the dollars as typed; going through sats would add the
+  // market-vs-pool spread.
+  const typedUsdAmount =
+    determinePaymentMethod === 'USD' &&
+    primaryDisplay.denomination === 'fiat' &&
+    primaryDisplay.forceCurrency === 'USD' &&
+    Number(amountValue) > 0
+      ? Number(amountValue)
+      : null;
+  const dollarAmount =
+    typedUsdAmount ??
+    satsToDollars(localSatAmount, poolInfoRef.currentPriceAInB);
 
   const openPicker = () =>
     navigate.navigate('CustomHalfModal', {
