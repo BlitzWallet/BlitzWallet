@@ -3751,6 +3751,7 @@
       "lookup_invoice": "Fatura consultada",
       "pay_invoice": "Pagamento enviado",
       "openApp": "Abra a Blitz para concluir a solicitação",
+      "readBurst": "{{count}} solicitações",
       "title": "NWC"
     }
   },

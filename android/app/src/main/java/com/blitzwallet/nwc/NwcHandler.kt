@@ -31,6 +31,7 @@ class NwcHandOff(reason: String) : Exception(reason)
 
 data class NwcOutcome(
   var notifyMethod: String? = null,
+  var notifyAccount: String? = null,
   var handedOff: Boolean = false,
   var strings: Map<String, String> = emptyMap(),
 )
@@ -183,7 +184,13 @@ class NwcHandler(
       val response = dispatch(method, params, event, account, config, ledger, invoices)
       respond(response, event, account, usesNip44, config.relayUrl)
       ledger.finish(event.id, "done")
-      if (response.has("result")) outcome.notifyMethod = method
+      // One notification per push: a later read must not hide (and silence) a
+      // payment or invoice.
+      val paying = setOf("pay_invoice", "make_invoice")
+      if (response.has("result") && (method in paying || outcome.notifyMethod !in paying)) {
+        outcome.notifyMethod = method
+        outcome.notifyAccount = account.publicKey
+      }
       Log.i(NWC_TAG, "$method handled in ${SystemClock.elapsedRealtime() - methodStart} ms")
     } catch (e: Throwable) {
       // Throwable: a Breez/secp256k1 library that fails to load throws an Error,

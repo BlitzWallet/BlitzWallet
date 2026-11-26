@@ -3751,6 +3751,7 @@
       "lookup_invoice": "Faktura kontrollerad",
       "pay_invoice": "Betalning skickad",
       "openApp": "Öppna Blitz för att slutföra begäran",
+      "readBurst": "{{count}} förfrågningar",
       "title": "Wallet Connect"
     }
   },

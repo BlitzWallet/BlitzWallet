@@ -87,6 +87,7 @@ export function writeNativeNWCConfig(nwcData) {
       strings[method] = i18next.t(`pushNotifications.nwc.${method}`);
     }
     strings.openApp = i18next.t('pushNotifications.nwc.openApp');
+    strings.readBurst = i18next.t('pushNotifications.nwc.readBurst');
 
     const file = new File(dir, CONFIG_FILE);
     file.write(

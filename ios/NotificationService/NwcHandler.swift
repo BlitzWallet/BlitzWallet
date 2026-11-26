@@ -11,6 +11,9 @@ let nwcLog = Logger(subsystem: "com.blitzwallet.nwc", category: "native")
 struct NwcOutcome {
   var isNwc = false
   var notifyMethod: String?
+  var notifyAccount: String?
+  // Reads handled for notifyAccount in the burst window; 0 = don't collapse.
+  var readCount = 0
   var handedOff = false
   var strings: [String: String] = [:]
 }
@@ -167,6 +170,12 @@ final class NwcHandler: @unchecked Sendable {
       await process(event, account, config, ledger, invoices, &outcome)
     }
 
+    if let method = outcome.notifyMethod, let account = outcome.notifyAccount,
+      ["get_info", "get_balance", "list_transactions", "lookup_invoice"].contains(method)
+    {
+      outcome.readCount = ledger.countRecentReads(account, now: NwcClock.nowMs)
+    }
+
     await wallet?.disconnect()
     nwcLog.log(
       "NWC native: done in \(Int(Date().timeIntervalSince(self.started) * 1000)) ms, handedOff=\(outcome.handedOff)"
@@ -214,7 +223,15 @@ final class NwcHandler: @unchecked Sendable {
       await respond(response, to: event, account: account, nip44: usesNip44, relay: config.relayUrl)
       guard setCurrent(nil) else { return }
       ledger.finish(event.id, status: "done")
-      if response["result"] != nil { outcome.notifyMethod = method }
+      // One notification per push: a later read must not hide (and silence) a
+      // payment or invoice.
+      let paying = ["pay_invoice", "make_invoice"]
+      if response["result"] != nil,
+        paying.contains(method) || !paying.contains(outcome.notifyMethod ?? "")
+      {
+        outcome.notifyMethod = method
+        outcome.notifyAccount = account.publicKey
+      }
       nwcLog.log(
         "NWC native: \(method, privacy: .public) handled in \(Int(Date().timeIntervalSince(methodStart) * 1000)) ms"
       )

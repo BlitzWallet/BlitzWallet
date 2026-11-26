@@ -47,7 +47,7 @@ class NwcNativeService : Service() {
         }
         when {
           outcome.handedOff -> fallBackToJs(extras, outcome.strings)
-          outcome.notifyMethod != null -> notify(outcome.strings["title"], outcome.strings[outcome.notifyMethod!!])
+          outcome.notifyMethod != null -> notifyHandled(outcome)
         }
       } catch (e: Throwable) {
         // Throwable, not Exception: a native library that fails to load throws an
@@ -84,14 +84,38 @@ class NwcNativeService : Service() {
     }
   }
 
-  private fun notify(title: String?, body: String?) {
+  // Reads collapse into one silent notification per connection; payments,
+  // invoices and a failed count post their own, with sound.
+  private fun notifyHandled(outcome: NwcOutcome) {
+    val method = outcome.notifyMethod ?: return
+    val account = outcome.notifyAccount
+    val count = if (account != null && method in READ_METHODS) {
+      runCatching {
+        NwcLedger(this).use { it.countRecentReads(account, System.currentTimeMillis()) }
+      }.getOrDefault(0)
+    } else {
+      0
+    }
+    val burst = outcome.strings["readBurst"]?.takeIf { count > 1 }?.replace("{{count}}", count.toString())
+    notify(
+      outcome.strings["title"],
+      burst ?: outcome.strings[method],
+      silent = count > 0,
+      stableKey = account.takeIf { count > 0 },
+    )
+  }
+
+  private fun notify(title: String?, body: String?, silent: Boolean = false, stableKey: String? = null) {
     val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-    // Same channel the app registers for its notifications.
-    if (manager.getNotificationChannel(CHANNEL) == null) {
-      manager.createNotificationChannel(NotificationChannel(CHANNEL, CHANNEL, NotificationManager.IMPORTANCE_HIGH))
+    // CHANNEL is the same one the app registers for its notifications.
+    val channel = if (silent) SILENT_CHANNEL else CHANNEL
+    if (manager.getNotificationChannel(channel) == null) {
+      val importance = if (silent) NotificationManager.IMPORTANCE_LOW else NotificationManager.IMPORTANCE_HIGH
+      manager.createNotificationChannel(NotificationChannel(channel, channel, importance))
     }
     val launch = packageManager.getLaunchIntentForPackage(packageName)
-    val notification = NotificationCompat.Builder(this, CHANNEL)
+    val notification = NotificationCompat.Builder(this, channel)
+      .setSilent(silent)
       .setSmallIcon(R.mipmap.ic_stat_transparenticon)
       .setContentTitle(title ?: "Nostr Connect")
       .setContentText(body ?: "")
@@ -106,11 +130,14 @@ class NwcNativeService : Service() {
         }
       }
       .build()
-    runCatching { manager.notify((System.currentTimeMillis() % Int.MAX_VALUE).toInt(), notification) }
+    val id = stableKey?.hashCode() ?: (System.currentTimeMillis() % Int.MAX_VALUE).toInt()
+    runCatching { manager.notify(id, notification) }
   }
 
   companion object {
     private const val CHANNEL = "blitzWalletNotifications"
+    private const val SILENT_CHANNEL = "blitzWalletNwcSilent"
+    private val READ_METHODS = setOf("get_info", "get_balance", "list_transactions", "lookup_invoice")
 
     // One push at a time: pushes share one Breez storage directory and ledger.
     private val serial = Mutex()

@@ -186,6 +186,15 @@ class NwcLedger(context: Context) : AutoCloseable {
     db.execSQL("UPDATE handled_events SET method = ? WHERE event_id = ?", arrayOf(method, eventId))
   }
 
+  // Same SQL and 5 min window as eventLedger.js countRecentReads. 0 on failure.
+  fun countRecentReads(accountPubkey: String, now: Long): Int = runCatching {
+    db.rawQuery(
+      """SELECT COUNT(*) FROM handled_events WHERE account_pubkey = ? AND status = 'done'
+      AND method IN ('get_info','get_balance','list_transactions','lookup_invoice') AND processed_at > ?""",
+      arrayOf(accountPubkey, (now - 300_000).toString()),
+    ).use { if (it.moveToFirst()) it.getInt(0) else 0 }
+  }.getOrDefault(0)
+
   // done/failed: finished here, drop the recovery copy.
   fun finish(eventId: String, status: String) = runCatching {
     db.transaction {

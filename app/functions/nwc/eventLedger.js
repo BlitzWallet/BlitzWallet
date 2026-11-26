@@ -3,6 +3,15 @@ import { getNWCDatabaseDirectory, migrateNWCDatabase } from './sharedStorage';
 
 // Database configuration
 const DB_NAME = 'nwc_event_ledger.db';
+// Read-only NWC requests collapse into one rolling notification per connection;
+// payments and invoices keep their own. Same read set in the native handlers.
+export const NWC_READ_METHODS = [
+  'get_info',
+  'get_balance',
+  'list_transactions',
+  'lookup_invoice',
+];
+export const NWC_BURST_WINDOW_MS = 5 * 60 * 1000;
 const STALE_PROCESSING_MS = 10 * 60 * 1000;
 const MAX_ATTEMPTS = 3;
 // A native handler (iOS NSE ~30 s, Android service) that has held a claim this
@@ -174,6 +183,32 @@ class EventLedger {
       );
     } catch (error) {
       console.error('Failed to update event method:', eventId, error);
+    }
+  }
+
+  // Read requests handled for this connection in the last 5 minutes, including
+  // the one that just finished (it is marked 'done' before notify). The
+  // notification step posts one rolling message when this is > 1. Returns 0 on
+  // error so the caller falls back to the plain notification.
+  async countRecentReads(accountPubkey, now) {
+    try {
+      await this.ensureInitialized();
+      const placeholders = NWC_READ_METHODS.map(() => '?').join(',');
+      const row = await this.db.getFirstAsync(
+        `SELECT COUNT(*) FROM handled_events
+         WHERE account_pubkey = ? AND status = 'done'
+         AND method IN (${placeholders})
+         AND processed_at > ?`,
+        [
+          accountPubkey,
+          ...NWC_READ_METHODS,
+          now - NWC_BURST_WINDOW_MS,
+        ],
+      );
+      return Number(Object.values(row ?? {})[0] ?? 0);
+    } catch (error) {
+      console.error('Failed to count recent NWC reads:', accountPubkey, error);
+      return 0;
     }
   }
 

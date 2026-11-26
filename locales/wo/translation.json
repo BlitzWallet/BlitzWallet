@@ -3742,6 +3742,7 @@
       "lookup_invoice": "Ñu seet faktiir",
       "pay_invoice": "Fey bi dem na",
       "openApp": "Ubbil Blitz ngir matal laaj bi",
+      "readBurst": "{{count}} laaj",
       "title": "Wallet Connect"
     }
   },

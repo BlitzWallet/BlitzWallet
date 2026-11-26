@@ -56,10 +56,42 @@ final class NotificationService: UNNotificationServiceExtension {
     } else if let method = outcome.notifyMethod {
       content.title = strings["title"] ?? "Nostr Connect"
       content.body = strings[method] ?? original.body
+      if method == "pay_invoice" || method == "make_invoice" { content.sound = .default }
+      // readCount > 0 only for reads: one silent, rolling notification per
+      // connection. A failed count (0) leaves the plain content above.
+      if outcome.readCount > 0, let account = outcome.notifyAccount {
+        content.threadIdentifier = account
+        content.userInfo = ["nwcRead": true]
+        if outcome.readCount > 1 {
+          if let burst = strings["readBurst"] {
+            content.body = burst.replacingOccurrences(of: "{{count}}", with: "\(outcome.readCount)")
+          }
+          return replaceReads(account, with: content, contentHandler)
+        }
+      }
     }
     // Otherwise (duplicate, rejected, error response) deliver empty content: the
     // JS handler stays silent for these too.
     contentHandler(content)
+  }
+
+  // An extension cannot reuse the push's identifier, so remove the connection's
+  // earlier read notifications before delivering the new one.
+  private func replaceReads(
+    _ account: String, with content: UNNotificationContent,
+    _ contentHandler: @escaping (UNNotificationContent) -> Void
+  ) {
+    nonisolated(unsafe) let content = content
+    nonisolated(unsafe) let contentHandler = contentHandler
+    UNUserNotificationCenter.current().getDeliveredNotifications { delivered in
+      let stale = delivered.filter {
+        let old = $0.request.content
+        return old.threadIdentifier == account && old.userInfo["nwcRead"] as? Bool == true
+      }
+      UNUserNotificationCenter.current().removeDeliveredNotifications(
+        withIdentifiers: stale.map { $0.request.identifier })
+      contentHandler(content)
+    }
   }
 }
 

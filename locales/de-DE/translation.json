@@ -3751,6 +3751,7 @@
       "lookup_invoice": "Rechnung geprüft",
       "pay_invoice": "Zahlung gesendet",
       "openApp": "Blitz öffnen, um Anfrage abzuschließen",
+      "readBurst": "{{count}} Anfragen",
       "title": "Wallet Connect"
     }
   },

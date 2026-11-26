@@ -6,7 +6,7 @@ import {
 } from '.';
 import i18next from 'i18next';
 import { publishToSingleRelay } from './publishResponse';
-import { nwcEventLedger } from './eventLedger';
+import { nwcEventLedger, NWC_READ_METHODS } from './eventLedger';
 import bolt11 from '../decodeBolt11';
 import { pushInstantNotification } from '../notifications';
 import NWCInvoiceManager from './cachedNWCTxs';
@@ -1423,10 +1423,39 @@ export default async function handleNWCBackgroundEvent(
               if (selectedLanguage !== i18next.language) {
                 await i18next.changeLanguage(selectedLanguage);
               }
-              pushInstantNotification(
-                i18next.t(successMessage),
-                i18next.t('pushNotifications.nwc.title'),
-              );
+              const title = i18next.t('pushNotifications.nwc.title');
+              if (NWC_READ_METHODS.includes(event.requestMethod)) {
+                // Read requests collapse into one silent, per-connection
+                // notification: count this connection's reads in the burst
+                // window and update the message in place. A count failure
+                // falls back to today's plain notification.
+                let count;
+                try {
+                  count = await nwcEventLedger.countRecentReads(
+                    selectedNWCAccount.publicKey,
+                    Date.now(),
+                  );
+                } catch (error) {
+                  console.error('Error counting recent NWC reads:', error);
+                }
+                if (count > 0) {
+                  pushInstantNotification(
+                    count > 1
+                      ? i18next.t('pushNotifications.nwc.readBurst', { count })
+                      : i18next.t(successMessage),
+                    title,
+                    {
+                      identifier: `nwc-read-${selectedNWCAccount.publicKey}`,
+                      silent: true,
+                    },
+                  );
+                } else {
+                  pushInstantNotification(i18next.t(successMessage), title);
+                }
+              } else {
+                // Payments and invoices keep their own notification and sound.
+                pushInstantNotification(i18next.t(successMessage), title);
+              }
             }
           }
         } catch (error) {

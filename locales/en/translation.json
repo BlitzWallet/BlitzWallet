@@ -3751,6 +3751,7 @@
       "lookup_invoice": "Invoice checked",
       "pay_invoice": "Payment sent",
       "openApp": "Open Blitz to finish request",
+      "readBurst": "{{count}} requests",
       "title": "Wallet Connect"
     }
   },

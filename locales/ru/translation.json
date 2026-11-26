@@ -3798,6 +3798,7 @@
       "lookup_invoice": "Счёт проверен",
       "pay_invoice": "Платёж отправлен",
       "openApp": "Откройте Blitz, чтобы завершить запрос",
+      "readBurst": "Запросов: {{count}}",
       "title": "Wallet Connect"
     }
   },

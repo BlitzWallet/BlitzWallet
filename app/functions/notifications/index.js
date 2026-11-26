@@ -7,10 +7,10 @@ import { Platform } from 'react-native';
 if (Platform.OS !== 'web') {
   // Configure notification behavior
   setNotificationHandler({
-    handleNotification: async () => ({
+    handleNotification: async notification => ({
       shouldShowBanner: true,
       shouldShowList: true,
-      shouldPlaySound: true,
+      shouldPlaySound: !notification.request.content.data?.nwcSilent,
       shouldSetBadge: false,
     }),
   });
@@ -20,15 +20,26 @@ if (Platform.OS !== 'web') {
  * Pushes an instant local notification
  * @param {string} message - The notification message to display
  * @param {string} title - Optional title for the notification (defaults to "Notification")
+ * @param {object} options - Optional display options
+ * @param {string} options.identifier - Reuse to replace an existing notification in place
+ * @param {boolean} options.silent - Post without sound
  * @returns {Promise<string>} - Returns the notification identifier
  */
-export const pushInstantNotification = async (message, title = '') => {
+export const pushInstantNotification = async (
+  message,
+  title = '',
+  options = {},
+) => {
   try {
+    const { identifier, silent = false } = options;
     const notificationId = await scheduleNotificationAsync({
+      identifier,
       content: {
         title: title,
         body: message,
-        sound: 'default',
+        // Android plays the default sound when `sound` is omitted.
+        sound: silent ? false : 'default',
+        ...(silent ? { data: { nwcSilent: true } } : {}),
       },
       trigger: null, // null trigger means immediate notification
     });
