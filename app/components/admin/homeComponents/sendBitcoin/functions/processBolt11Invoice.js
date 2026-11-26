@@ -11,6 +11,7 @@ import {
   getLightningPaymentQuote,
   USD_ASSET_ADDRESS,
 } from '../../../../../functions/spark/flashnet';
+import { msatToPaidSats } from '../../../../../functions/msatToPaidSats';
 
 export default async function processBolt11Invoice(input, context) {
   const {
@@ -63,12 +64,13 @@ export default async function processBolt11Invoice(input, context) {
     ? enteredPaymentInfo.amount * 1000
     : convertedSendAmount * 1000;
 
+  // A fixed invoice always pays its own amount; entries only apply to
+  // amountless ones.
   const amountMsat =
-    comingFromAccept || paymentInfo.sendAmount
-      ? enteredAmount
-      : input.data.amountMsat || 0;
+    input.data.amountMsat ||
+    (comingFromAccept || paymentInfo.sendAmount ? enteredAmount : 0);
 
-  const amountSat = Math.round(amountMsat / 1000);
+  const amountSat = msatToPaidSats(amountMsat);
 
   let fee = {};
   let usdFee = {};
@@ -193,7 +195,8 @@ export default async function processBolt11Invoice(input, context) {
   const canEditPayment = comingFromAccept ? false : !amountMsat;
 
   const displayAmount =
-    enteredPaymentInfo?.fromContacts || comingFromAccept
+    isZeroAmountInvoice &&
+    (enteredPaymentInfo?.fromContacts || comingFromAccept)
       ? enteredPaymentInfo.amount
       : amountSat;
 

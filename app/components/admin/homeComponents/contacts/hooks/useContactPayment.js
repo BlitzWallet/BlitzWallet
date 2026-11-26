@@ -46,6 +46,7 @@ import {
   PROVIDER_COUNTRY_CURRENCY,
 } from '../../../../../functions/sendBitcoin/getPhonePaymentAddress';
 import { fiatCurrencies } from '../../../../../functions/currencyOptions';
+import { msatToPaidSats } from '../../../../../functions/msatToPaidSats';
 
 // Minimum time the auto-resolve loading screen stays up once shown, so a fast
 // (e.g. cached) rate resolution doesn't cause a jarring one-frame flash.
@@ -247,10 +248,13 @@ export default function useContactPayment({
   }, [paymentType, selectedContact?.isLNURL, selectedContact?.receiveAddress]);
 
   const minLNURLSatAmount = lnurlPayData
-    ? lnurlPayData.data.minSendable / 1000
+    ? msatToPaidSats(lnurlPayData.data.minSendable)
     : 0;
   const maxLNURLSatAmount = lnurlPayData
-    ? lnurlPayData.data.maxSendable / 1000
+    ? Math.max(
+        Math.floor(lnurlPayData.data.maxSendable / 1000),
+        minLNURLSatAmount,
+      )
     : Infinity;
 
   const resolvedEndReceiveType =

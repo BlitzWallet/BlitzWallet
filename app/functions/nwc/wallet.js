@@ -76,7 +76,8 @@ const fieldsOf = method => method?.inner ?? method;
 // Amountless invoices need an explicit amount; fixed ones must not get one.
 const explicitAmount = (invoice, amount) => {
   try {
-    if (decodeBolt11(invoice).satoshis != null) return undefined;
+    // Not `.satoshis`: that is also null for a fixed sub-sat amount.
+    if (decodeBolt11(invoice).millisatoshis != null) return undefined;
   } catch {}
   return amount ? Number(amount) : undefined;
 };

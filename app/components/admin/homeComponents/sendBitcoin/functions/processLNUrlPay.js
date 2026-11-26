@@ -24,6 +24,7 @@ import {
 } from '../../../../../functions/sendBitcoin/getPhonePaymentAddress';
 import loadNewFiatData from '../../../../../functions/saveAndUpdateFiatData';
 import getLNURLDetails from '../../../../../functions/lnurl/getLNURLDetails';
+import { msatToPaidSats } from '../../../../../functions/msatToPaidSats';
 
 export default async function processLNUrlPay(input, context) {
   const {
@@ -82,10 +83,11 @@ export default async function processLNUrlPay(input, context) {
   const lnurlCurrency = normalizeLNURLCurrency(input.data);
   const phonePaymentCountry = getPhonePaymentCountry(input.data.address);
 
-  let enteredAmount = enteredPaymentInfo.amount
-    ? enteredPaymentInfo.amount * 1000
-    : isFixedAmount
+  // A fixed amount wins: a passed-back sat value has lost any sub-sat part.
+  let enteredAmount = isFixedAmount
     ? input.data.minSendable
+    : enteredPaymentInfo.amount
+    ? enteredPaymentInfo.amount * 1000
     : convertedSendAmount * 1000;
   let isRequoted = false;
 
@@ -119,7 +121,7 @@ export default async function processLNUrlPay(input, context) {
     comingFromAccept || paymentInfo.sendAmount || isFixedAmount
       ? enteredAmount
       : input.data.minSendable;
-  const amountSat = Math.round(amountMsat / 1000);
+  const amountSat = msatToPaidSats(amountMsat);
 
   let swapPaymentQuote = {};
   // USD quote refused (e.g. below the backend minimum) while BTC still works.
@@ -383,7 +385,7 @@ export default async function processLNUrlPay(input, context) {
 
   const displayAmount =
     enteredPaymentInfo?.fromContacts || comingFromAccept
-      ? enteredAmount / 1000 // the re-quoted amount when it was re-quoted above
+      ? msatToPaidSats(enteredAmount) // the re-quoted amount when it was re-quoted above
       : amountSat;
 
   return {

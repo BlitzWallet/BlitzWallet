@@ -18,6 +18,7 @@ import { getDefaultDisplayCurrency } from '../../../../../functions/displayCurre
 import usePaymentValidation from '../functions/paymentValidation';
 import decodeSendAddress from '../functions/decodeSendAdress';
 import { resolvePaymentMethod } from '../functions/sendFlow';
+import { msatToPaidSats } from '../../../../../functions/msatToPaidSats';
 
 // What SendPaymentScreen, SendAmount, SendDescription and SendReview all derive
 // from one paymentInfo + route params: token, method, fee, display and validation.
@@ -110,11 +111,16 @@ export default function useSendPaymentDetails({
     );
   }, [poolInfoRef.currentPriceAInB, swapLimits]);
 
+  // Same whole-sat limits as Breez; max never drops below min, so a fixed
+  // sub-sat amount stays payable.
   const minLNURLSatAmount = isLNURLPayment
-    ? paymentInfo?.data?.minSendable / 1000
+    ? msatToPaidSats(paymentInfo?.data?.minSendable)
     : 0;
   const maxLNURLSatAmount = isLNURLPayment
-    ? paymentInfo?.data?.maxSendable / 1000
+    ? Math.max(
+        Math.floor(paymentInfo?.data?.maxSendable / 1000),
+        minLNURLSatAmount,
+      )
     : 0;
 
   // Tokens only exist on Spark — a bolt11/on-chain/LNURL invoice can never be

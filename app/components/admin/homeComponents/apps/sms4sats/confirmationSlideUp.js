@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { decode } from '../../../../../functions/decodeBolt11';
+import { msatToPaidSats } from '../../../../../functions/msatToPaidSats';
 import { fetchSms4Sats, formatSmsPhoneNumber, SMS4SATS_API } from './utils';
 import SMSConfirmSheet from './smsConfirmSheet';
 
@@ -26,7 +27,7 @@ export default function ConfirmSMSPayment({
     return {
       payreq: data.payreq,
       orderId: data.orderId,
-      amountSat: decode(data.payreq).satoshis,
+      amountSat: msatToPaidSats(decode(data.payreq).millisatoshis),
     };
   };
 

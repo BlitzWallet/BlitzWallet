@@ -59,6 +59,7 @@ import IconButton from '../../../../functions/CustomElements/redesign/IconButton
 import PageHeader from '../../../../functions/CustomElements/redesign/PageHeader';
 import UserInput from '../../../../functions/CustomElements/redesign/UserInput';
 import TextButton from '../../../../functions/CustomElements/redesign/TextButton';
+import { msatToPaidSats } from '../../../../functions/msatToPaidSats';
 
 const BITREFILL_REFERRAL_TOKEN = 'blitzwallet_brtoken_26';
 const BITREFILL_PAYMENT_METHODS = ['lightning'].join(',');
@@ -462,8 +463,8 @@ export default function BitrefillShopModal() {
           break;
         }
 
-        const amountSats = Math.round(
-          (parsedInvoice?.data?.amountMsat || 0) / 1000,
+        const amountSats = msatToPaidSats(
+          parsedInvoice?.data?.amountMsat || 0,
         );
 
         setPendingIntent({

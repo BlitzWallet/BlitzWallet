@@ -395,6 +395,8 @@ final class NwcHandler: @unchecked Sendable {
       let amountMsatRaw = details.amountMsat, amountMsatRaw > 0, amountMsatRaw <= maxInvoiceMsat
     else { return errorResponse(method, "INTERNAL", "Invalid invoice amount") }
     let amountMsat = Int64(amountMsatRaw)
+    // Breez rounds a sub-sat invoice up; budget and records use what is paid.
+    let paidSats = (amountMsat + 999) / 1000
     let paymentHash = details.paymentHash
 
     // Idempotency by payment_hash: a completed attempt returns its preimage, a
@@ -423,7 +425,7 @@ final class NwcHandler: @unchecked Sendable {
     let (prepared, feeSats) = try await withTimeout(remaining) {
       try await wallet.prepare(invoice: invoice)
     }
-    let reservedMsat = amountMsat + Int64(feeSats) * 1000
+    let reservedMsat = (paidSats + Int64(feeSats)) * 1000
 
     // Reserve the worst case (atomically against JS, see NwcLedger.reserveSpend)
     // and drop the pending marker BEFORE sending, so an interrupted run can
@@ -444,7 +446,7 @@ final class NwcHandler: @unchecked Sendable {
     let claimed: Bool
     do {
       claimed = try invoices.claimPayment(
-        paymentHash: paymentHash, invoice: invoice, amountSats: amountMsat / 1000)
+        paymentHash: paymentHash, invoice: invoice, amountSats: paidSats)
     } catch {
       try? ledger.adjustSpend(account.publicKey, windowStart: windowStart, deltaMsat: -reservedMsat)
       throw error
@@ -487,7 +489,7 @@ final class NwcHandler: @unchecked Sendable {
     let actualFeeMsat = payment.feeSats * 1000
     try? ledger.adjustSpend(
       account.publicKey, windowStart: windowStart,
-      deltaMsat: amountMsat + actualFeeMsat - reservedMsat)
+      deltaMsat: paidSats * 1000 + actualFeeMsat - reservedMsat)
     let preimage = payment.lightning?.htlcDetails.preimage ?? ""
     let status = payment.status == .completed ? "completed" : "pending"
     try? invoices.updateStatus(

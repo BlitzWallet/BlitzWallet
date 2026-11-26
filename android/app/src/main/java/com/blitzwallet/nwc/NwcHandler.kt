@@ -331,6 +331,8 @@ class NwcHandler(
     val amountMsat = details?.amountMsat?.toLong() ?: 0
     if (details == null || amountMsat <= 0 || amountMsat > MAX_INVOICE_MSAT) return errorResponse(method, "INTERNAL", "Invalid invoice amount")
     val paymentHash = details.paymentHash
+    // Breez rounds a sub-sat invoice up; budget and records use what is paid.
+    val paidSats = (amountMsat + 999) / 1000
 
     // Idempotency by payment_hash: a completed attempt returns its preimage, a
     // pending one is reconciled against the wallet and never re-sent blindly.
@@ -351,7 +353,7 @@ class NwcHandler(
     }
 
     val (prepared, feeSats) = timed { wallet.prepare(invoice) }
-    val reservedMsat = amountMsat + feeSats * 1000
+    val reservedMsat = (paidSats + feeSats) * 1000
 
     // Reserve the worst case (atomically against JS, see NwcLedger.reserveSpend)
     // and drop the pending marker BEFORE sending, so an interrupted run can
@@ -367,7 +369,7 @@ class NwcHandler(
     // so a marker can appear after it; only the attempt that takes the
     // payment_hash here may send.
     val claimed = try {
-      invoices.claimPayment(paymentHash, invoice, amountMsat / 1000)
+      invoices.claimPayment(paymentHash, invoice, paidSats)
     } catch (e: Exception) {
       runCatching { ledger.adjustSpend(account.publicKey, windowStart, -reservedMsat) }
       throw e
@@ -398,7 +400,7 @@ class NwcHandler(
     }
 
     val actualFeeMsat = payment.feeSats * 1000
-    runCatching { ledger.adjustSpend(account.publicKey, windowStart, amountMsat + actualFeeMsat - reservedMsat) }
+    runCatching { ledger.adjustSpend(account.publicKey, windowStart, paidSats * 1000 + actualFeeMsat - reservedMsat) }
     val preimage = payment.lightning?.htlcDetails?.preimage ?: ""
     val status = if (payment.status == PaymentStatus.COMPLETED) "completed" else "pending"
     runCatching { invoices.updateStatus(paymentHash, status, preimage, payment.feeSats) }

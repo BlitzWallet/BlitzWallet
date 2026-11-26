@@ -8,6 +8,7 @@ import i18next from 'i18next';
 import { publishToSingleRelay } from './publishResponse';
 import { nwcEventLedger, NWC_READ_METHODS } from './eventLedger';
 import bolt11 from '../decodeBolt11';
+import { msatToPaidSats } from '../msatToPaidSats';
 import { pushInstantNotification } from '../notifications';
 import NWCInvoiceManager from './cachedNWCTxs';
 import { NOSTR_RELAY_URL } from '../../constants';
@@ -686,7 +687,9 @@ const handlePayInvoice = async (
 
   const renewalSettings = selectedNWCAccount.budgetRenewalSettings || {};
   const now = Date.now();
-  const amountSats = (amountMsat - (amountMsat % 1000)) / 1000;
+  // What actually leaves the wallet: the budget and records use this, while NIP-47
+  // replies keep the invoice's own msat amount.
+  const amountSats = msatToPaidSats(amountMsat);
 
   const connectResponse = await ensureWalletConnection();
   if (!connectResponse.isConnected) {
@@ -713,7 +716,7 @@ const handlePayInvoice = async (
       'Unable to estimate payment fee',
     );
   }
-  const reservedMsat = amountMsat + feeEstimate.response * 1000;
+  const reservedMsat = (amountSats + feeEstimate.response) * 1000;
 
   const budgetLimitMsat =
     renewalSettings.amount === 'Unlimited'
@@ -860,7 +863,7 @@ const handlePayInvoice = async (
   await adjustBudget(
     paymentStatus === 'failed'
       ? -reservedMsat
-      : amountMsat + feeMsat - reservedMsat,
+      : amountSats * 1000 + feeMsat - reservedMsat,
   );
 
   try {

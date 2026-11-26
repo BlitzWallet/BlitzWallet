@@ -50,7 +50,10 @@ export async function getLNAddressForLiquidPayment(
       const hasQueryParams = callback.includes('?');
       const separator = hasQueryParams ? '&' : '?';
 
-      let url = `${callback}${separator}amount=${sendingValue * 1000}`;
+      // Rounded: msat / 1000 * 1000 is not always exact (1001 -> 1000.99...).
+      const requestedMsats = Math.round(sendingValue * 1000);
+
+      let url = `${callback}${separator}amount=${requestedMsats}`;
 
       if (paymentInfo?.data.commentAllowed) {
         const comment = encodeURIComponent(
@@ -85,7 +88,6 @@ export async function getLNAddressForLiquidPayment(
       }
 
       const decodedInvoice = decodeBolt11(data.pr);
-      const requestedMsats = sendingValue * 1000;
 
       if (
         !decodedInvoice.millisatoshis ||
