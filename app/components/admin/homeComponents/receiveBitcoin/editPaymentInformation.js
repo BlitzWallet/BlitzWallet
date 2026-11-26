@@ -37,6 +37,7 @@ import {
 } from '../../../../functions/displayCurrency';
 import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
+import { keyboardNavigate } from '../../../../functions/customNavigation';
 
 export default function EditReceivePaymentInformation(props) {
   const navigate = useNavigation();
@@ -146,18 +147,18 @@ export default function EditReceivePaymentInformation(props) {
     (!!paymentDescription || isUsingAltAccount);
 
   const openPicker = useCallback(() => {
-    if (isKeyboardFocused) return;
-
-    navigate.navigate('CustomHalfModal', {
-      wantedContent: 'displayCurrencySelect',
-      sliderHight: 0.9,
-      currentCurrency: displayCurrency,
-      onSelectCurrency: async code => {
-        const response = await selectCurrency(code);
-        return response;
-      },
-    });
-  }, [displayCurrency, isKeyboardFocused, navigate, selectCurrency]);
+    keyboardNavigate(() =>
+      navigate.navigate('CustomHalfModal', {
+        wantedContent: 'displayCurrencySelect',
+        sliderHight: 0.9,
+        currentCurrency: displayCurrency,
+        onSelectCurrency: async code => {
+          const response = await selectCurrency(code);
+          return response;
+        },
+      }),
+    );
+  }, [displayCurrency, navigate, selectCurrency]);
 
   const handleSubmit = useCallback(() => {
     const sendAmount = Number(requestedSatAmount) || 0;
