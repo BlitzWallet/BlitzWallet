@@ -58,7 +58,12 @@ export default function NotificationPreferances() {
     const response = await openPushNotificationSettings();
     setIsUpdating(false);
     if (!response.didWork)
-      navigate.navigate('ErrorScreen', { errorMessage: t(response.error) });
+      // Raw errors skip t(): i18next splits keys on ':' and '.'.
+      navigate.navigate('ErrorScreen', {
+        errorMessage: response.error.startsWith('errormessages.')
+          ? t(response.error)
+          : response.error,
+      });
   }, [
     openPushNotificationSettings,
     navigate,

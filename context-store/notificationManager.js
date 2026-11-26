@@ -219,7 +219,9 @@ export const PushNotificationProvider = ({ children }) => {
               () =>
                 resolve({
                   didWork: false,
-                  error: 'errormessages.genericError',
+                  error: `Push registration timed out after ${
+                    REGISTER_TIMEOUT_MS / 1000
+                  } seconds`,
                 }),
               REGISTER_TIMEOUT_MS,
             );
@@ -255,7 +257,7 @@ export const PushNotificationProvider = ({ children }) => {
       return { didWork: true };
     } catch (err) {
       console.log('Error syncing push notification permission', err);
-      return { didWork: false, error: 'errormessages.genericError' };
+      return { didWork: false, error: err.message || String(err) };
     } finally {
       isSyncingRef.current = false;
       setIsRegisteringPush(false);
@@ -323,7 +325,7 @@ export const PushNotificationProvider = ({ children }) => {
       return { didWork: true };
     } catch (err) {
       console.log('Error enabling push notifications', err);
-      return { didWork: false, error: 'errormessages.genericError' };
+      return { didWork: false, error: err.message || String(err) };
     }
   }, [pushNotificationData?.isEnabled, syncPushNotificationPermission]);
 
@@ -400,11 +402,7 @@ async function registerForPushNotificationsAsync() {
     return { didWork: true, token: pushToken.data };
   } catch (err) {
     console.error('UNEXPECTED ERROR IN FUNCTION', err);
-    const isTranslationKey = err.message?.startsWith('errormessages.');
-    return {
-      didWork: false,
-      error: isTranslationKey ? err.message : 'errormessages.genericError',
-    };
+    return { didWork: false, error: err.message || String(err) };
   }
 }
 
