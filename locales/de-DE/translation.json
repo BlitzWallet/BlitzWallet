@@ -2685,6 +2685,8 @@
       "daysLeft_other": "Noch etwa {{count}} Tage",
       "hoursLeft_one": "Noch etwa {{count}} Stunde",
       "hoursLeft_other": "Noch etwa {{count}} Stunden",
+      "saveFirstTitle": "Speichern Sie Ihre Exit-Daten",
+      "saveFirstSub": "Sie brauchen diese Datei, wenn Sie dieses Gerät während des Exits verlieren. Sie zeigt Ihr Guthaben und Ihren Verlauf, also bewahren Sie sie privat und außerhalb dieses Geräts auf.",
       "sendAtLeast": "Senden Sie mindestens {{amount}} aus einer anderen Wallet an diese Adresse.",
       "cancelButton": "Wiederherstellung abbrechen",
       "feeAddress": "Gebührenadresse",

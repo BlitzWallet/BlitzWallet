@@ -2685,6 +2685,8 @@
       "daysLeft_other": "Faltam cerca de {{count}} dias",
       "hoursLeft_one": "Falta cerca de {{count}} hora",
       "hoursLeft_other": "Faltam cerca de {{count}} horas",
+      "saveFirstTitle": "Salve seus dados de saída",
+      "saveFirstSub": "Você vai precisar deste arquivo se perder este dispositivo durante a saída. Ele mostra seu saldo e histórico, então mantenha-o em sigilo e fora deste dispositivo.",
       "sendAtLeast": "Envie pelo menos {{amount}} de outra carteira para este endereço.",
       "cancelButton": "Cancelar recuperação",
       "feeAddress": "Endereço de taxas",

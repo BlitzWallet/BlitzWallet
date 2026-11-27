@@ -2685,6 +2685,8 @@
       "daysLeft_other": "Environ {{count}} jours restants",
       "hoursLeft_one": "Environ {{count}} heure restante",
       "hoursLeft_other": "Environ {{count}} heures restantes",
+      "saveFirstTitle": "Enregistrez vos données de sortie",
+      "saveFirstSub": "Vous aurez besoin de ce fichier si vous perdez cet appareil pendant la sortie. Il révèle votre solde et votre historique : gardez-le privé et hors de cet appareil.",
       "sendAtLeast": "Envoyez au moins {{amount}} depuis un autre portefeuille à cette adresse.",
       "cancelButton": "Annuler la récupération",
       "feeAddress": "Adresse des frais",

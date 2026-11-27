@@ -2685,6 +2685,8 @@
       "daysLeft_other": "Mancano circa {{count}} giorni",
       "hoursLeft_one": "Manca circa {{count}} ora",
       "hoursLeft_other": "Mancano circa {{count}} ore",
+      "saveFirstTitle": "Salva i dati di uscita",
+      "saveFirstSub": "Ti servirà questo file se perdi questo dispositivo durante l'uscita. Mostra il tuo saldo e la cronologia, quindi tienilo riservato e fuori da questo dispositivo.",
       "sendAtLeast": "Invia almeno {{amount}} da un altro portafoglio a questo indirizzo.",
       "cancelButton": "Annulla recupero",
       "feeAddress": "Indirizzo delle commissioni",

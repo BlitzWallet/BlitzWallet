@@ -2682,6 +2682,8 @@
       "daysLeft_other": "Quedan alrededor de {{count}} días",
       "hoursLeft_one": "Queda alrededor de {{count}} hora",
       "hoursLeft_other": "Quedan alrededor de {{count}} horas",
+      "saveFirstTitle": "Guarda tus datos de salida",
+      "saveFirstSub": "Necesitarás este archivo si pierdes este dispositivo durante la salida. Muestra tu saldo e historial, así que guárdalo en privado y fuera de este dispositivo.",
       "sendAtLeast": "Envía al menos {{amount}} desde otra billetera a esta dirección.",
       "cancelButton": "Cancelar recuperación",
       "feeAddress": "Dirección para comisiones",

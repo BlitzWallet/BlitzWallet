@@ -20,7 +20,13 @@ jest.mock('../../../app/functions/writeFileToFilesystem', () => ({
 }));
 jest.mock('../../../app/functions/unilateralExit/exitStore', () => ({
   loadExitRecord: (...a) => mockLoad(...a),
+  listKeptRecoveries: async () => [],
+  saveKeptRecovery: jest.fn(),
   saveExitRecord: (...a) => mockSave(...a),
+}));
+jest.mock('../../../app/functions/unilateralExit/exitEngine', () => ({
+  startExitEngine: jest.fn(),
+  stopExitEngine: jest.fn(),
 }));
 jest.mock('../../../app/functions/spark/walletRuntime', () => ({
   identityFor: async m => `id-${m}`,
@@ -62,7 +68,9 @@ describe('exitBackup', () => {
     });
     mockHandle.exportExitState.mockResolvedValue('FRESH');
     await saveExitDataFile('m');
-    expect(mockWrite.mock.calls[0][0]).toBe('SNAP');
+    const file = JSON.parse(mockWrite.mock.calls[0][0]);
+    expect(file.exitState).toBe('SNAP');
+    expect(file.record.status).toBe('broadcasting');
     expect(mockHandle.exportExitState).not.toHaveBeenCalled();
   });
 

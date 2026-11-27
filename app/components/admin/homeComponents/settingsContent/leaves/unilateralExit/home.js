@@ -185,8 +185,6 @@ export default function UnilateralExitHome(props) {
                 <ListRow
                   title={t('settings.unilateralExit.recoverableFundsTitle')}
                   sub={t('settings.unilateralExit.recoverableFundsSub')}
-                  trailing="value"
-                  value={format(available)}
                   minHeight={64}
                   lead={<Disc icon="Wallet" size={36} />}
                   onPress={() =>
@@ -199,8 +197,6 @@ export default function UnilateralExitHome(props) {
               {recovering && (
                 <ListRow
                   title={t('settings.unilateralExit.recoveryInProgress')}
-                  trailing="value"
-                  value={format(recovering.quote?.receiveSats ?? 0)}
                   minHeight={64}
                   lead={<Disc icon="Clock" size={36} />}
                   onPress={() =>
@@ -217,8 +213,6 @@ export default function UnilateralExitHome(props) {
                 <ListRow
                   key={r.id}
                   title={t('settings.unilateralExit.recoveryInProgress')}
-                  trailing="value"
-                  value={format(r.quote?.receiveSats ?? 0)}
                   minHeight={64}
                   lead={<Disc icon="Clock" size={36} />}
                 />

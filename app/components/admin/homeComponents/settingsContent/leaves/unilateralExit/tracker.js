@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Platform, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -51,6 +51,8 @@ import {
 } from '../../../../../../functions/unilateralExit/exitEngine';
 import { exitGraph, txState } from './tree';
 import { useFeeAddressBalance } from './feeSheet';
+import IconButton from '../../../../../../functions/CustomElements/redesign/IconButton';
+import { saveExitDataFile } from '../../../../../../functions/unilateralExit/exitBackup';
 import BottomActions from '../../../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../../../functions/CustomElements/redesign/BottomFade';
 import { FADE_TOP } from '../../../../../../functions/CustomElements/redesign/TopFade';
@@ -76,6 +78,7 @@ export default function UnilateralExitTracker() {
   const { record, view, feeAddress, remindersOff, lastError } =
     useUnilateralExit();
   const { width } = useWindowDimensions();
+  const [saveError, setSaveError] = useState(null);
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const feeLeft = useFeeAddressBalance(
     record?.status === 'active' ? feeAddress : null,
@@ -133,6 +136,19 @@ export default function UnilateralExitTracker() {
   })();
 
   const goBack = () => navigate.getParent()?.goBack();
+
+  // Lets another device pick this exit up from the file.
+  const saveExitData = async () => {
+    setSaveError(null);
+    let error = null;
+    try {
+      const res = await saveExitDataFile(accountMnemoinc);
+      if (!res.success && res.error) error = res.error;
+    } catch (err) {
+      error = String(err?.message || err);
+    }
+    return () => setSaveError(error);
+  };
 
   const transactionsRow = (
     <ListRow
@@ -195,7 +211,11 @@ export default function UnilateralExitTracker() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
-        <TopBar fade title={t('settings.unilateralExit.title')} />
+        <TopBar
+          fade
+          title={t('settings.unilateralExit.title')}
+          right={<IconButton icon={'Download'} onPress={saveExitData} />}
+        />
         <CustomScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.hero}>
             <ThemeText
@@ -340,6 +360,11 @@ export default function UnilateralExitTracker() {
           {!!lastError && (
             <View style={styles.block}>
               <Note tone="warn" text={lastError} />
+            </View>
+          )}
+          {!!saveError && (
+            <View style={styles.block}>
+              <Note tone="warn" text={saveError} />
             </View>
           )}
         </CustomScrollView>

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -23,9 +23,18 @@ import {
   startExitEngine,
   useUnilateralExit,
 } from '../../../../../../functions/unilateralExit/exitEngine';
+import { saveExitDataFile } from '../../../../../../functions/unilateralExit/exitBackup';
+import {
+  getLocalStorageItem,
+  setLocalStorageItem,
+} from '../../../../../../functions/localStorage';
 import BottomActions from '../../../../../../functions/CustomElements/redesign/BottomActions';
 import { FADE } from '../../../../../../functions/CustomElements/redesign/BottomFade';
 import { FADE_TOP } from '../../../../../../functions/CustomElements/redesign/TopFade';
+import EmptyState from '../../../../../../functions/CustomElements/redesign/EmptyState';
+
+// Which exit (by createdAt) already had its data file saved.
+const SAVED_KEY = 'unilateralExitDataSaved';
 
 export default function UnilateralExitPayFee() {
   const { t } = useTranslation();
@@ -38,6 +47,30 @@ export default function UnilateralExitPayFee() {
   const { record, view, feeAddress, running, lastError } = useUnilateralExit();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
+  const [saved, setSaved] = useState(undefined);
+  const [saveError, setSaveError] = useState(null);
+
+  useEffect(() => {
+    if (!record?.createdAt) return;
+    getLocalStorageItem(SAVED_KEY).then(v =>
+      setSaved(v === String(record.createdAt)),
+    );
+  }, [record?.createdAt]);
+
+  // Losing the device mid-exit leaves only this file to finish it with, so the
+  // fee address stays hidden until it is saved.
+  // ponytail: a dismissed share sheet still counts as saved (iOS doesn't report it).
+  const saveExitData = async () => {
+    setSaveError(null);
+    try {
+      const res = await saveExitDataFile(accountMnemoinc);
+      if (!res.success) return setSaveError(res.error);
+      await setLocalStorageItem(SAVED_KEY, String(record.createdAt));
+      setSaved(true);
+    } catch (err) {
+      setSaveError(String(err?.message || err));
+    }
+  };
 
   useEffect(() => {
     startExitEngine(accountMnemoinc);
@@ -93,6 +126,37 @@ export default function UnilateralExitPayFee() {
   // Fee confirmed: the recovery is being built, so the QR and buttons are moot.
   const preparing =
     !needsMore && view?.feeReceivedSats > 0 && view?.feePendingSats === 0;
+  // Only before any fee lands: an exit already funded never gets stuck here.
+  const mustSave = saved !== true && view?.feeReceivedSats === 0 && !needsMore;
+
+  if (mustSave && saved === false)
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <View style={[styles.container, { width: contentWidth }]}>
+          <TopBar title={t('settings.unilateralExit.title')} />
+          <View style={styles.empty}>
+            <EmptyState
+              icon={'AlertTriangle'}
+              iconTone="danger"
+              title={t('settings.unilateralExit.saveFirstTitle')}
+              sub={t('settings.unilateralExit.saveFirstSub')}
+            />
+          </View>
+          {!!saveError && (
+            <View style={styles.block}>
+              <Note tone="warn" text={saveError} />
+            </View>
+          )}
+          <View style={styles.buttons}>
+            <CustomButton
+              textContent={t('settings.unilateralExit.saveTitle')}
+              actionFunction={saveExitData}
+              size={'regular'}
+            />
+          </View>
+        </View>
+      </GlobalThemeView>
+    );
 
   if (preparing) {
     return (
@@ -191,5 +255,10 @@ const styles = StyleSheet.create({
     borderRadius: 7,
     marginTop: 16,
     ...CENTER,
+  },
+  empty: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

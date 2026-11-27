@@ -2847,6 +2847,8 @@
       "daysLeft_other": "About {{count}} days left",
       "hoursLeft_one": "About {{count}} hour left",
       "hoursLeft_other": "About {{count}} hours left",
+      "saveFirstTitle": "Save your exit data",
+      "saveFirstSub": "You'll need this file if you lose this device mid-exit. It shows your balance and history, so keep it private and off this device.",
       "sendAtLeast": "Send at least {{amount}} from another wallet to this address.",
       "cancelButton": "Cancel recovery",
       "feeAddress": "Fee address",

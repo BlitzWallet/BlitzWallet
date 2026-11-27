@@ -2685,6 +2685,8 @@
       "daysLeft_other": "Cirka {{count}} dagar kvar",
       "hoursLeft_one": "Cirka {{count}} timme kvar",
       "hoursLeft_other": "Cirka {{count}} timmar kvar",
+      "saveFirstTitle": "Spara dina exitdata",
+      "saveFirstSub": "Du behöver den här filen om du tappar bort enheten mitt i exiten. Den visar ditt saldo och din historik, så håll den privat och utanför enheten.",
       "sendAtLeast": "Skicka minst {{amount}} från en annan plånbok till den här adressen.",
       "cancelButton": "Avbryt återställning",
       "feeAddress": "Avgiftsadress",

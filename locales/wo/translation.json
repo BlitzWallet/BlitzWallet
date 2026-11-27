@@ -2843,6 +2843,8 @@
       "daysLeft_other": "Des na ba ci {{count}} bés",
       "hoursLeft_one": "Des na ba ci {{count}} waxtu",
       "hoursLeft_other": "Des na ba ci {{count}} waxtu",
+      "saveFirstTitle": "Denc sa xibaari génn gi",
+      "saveFirstSub": "Su ñàkkee appareil bii ci diggante exit bi, fichier bii mooy yoon wi rekk ngir mottali ko ci beneen. Denc ko fu dul appareil bii (cloud, ordinateur walla email). Dafay wone sa balance ak sa histoire.",
       "sendAtLeast": "Yónnee lu néew néew {{amount}} bawoo ci beneen kalpe jëm ci adrees bii.",
       "cancelButton": "Neenal jotaat gi",
       "feeAddress": "Adreesu njëg",
