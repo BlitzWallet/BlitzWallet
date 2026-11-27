@@ -265,66 +265,6 @@ export default function ExpandedContactsPage(props) {
             </>
           )}
         </View>
-        {selectedContact && (
-          <AdaptiveButtonRow
-            pill
-            labels={[requestText, payText]}
-            containerStyle={styles.buttonContainer}
-          >
-            {({ buttonStyle }) => (
-              <>
-                <CustomButton
-                  buttonStyles={buttonStyle}
-                  enableElipsis={false}
-                  textContent={requestText}
-                  actionFunction={() => {
-                    if (selectedContact.isLNURL) {
-                      navigate.navigate('ErrorScreen', {
-                        errorMessage: t(
-                          'contacts.expandedContactPage.requestLNURLError',
-                        ),
-                      });
-                      return;
-                    }
-                    if (!isConnectedToTheInternet) {
-                      navigate.navigate('ErrorScreen', {
-                        errorMessage: t('errormessages.nointernet'),
-                      });
-                      return;
-                    }
-                    navigate.navigate('SendAndRequestPage', {
-                      selectedContact: selectedContact,
-                      paymentType: 'request',
-                      imageData,
-                    });
-                  }}
-                  size={'regular'}
-                  tone={'secondary'}
-                />
-                <CustomButton
-                  buttonStyles={buttonStyle}
-                  enableElipsis={false}
-                  textContent={payText}
-                  actionFunction={() => {
-                    if (!isConnectedToTheInternet) {
-                      navigate.navigate('ErrorScreen', {
-                        errorMessage: t('errormessages.nointernet'),
-                      });
-                      return;
-                    }
-                    navigate.navigate('SendAndRequestPage', {
-                      selectedContact: selectedContact,
-                      paymentType: 'send',
-                      imageData,
-                      endReceiveType: 'BTC',
-                    });
-                  }}
-                  size={'regular'}
-                />
-              </>
-            )}
-          </AdaptiveButtonRow>
-        )}
       </View>
     );
   }

@@ -6,11 +6,14 @@ import { useNavigation } from '@react-navigation/native';
 import { keyboardGoBack } from '../../../../functions/customNavigation';
 import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  MAX_WEB_CONTENT_WIDTH,
+} from '../../../../constants';
 import ContactAvatar from './internalComponents/contactAvatar';
 import { useImageCache } from '../../../../../context-store/imageCache';
 import { useExpandedNavbar } from './hooks/useExpandedNavbar';
-import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import AddContactsPage from './addContactsPage';
 import ContactRingAvatar from './internalComponents/contactsRingAvatar';
 import TopBar, {
@@ -19,6 +22,12 @@ import TopBar, {
 import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
 import TopHeader from '../../../../functions/CustomElements/redesign/TopHeader';
 import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
+import AdaptiveButtonRow from '../../../../functions/CustomElements/adaptiveButtonRow';
+import CustomButton from '../../../../functions/CustomElements/button';
+import { useAppStatus } from '../../../../../context-store/appStatus';
+import { useTranslation } from 'react-i18next';
+import BottomActions from '../../../../functions/CustomElements/redesign/BottomActions';
+import { FADE } from '../../../../functions/CustomElements/redesign/BottomFade';
 
 // Memoized shared header component. Contacts with a user id get the ID image
 // as a badge that swaps with the photo when tapped (ContactRingAvatar).
@@ -109,10 +118,11 @@ const MemoizedNavBar = memo(
 
 export default function ExpandedAddContactsPage(props) {
   const { decodedAddedContacts, contactsMessags } = useGlobalContacts();
+  const { t } = useTranslation();
   const navigate = useNavigation();
+  const { isConnectedToTheInternet } = useAppStatus();
   const { cache, refreshCacheObject } = useImageCache();
   const { handleFavortie, handleSettings } = useExpandedNavbar();
-  const { bottomPadding } = useGlobalInsets();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
 
@@ -143,8 +153,11 @@ export default function ExpandedAddContactsPage(props) {
     return () => keyboardGoBack(navigate);
   }, [navigate]);
 
+  const payText = t('constants.pay');
+  const requestText = t('constants.request');
+
   return (
-    <GlobalThemeView edgeToEdge={isContactAdded} useStandardWidth={true}>
+    <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopHeader>
           <MemoizedNavBar
@@ -158,7 +171,7 @@ export default function ExpandedAddContactsPage(props) {
         <CustomScrollView
           contentContainerStyle={{
             paddingTop: FADE_TOP,
-            paddingBottom: isContactAdded ? bottomPadding : 0,
+            paddingBottom: isContactAdded ? FADE : 0,
             flexGrow: 1,
           }}
           scrollEnabled={isContactAdded && !!contactTransactions.length}
@@ -178,6 +191,69 @@ export default function ExpandedAddContactsPage(props) {
             <AddContactsPage selectedContact={newContact} />
           )}
         </CustomScrollView>
+
+        {isContactAdded && (
+          <BottomActions>
+            <AdaptiveButtonRow
+              pill
+              labels={[requestText, payText]}
+              containerStyle={styles.buttonContainer}
+            >
+              {({ buttonStyle }) => (
+                <>
+                  <CustomButton
+                    buttonStyles={buttonStyle}
+                    enableElipsis={false}
+                    textContent={requestText}
+                    actionFunction={() => {
+                      if (selectedContact.isLNURL) {
+                        navigate.navigate('ErrorScreen', {
+                          errorMessage: t(
+                            'contacts.expandedContactPage.requestLNURLError',
+                          ),
+                        });
+                        return;
+                      }
+                      if (!isConnectedToTheInternet) {
+                        navigate.navigate('ErrorScreen', {
+                          errorMessage: t('errormessages.nointernet'),
+                        });
+                        return;
+                      }
+                      navigate.navigate('SendAndRequestPage', {
+                        selectedContact: selectedContact,
+                        paymentType: 'request',
+                        imageData,
+                      });
+                    }}
+                    size={'regular'}
+                    tone={'secondary'}
+                  />
+                  <CustomButton
+                    buttonStyles={buttonStyle}
+                    enableElipsis={false}
+                    textContent={payText}
+                    actionFunction={() => {
+                      if (!isConnectedToTheInternet) {
+                        navigate.navigate('ErrorScreen', {
+                          errorMessage: t('errormessages.nointernet'),
+                        });
+                        return;
+                      }
+                      navigate.navigate('SendAndRequestPage', {
+                        selectedContact: selectedContact,
+                        paymentType: 'send',
+                        imageData,
+                        endReceiveType: 'BTC',
+                      });
+                    }}
+                    size={'regular'}
+                  />
+                </>
+              )}
+            </AdaptiveButtonRow>
+          </BottomActions>
+        )}
       </View>
     </GlobalThemeView>
   );
@@ -196,5 +272,10 @@ const styles = StyleSheet.create({
   addedImageContainer: {
     ...CENTER,
     marginTop: 8,
+  },
+  buttonContainer: {
+    width: '100%',
+    gap: 10,
+    marginTop: CONTENT_KEYBOARD_OFFSET,
   },
 });
