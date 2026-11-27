@@ -1440,7 +1440,7 @@
         "backupSub": "Mantenha sua frase de recuperação segura",
         "connectionTitle": "Não é possível conectar agora",
         "connectionSub": "Mostrando seu saldo de {{time}}",
-        "sparkOutageTitle": "O Spark está passando por uma interrupção",
+        "sparkOutageTitle": "A Spark está passando por uma interrupção",
         "tokensOne": "{{first}}",
         "tokensTwo": "{{first}} e {{second}}",
         "tokensMore": "{{first}}, {{second}} e mais {{count}}"
