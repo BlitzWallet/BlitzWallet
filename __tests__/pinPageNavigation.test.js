@@ -178,6 +178,12 @@ jest.mock('expo-image', () => ({
   Image: () => null,
 }));
 
+// Redesign chrome pulls in native-only modules (expo-linear-gradient).
+jest.mock('../app/functions/CustomElements/redesign/TopBar', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
 jest.mock('expo-secure-store', () => ({
   AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY: 1,
   getItemAsync: jest.fn(async () => null),

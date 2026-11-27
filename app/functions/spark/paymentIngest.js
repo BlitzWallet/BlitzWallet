@@ -68,6 +68,9 @@ export function getMigrationMarker(accountId) {
           marker = {
             startedAt: Date.now() - MARKER_SLACK_MS,
             hadRows: rows.length > 0,
+            // Time of the last row the pre-Breez app wrote: receives after it
+            // settled while that app was closed and were never recorded.
+            newestRowAt: Number(parse(rows[0]?.details).time) || 0,
             fullPassDone: false,
           };
           await setLocalStorageItem(
@@ -221,6 +224,25 @@ function findLegacyPending(payment, pool) {
   return index < 0 ? null : pool.splice(index, 1)[0].row;
 }
 
+// Pre-migration receive the old app never wrote: newer than its newest row and
+// matching no recent row by invoice / payment hash / txid. Sends stay skipped
+// (support-fee and swap legs were never rows of their own).
+// ponytail: matches against the newest 50 rows; widen if legacy rows ever
+// carry times far ahead of their Breez timestamps.
+function isUnrecordedLegacyReceive(payment, marker, recentKeys) {
+  if (payment.paymentType !== 'receive' || !marker.newestRowAt) return false;
+  if (payment.timestamp * 1000 <= marker.newestRowAt) return false;
+  const d = payment.details || {};
+  return ![
+    payment.id,
+    d.invoice,
+    d.htlcDetails?.paymentHash,
+    d.paymentHash,
+    d.txId,
+    d.txHash,
+  ].some(key => key && recentKeys.has(key));
+}
+
 /**
  * Writes Breez payments into the Blitz table.
  * - existing pending row -> status reconcile (never rewrites amounts/fees)
@@ -277,6 +299,20 @@ export async function projectBreezPayments(
     return pool;
   };
 
+  let recentKeys = null;
+  const loadRecentKeys = async () => {
+    if (!recentKeys) {
+      recentKeys = new Set();
+      const rows = await getAllSparkTransactions({ accountId, limit: 50 });
+      for (const r of rows) {
+        const d = parse(r.details);
+        for (const key of [r.sparkID, d.address, d.paymentHash, d.onChainTxid])
+          if (key) recentKeys.add(key);
+      }
+    }
+    return recentKeys;
+  };
+
   const records = [];
   const writtenPaymentIds = [];
   for (const { payment, full } of fulls) {
@@ -309,7 +345,11 @@ export async function projectBreezPayments(
       continue;
     }
 
-    if (marker.hadRows && payment.timestamp * 1000 <= marker.startedAt)
+    if (
+      marker.hadRows &&
+      payment.timestamp * 1000 <= marker.startedAt &&
+      !isUnrecordedLegacyReceive(payment, marker, await loadRecentKeys())
+    )
       continue;
 
     const meta = annotator.meta.get(payment.id);
