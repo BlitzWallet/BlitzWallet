@@ -17,7 +17,7 @@ BlitzWallet is a free, open-source, self-custodial Bitcoin and Lightning wallet 
 - **Yarn 3.6.4** (node-modules linker, Corepack), Node >= 20
 - Key SDKs: `@buildonspark/spark-sdk` (+ `spark-web-context` from a GitHub commit), `@breeztech/react-native-breez-sdk-liquid`, `@flashnet/sdk` (BTC↔stablecoin swaps), `boltz-core`, `nostr-tools`, `ethers`, `@scure/bip32`/`bip39`, `@noble/hashes`/`secp256k1`
 - **Firebase** via `@react-native-firebase/*` (auth, Firestore, functions, messaging, crashlytics, storage) — see `db/` and `firebase.json`
-- Navigation: `@react-navigation` v7 (native-stack, drawer, bottom-tabs, pager-view)
+- Navigation: `@react-navigation` v7 (native-stack, drawer, bottom-tabs)
 - State: React Context only (no Redux/Zustand) — a deeply nested provider tree in `App.tsx` backed by `context-store/*`
 - UI: custom themed components + `react-native-reanimated` v4, `react-native-worklets`, `lottie`, `react-native-svg`, vision-camera, maps, webview
 - i18n: `i18next` + `react-i18next`, static JSON in `locales/<lang>/translation.json`

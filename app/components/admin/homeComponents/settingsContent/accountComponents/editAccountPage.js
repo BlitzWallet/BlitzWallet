@@ -24,6 +24,7 @@ import AccountProfileImage from '../../accounts/accountProfileImage';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import {
   AMOUNT_HERO_SIZE,
+  CARD_RADIUS,
   CENTER,
   MAIN_ACCOUNT_UUID,
   MAX_WEB_CONTENT_WIDTH,
@@ -43,20 +44,12 @@ import {
   saveAccountBalanceSnapshot,
 } from '../../../../../functions/spark/balanceSnapshots';
 import AdaptiveButtonRow from '../../../../../functions/CustomElements/adaptiveButtonRow';
-import PagerView from 'react-native-pager-view';
-import Animated, {
-  useEvent,
-  useHandler,
-  useSharedValue,
-} from 'react-native-reanimated';
-import { BalanceDots } from '../../homeLightning/balanceDots';
-import { useAppStatus } from '../../../../../../context-store/appStatus';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import {
-  SkeletonAmount,
+import Skeleton, {
   SkeletonButtons,
   SkeletonRow,
 } from '../../../../../functions/CustomElements/redesign/Skeleton';
+import SkeletonBar from '../../../../../functions/CustomElements/redesign/SkeletonBar';
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import EmptyState from '../../../../../functions/CustomElements/redesign/EmptyState';
 import IconButton from '../../../../../functions/CustomElements/redesign/IconButton';
@@ -66,26 +59,19 @@ import AmountHero from '../../../../../functions/CustomElements/redesign/AmountH
 import useAfterTransition from '../../../../../hooks/useAfterTransition';
 import { FADE_TOP } from '../../../../../functions/CustomElements/redesign/TopFade';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
-
-const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
-
-// Custom hook for PagerView scroll handler
-function usePagerScrollHandler(handlers, dependencies) {
-  const { context, doDependenciesDiffer } = useHandler(handlers, dependencies);
-  const subscribeForEvents = ['onPageScroll'];
-
-  return useEvent(
-    event => {
-      'worklet';
-      const { onPageScroll } = handlers;
-      if (onPageScroll && event.eventName.endsWith('onPageScroll')) {
-        onPageScroll(event, context);
-      }
-    },
-    subscribeForEvents,
-    doDependenciesDiffer,
-  );
-}
+import { useNodeContext } from '../../../../../../context-store/nodeContext';
+import {
+  fiatToSats,
+  homeTotalFiat,
+  isUsableRate,
+  resolveDisplayUsdRate,
+} from '../../../../../functions/money';
+import { dollarsToSats } from '../../../../../functions/spark/swapAmountUtils';
+import { useFlashnet } from '../../../../../../context-store/flashnetContext';
+import BalanceCard, {
+  getAssetBalanceText,
+  isDollarDust,
+} from '../../homeLightning/balanceCard';
 
 // The NWC account page is never gated: its balance and Add / Withdraw must stay
 // reachable without push. The notifications gate lives on the connections page
@@ -102,6 +88,8 @@ export default function EditAccountPage(props) {
   const { tokens } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
   const { width } = useWindowDimensions();
+  const { fiatStats, usdFiatStats } = useNodeContext();
+  const { poolInfo, swapUSDPriceDollars } = useFlashnet();
   const contentWidth = Math.min(width, MAX_WEB_CONTENT_WIDTH) - 40;
   const { t } = useTranslation();
 
@@ -284,22 +272,6 @@ export default function EditAccountPage(props) {
 
   // Withdrawals move BTC *or* USDB, so either balance unlocks the button.
   const hasWithdrawableBalance = !!btcBalance || !!dollarBalance;
-
-  const { screenDimensions } = useAppStatus();
-  const screenWidth = screenDimensions?.width ?? 0;
-
-  const balanceScrollX = useSharedValue(0);
-
-  const onBalancePageScroll = usePagerScrollHandler(
-    {
-      onPageScroll: e => {
-        'worklet';
-        const scrollOffset = (e.position + e.offset) * screenWidth;
-        balanceScrollX.value = scrollOffset;
-      },
-    },
-    [screenWidth],
-  );
 
   // Main + NWC accounts keep their fixed/contact-profile images; everything
   // else (personal custody accounts and managed child accounts) opens the
@@ -486,6 +458,91 @@ export default function EditAccountPage(props) {
     );
   };
 
+  // Same total as Home (BTC + dollars). Hidden mode still shows sats here, as
+  // the account page always has.
+  const isFiatMode = masterInfoObject.userBalanceDenomination === 'fiat';
+  const usdRate = resolveDisplayUsdRate(usdFiatStats, swapUSDPriceDollars);
+  const totalFiat = isFiatMode
+    ? homeTotalFiat({
+        btcSats: btcBalance,
+        usdbDollars: dollarBalance,
+        rate: isUsableRate(fiatStats, masterInfoObject.fiatCurrency)
+          ? fiatStats
+          : null,
+        usdRate,
+      })
+    : null;
+  // Pool price like Home's totalSatValue; market USD until the pool loads.
+  const dollarSats = poolInfo?.currentPriceAInB
+    ? dollarsToSats(dollarBalance, poolInfo.currentPriceAInB)
+    : fiatToSats(dollarBalance, usdRate) ?? 0;
+  const heroTotalProps =
+    totalFiat == null
+      ? {
+          amount: Math.round(btcBalance + dollarSats),
+          masterInfoObject: {
+            ...masterInfoObject,
+            userBalanceDenomination: 'sats',
+          },
+        }
+      : {
+          amount: formatBalanceAmount(
+            totalFiat > 0 && totalFiat < 0.01 ? '0.01' : totalFiat.toFixed(2),
+            false,
+            masterInfoObject,
+          ),
+          convertAmount: false,
+          isDust: totalFiat > 0 && totalFiat < 0.01,
+          masterInfoObject,
+        };
+
+  // While connecting, each card keeps its surface with icon, label and amount
+  // as bars, like the skeleton list rows.
+  const cardSkeleton = (
+    <View style={[styles.cardSkeleton, { backgroundColor: tokens.surface }]}>
+      <Skeleton>
+        <View style={cardSkeletonInner}>
+          <View style={cardSkeletonIcon} />
+          <View style={cardSkeletonTexts}>
+            <View style={cardSkeletonLabel} />
+            <View style={cardSkeletonAmount} />
+          </View>
+        </View>
+      </Skeleton>
+    </View>
+  );
+  const balanceCards = isConnecting ? (
+    <View style={styles.metricsRow}>
+      {cardSkeleton}
+      {cardSkeleton}
+    </View>
+  ) : (
+    <View style={styles.metricsRow}>
+      <BalanceCard
+        isBitcoin={false}
+        label={t('constants.dollars_upper')}
+        isDust={isDollarDust(dollarBalance)}
+        amount={getAssetBalanceText({
+          isBitcoin: false,
+          amount: dollarBalance,
+          masterInfoObject,
+          fiatStats,
+          roundUpDust: true,
+        })}
+      />
+      <BalanceCard
+        isBitcoin={true}
+        label={t('constants.bitcoin_upper')}
+        amount={getAssetBalanceText({
+          isBitcoin: true,
+          amount: btcBalance,
+          masterInfoObject,
+          fiatStats,
+        })}
+      />
+    </View>
+  );
+
   if (isConnecting && !showSlowConnectUI) {
     return (
       <GlobalThemeView useStandardWidth={true}>
@@ -500,12 +557,18 @@ export default function EditAccountPage(props) {
               />
             </View>
           </View>
-          <View style={styles.skeletonHero}>
-            <SkeletonAmount />
+          <ThemeText
+            content={t('constants.total_balance')}
+            variant={'hint'}
+            styles={styles.balanceLabel}
+          />
+          <View style={styles.hero}>
+            <SkeletonBar width={176} height={46} borderRadius={14} />
           </View>
           {(isChild || custodyAccountsList?.length >= 2) && (
             <SkeletonButtons style={styles.buttonRow} />
           )}
+          {balanceCards}
           {[detailRows, manageRows].map(
             (rows, index) =>
               !!rows.length && (
@@ -626,59 +689,21 @@ export default function EditAccountPage(props) {
             </TouchableOpacity>
           </View>
 
-          <View style={styles.pagerWrapper}>
-            <AnimatedPagerView
-              style={styles.pagerView}
-              initialPage={0}
-              onPageScroll={onBalancePageScroll}
-            >
-              <View style={styles.pageContainer}>
-                <ThemeText
-                  content={t(
-                    'settings.accountComponents.editAccountPage.bitcoinBalanceLabel',
-                  )}
-                  styles={[styles.balanceLabel, { color: tokens.muted }]}
-                />
-                <AmountHero
-                  amount={btcBalance}
-                  masterInfoObject={{
-                    ...masterInfoObject,
-                    userBalanceDenomination: 'sats',
-                  }}
-                  amountSize={AMOUNT_HERO_SIZE.secondary}
-                />
-              </View>
-              <View style={styles.pageContainer}>
-                <ThemeText
-                  content={t(
-                    'settings.accountComponents.editAccountPage.dollarBalanceLabel',
-                  )}
-                  styles={[styles.balanceLabel, { color: tokens.muted }]}
-                />
-                <AmountHero
-                  amount={formatBalanceAmount(
-                    dollarBalance,
-                    false,
-                    masterInfoObject,
-                  )}
-                  masterInfoObject={{
-                    ...masterInfoObject,
-                    userBalanceDenomination: 'fiat',
-                  }}
-                  forceCurrency={'USD'}
-                  convertAmount={false}
-                  amountSize={AMOUNT_HERO_SIZE.secondary}
-                />
-              </View>
-            </AnimatedPagerView>
-            <View style={styles.staticOverlay} pointerEvents="box-none">
-              <BalanceDots
-                scrollX={balanceScrollX}
-                pageCount={2}
-                screenWidth={screenWidth}
-                fromAccounts={true}
+          <ThemeText
+            content={t('constants.total_balance')}
+            variant={'hint'}
+            styles={styles.balanceLabel}
+          />
+          <View style={styles.hero}>
+            {isConnecting ? (
+              <SkeletonBar width={176} height={46} borderRadius={14} />
+            ) : (
+              <AmountHero
+                amountSize={AMOUNT_HERO_SIZE.primary}
+                fiatStats={fiatStats}
+                {...heroTotalProps}
               />
-            </View>
+            )}
           </View>
 
           {(isChild || custodyAccountsList?.length >= 2) && (
@@ -709,6 +734,8 @@ export default function EditAccountPage(props) {
               )}
             </AdaptiveButtonRow>
           )}
+
+          {balanceCards}
 
           {/* Details (identity) then Manage (actions) — same grouping for every
             account type, rows filtered per type via detailRows / manageRows. */}
@@ -761,42 +788,39 @@ const styles = StyleSheet.create({
   },
 
   buttonRow: {
-    marginBottom: 20,
+    marginTop: 20,
   },
 
   balanceLabel: {
     includeFontPadding: false,
     fontSize: SIZES.smedium,
     textAlign: 'center',
-    marginBottom: 2,
-  },
-
-  pagerWrapper: {
-    position: 'relative',
-    width: '100%',
-    alignItems: 'center',
-  },
-
-  pagerView: {
-    width: '100%',
-    height: 144,
-  },
-
-  // Matches the pager (144 high, amount 20 from the top) so nothing jumps.
-  skeletonHero: {
-    height: 144,
-    paddingTop: 20,
-  },
-
-  pageContainer: {
-    alignItems: 'center',
     marginTop: 20,
   },
-
-  staticOverlay: {
-    position: 'absolute',
-    bottom: 20,
-    left: 0,
-    right: 0,
+  // Fixed slot (as Home) so the skeleton bar and the hero are the same height.
+  hero: {
+    height: 84,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  metricsRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  // BalanceCard's size, radius and padding.
+  cardSkeleton: {
+    flex: 1,
+    height: 152,
+    borderRadius: CARD_RADIUS,
+    padding: 18,
   },
 });
+
+// Plain objects: the skeleton mask reads sizes from them (see Skeleton).
+const cardSkeletonInner = { height: 116, justifyContent: 'space-between' };
+const cardSkeletonIcon = { width: 40, height: 40, borderRadius: 20 };
+const cardSkeletonTexts = { gap: 8 };
+const cardSkeletonLabel = { width: 64, height: 14, borderRadius: 7 };
+const cardSkeletonAmount = { width: 96, height: 22, borderRadius: 8 };

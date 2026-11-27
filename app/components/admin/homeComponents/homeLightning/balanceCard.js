@@ -42,7 +42,9 @@ export function getAssetBalanceText({
   }
   return displayCorrectDenomination({
     amount: formatBalanceAmount(
-      truncateToTwoDecimals(roundUpDust && isDollarDust(amount) ? 0.01 : amount),
+      truncateToTwoDecimals(
+        roundUpDust && isDollarDust(amount) ? 0.01 : amount,
+      ),
       false,
       masterInfoObject,
     ),
@@ -73,15 +75,18 @@ export default function BalanceCard({
       disabled={isLoading}
       accessibilityRole="button"
       accessibilityLabel={label}
+      activeOpacity={!onPress ? 1 : 0.2}
     >
       <View style={styles.top}>
         <CurrencyIcon size={40} isBitcoin={isBitcoin} />
-        <ThemeIcon
-          redesign
-          iconName="ChevronRight"
-          size={18}
-          colorOverride={tokens.muted}
-        />
+        {!!onPress && (
+          <ThemeIcon
+            redesign
+            iconName="ChevronRight"
+            size={18}
+            colorOverride={tokens.muted}
+          />
+        )}
       </View>
       <View style={styles.bottom}>
         <ThemeText

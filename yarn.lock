@@ -5935,7 +5935,6 @@ __metadata:
     react-native-maps: ^1.27.2
     react-native-nitro-image: 0.15.2
     react-native-nitro-modules: ^0.37
-    react-native-pager-view: 6.9.1
     react-native-pdf-from-image: ^0.3.6
     react-native-quick-base64: ^2.2.2
     react-native-quick-crypto: ^1.0.19
@@ -15953,16 +15952,6 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: ef8a3fbf9b66bc6e5ec9db3aa2f4566600777a5d95e3f897e09e50b2fd33860a1bda4bfa54887709a6fc2ce2cc80a26d9cbb6e77f8c33aea9537c788d089638b
-  languageName: node
-  linkType: hard
-
-"react-native-pager-view@npm:6.9.1":
-  version: 6.9.1
-  resolution: "react-native-pager-view@npm:6.9.1"
-  peerDependencies:
-    react: "*"
-    react-native: "*"
-  checksum: 64f4f1b05173217ee5bb288c6c1e396ceaf686fd1ef9458a6ab9c9da44e5ee76c2a091e95b756c78bbcddd30caf37965ef37e0eabe54331f385fdcb87b5d5ab6
   languageName: node
   linkType: hard
 

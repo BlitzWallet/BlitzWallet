@@ -23,7 +23,6 @@ const WEB_STUBS = {
   'react-native-device-info': shim('react-native-device-info.js'),
   'react-native-restart-newarch': shim('react-native-restart-newarch.js'),
   'react-native-webview': shim('react-native-webview.js'),
-  'react-native-pager-view': shim('pager-view.js'),
   'react-native-vision-camera': shim('react-native-vision-camera.js'),
   'react-native-vision-camera-barcode-scanner': shim(
     'react-native-vision-camera-barcode-scanner.js',

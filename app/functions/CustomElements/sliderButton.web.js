@@ -2,8 +2,7 @@
 // on the web platform (same mechanism as webViewContext.web.js), so the native
 // file's react-native-gesture-handler + reanimated + worklets stack never runs
 // in the browser. This is a faithful port of SwipeButtonNew + SwipeThumb using
-// pure Pointer Events (mouse + touch) and CSS width transitions, mirroring the
-// pure-DOM approach already used in web-shims/pager-view.js.
+// pure Pointer Events (mouse + touch) and CSS width transitions
 //
 // ponytail: keeps the exact prop/callback contract (onSwipeStart/Success/Fail,
 // threshold, reverse swipe, reset-after-success, screen-reader tap fallback).
@@ -96,7 +95,7 @@ const SwipeButtonNew = React.memo(function SwipeButtonNew({
   });
 
   // Latest props/derived values for the DOM pointer handlers (avoid stale
-  // closures without re-binding listeners every render — pager-view pattern).
+  // closures without re-binding listeners every render).
   const cfg = useRef({});
   cfg.current = {
     disabled,
