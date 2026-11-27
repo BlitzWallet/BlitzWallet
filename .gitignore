@@ -108,3 +108,6 @@ e2e-artifacts/
 
 # design-sync (local only; Claude Design sync inputs + build output)
 .design-sync/
+
+# maplibre worker, copied from node_modules by postinstall
+public/maplibre-gl-worker.js

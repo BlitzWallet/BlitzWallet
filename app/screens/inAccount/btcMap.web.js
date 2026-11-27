@@ -5,7 +5,7 @@ import {
   StyleSheet,
   InteractionManager,
 } from 'react-native';
-import maplibregl from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useNavigation } from '@react-navigation/native';
 import { useBTCMap } from '../../../context-store/btcMapContext';
@@ -30,6 +30,10 @@ const DEFAULT_ZOOM = 13;
 // exists there — 'liberty' is used for both themes.
 // ponytail: single light style, add a dark style URL if dark-mode map matters.
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
+
+// maplibre v6 locates its worker via import.meta.url
+// postinstall copies the worker into public/ so it is served same-origin.
+maplibregl.setWorkerUrl('/maplibre-gl-worker.js');
 
 function buildMarkerEl(m, markerBg) {
   const el = document.createElement('div');
