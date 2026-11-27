@@ -3,6 +3,7 @@ import {
   EMAIL_REGEX,
   FONT,
   POINT_OF_SALE_PAYOUT_DESCRIPTION,
+  TYPE,
 } from '../../../../../constants';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import { useNavigation } from '@react-navigation/native';
@@ -415,13 +416,11 @@ const styles = StyleSheet.create({
   headerText: { flex: 1, minWidth: 0 },
   name: {
     fontFamily: FONT.Title_Medium,
-    fontSize: 20,
-    lineHeight: 26,
+    ...TYPE.section,
     includeFontPadding: false,
   },
   small: {
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     includeFontPadding: false,
   },
   toPayCard: {
@@ -430,8 +429,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   toPayLabel: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   toPayAmount: {

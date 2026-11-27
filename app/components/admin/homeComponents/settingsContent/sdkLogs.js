@@ -12,7 +12,7 @@ import {
   ThemeText,
 } from '../../../../functions/CustomElements';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { FONT, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import { FONT, MAX_WEB_CONTENT_WIDTH, TYPE } from '../../../../constants';
 import { useTheme } from '../../../../../context-store/theme';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
@@ -133,10 +133,9 @@ const styles = StyleSheet.create({
   scrollContent: { paddingTop: FADE_TOP },
   actionsCard: { marginTop: 0 },
   note: { marginTop: 16, marginBottom: 16 },
-  rowTitle: { fontSize: 15, lineHeight: 21, includeFontPadding: false },
+  rowTitle: { ...TYPE.body, includeFontPadding: false },
   rowSub: {
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     includeFontPadding: false,
     marginTop: 0,
   },

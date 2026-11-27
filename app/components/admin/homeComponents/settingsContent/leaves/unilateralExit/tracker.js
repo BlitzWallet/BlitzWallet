@@ -18,6 +18,7 @@ import {
   CENTER,
   FONT,
   MAX_WEB_CONTENT_WIDTH,
+  TYPE,
 } from '../../../../../../constants';
 import { useKeysContext } from '../../../../../../../context-store/keys';
 import { useGlobalContextProvider } from '../../../../../../../context-store/context';
@@ -377,8 +378,7 @@ const styles = StyleSheet.create({
   },
   step: {
     fontFamily: FONT.Title_Medium,
-    fontSize: 16,
-    lineHeight: 22,
+    ...TYPE.button,
     includeFontPadding: false,
   },
   segs: { flexDirection: 'row', gap: 4, marginTop: 12, marginBottom: 10 },
@@ -400,8 +400,7 @@ const styles = StyleSheet.create({
   lottie: { width: 125, height: 125 },
   doneText: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 16,
-    lineHeight: 24,
+    ...TYPE.button,
     includeFontPadding: false,
     maxWidth: 300,
     textAlign: 'center',

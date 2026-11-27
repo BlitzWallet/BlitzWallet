@@ -5,6 +5,7 @@ import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHead
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import PickRow from '../../../../functions/CustomElements/redesign/PickRow';
 import { ANALYTICS_TIMEFRAMES } from '../../../../functions/analytics/periods';
+import { TYPE } from '../../../../constants';
 
 // Same layout as NWCBudgetPeriodHalfModal: title, one card of radio rows.
 // Picking a row applies it and closes the sheet.
@@ -43,5 +44,5 @@ export default function AnalyticsFilterHalfModal({
 }
 
 const styles = StyleSheet.create({
-  optionTitle: { fontSize: 15, lineHeight: 21 },
+  optionTitle: { ...TYPE.body },
 });

@@ -9,6 +9,7 @@ import {
   CONTENT_KEYBOARD_OFFSET,
   MAX_WEB_CONTENT_WIDTH,
   SIZES,
+  TYPE,
 } from '../../../../constants';
 import { FONT } from '../../../../constants/theme';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -275,14 +276,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   bodyText: {
-    fontSize: SIZES.small,
+    ...TYPE.caption,
     opacity: 0.8,
-    lineHeight: 18,
   },
   bulletText: {
-    fontSize: SIZES.small,
+    ...TYPE.caption,
     opacity: 0.8,
-    lineHeight: 18,
     paddingLeft: 8,
     marginBottom: 2,
   },

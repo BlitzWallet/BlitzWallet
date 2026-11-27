@@ -6,6 +6,7 @@ import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
 import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
+import { TYPE } from '../../../../constants';
 
 export default function NostrHome() {
   const navigate = useNavigation();
@@ -60,7 +61,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   rowTitle: {
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
   },
 });

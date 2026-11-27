@@ -5,7 +5,7 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import CustomButton from '../../../../functions/CustomElements/button';
 import ResultAnimation from '../../../../functions/CustomElements/redesign/ResultAnimation';
 import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
-import { AMOUNT_HERO_SIZE, FONT } from '../../../../constants';
+import { AMOUNT_HERO_SIZE, FONT, TYPE } from '../../../../constants';
 import { useTheme } from '../../../../../context-store/theme';
 
 // Shared pieces of the Add money and Withdraw sheets (SavingsMove.dc.html,
@@ -115,8 +115,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 17,
-    lineHeight: 24,
+    ...TYPE.rowTitle,
     marginTop: 18,
     textAlign: 'center',
     includeFontPadding: false,

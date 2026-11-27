@@ -19,6 +19,7 @@ import {
 } from '../../../../functions/CustomElements/redesign/CurrencyIcon';
 import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import { useSwapFormatters } from './swapParts';
+import { TYPE } from '../../../../constants';
 
 // First step: pick the balance to swap from. Also shows the pool loading,
 // service unavailable and balance-too-low states.
@@ -215,7 +216,7 @@ export default function SwapChooseCurrency({
 const styles = StyleSheet.create({
   dim: { opacity: 0.45 },
   history: { marginTop: 'auto' },
-  historyText: { fontSize: 15, lineHeight: 21 },
+  historyText: { ...TYPE.body },
   unavailable: { marginTop: 40 },
   bottomButton: { width: '100%', marginTop: 'auto' },
 });

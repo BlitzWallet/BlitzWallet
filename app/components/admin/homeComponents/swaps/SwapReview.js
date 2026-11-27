@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native';
-import { AMOUNT_HERO_SIZE } from '../../../../constants';
+import { AMOUNT_HERO_SIZE, TYPE } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -108,8 +108,7 @@ const styles = StyleSheet.create({
   receiveLabel: {
     marginTop: 24,
     marginBottom: 2,
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     textAlign: 'center',
     includeFontPadding: false,
   },

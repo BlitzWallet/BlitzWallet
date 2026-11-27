@@ -6,6 +6,7 @@ import {
   BASIC_ACCOUNT_NAME_REGEX,
   MAIN_ACCOUNT_UUID,
   NWC_ACCOUNT_UUID,
+  TYPE,
 } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
@@ -110,8 +111,7 @@ const styles = StyleSheet.create({
     rowGap: 2,
   },
   headerTitle: {
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     includeFontPadding: false,
   },
   viewAllButton: {
@@ -120,8 +120,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   viewAll: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   gridContainer: {
@@ -147,8 +146,7 @@ const styles = StyleSheet.create({
   },
   avatarName: {
     maxWidth: 64,
-    fontSize: 12,
-    lineHeight: 18,
+    ...TYPE.caption,
     textAlign: 'center',
     includeFontPadding: false,
   },

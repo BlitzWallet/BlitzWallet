@@ -3,7 +3,7 @@ import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../../../functions/CustomElements/scrollView';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH, TYPE } from '../../../../../constants';
 import {
   GlobalThemeView,
   ThemeText,
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
-  rowTitle: { fontSize: 15, lineHeight: 21 },
+  rowTitle: { ...TYPE.body },
   rowValue: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -282,8 +282,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   rowValueText: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
   },
 });

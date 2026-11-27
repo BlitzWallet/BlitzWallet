@@ -5,7 +5,13 @@ import QrCard from './redesign/QrCard';
 import copyToClipboard from '../copyToClipboard';
 import { useToast } from '../../../context-store/toastManager';
 import GlobalThemeView from './globalThemeView';
-import { CENTER, EMAIL_REGEX, FONT, VALID_URL_REGEX } from '../../constants';
+import {
+  CENTER,
+  EMAIL_REGEX,
+  FONT,
+  VALID_URL_REGEX,
+  TYPE,
+} from '../../constants';
 import ThemeText from './textTheme';
 import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { useTranslation } from 'react-i18next';
@@ -230,16 +236,14 @@ const styles = StyleSheet.create({
   cardHeader: { alignSelf: 'stretch' },
   name: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 20,
-    lineHeight: 28,
+    ...TYPE.section,
     color: MODES.light.ink,
     includeFontPadding: false,
   },
   // The card stays white in every mode, so its text uses the Light palette.
   uniqueName: {
     color: MODES.light.muted,
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     includeFontPadding: false,
   },
 });

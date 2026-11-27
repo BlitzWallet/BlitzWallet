@@ -33,6 +33,7 @@ const mockLoginSecuritySwitch = jest.fn();
 const mockSetAccountMnemonic = jest.fn();
 
 jest.mock('../app/constants', () => ({
+  TYPE: jest.requireActual('../app/constants/theme').TYPE,
   CENTER: {},
   COLORS: { primary: '#000', darkModeText: '#fff', lightModeText: '#000' },
   FONT: {},

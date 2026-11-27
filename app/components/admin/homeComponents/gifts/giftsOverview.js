@@ -4,6 +4,7 @@ import {
   CARD_RADIUS,
   CONTENT_KEYBOARD_OFFSET,
   FONT,
+  TYPE,
 } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -327,8 +328,7 @@ const styles = StyleSheet.create({
   },
   status: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
     marginTop: 2,
   },
@@ -346,8 +346,7 @@ const styles = StyleSheet.create({
   },
   copyText: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 16,
-    lineHeight: 22,
+    ...TYPE.button,
     includeFontPadding: false,
   },
   compactList: { gap: 8 },
@@ -357,20 +356,17 @@ const styles = StyleSheet.create({
   manyNote: { marginTop: 12, marginHorizontal: 4 },
   title: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
     includeFontPadding: false,
   },
   sub: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     includeFontPadding: false,
   },
   amount: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
     includeFontPadding: false,
     fontVariant: ['tabular-nums'],
     textAlign: 'right',

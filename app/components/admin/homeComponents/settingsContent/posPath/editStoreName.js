@@ -7,6 +7,7 @@ import {
   FONT,
   MAX_WEB_CONTENT_WIDTH,
   VALID_USERNAME_REGEX,
+  TYPE,
 } from '../../../../../constants';
 import {
   CustomKeyboardAvoidingView,
@@ -228,15 +229,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: FONT.Title_Medium,
-    fontSize: 22,
-    lineHeight: 30,
+    ...TYPE.title,
     includeFontPadding: false,
     marginTop: 16,
     marginBottom: 8,
   },
   description: {
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     includeFontPadding: false,
   },
   inputCard: {

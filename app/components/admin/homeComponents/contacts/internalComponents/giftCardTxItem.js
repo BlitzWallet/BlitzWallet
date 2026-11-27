@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native';
-import { CENTER } from '../../../../../constants';
+import { CENTER, TYPE } from '../../../../../constants';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
@@ -78,6 +78,6 @@ const styles = StyleSheet.create({
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
-  title: { fontSize: 15, lineHeight: 21 },
+  title: { ...TYPE.body },
   amount: { fontSize: 15, includeFontPadding: false },
 });

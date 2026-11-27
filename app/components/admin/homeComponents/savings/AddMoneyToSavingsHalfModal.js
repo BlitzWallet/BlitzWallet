@@ -10,7 +10,11 @@ import {
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
 import { ThemeText } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { AMOUNT_HERO_SIZE, APPROXIMATE_SYMBOL } from '../../../../constants';
+import {
+  AMOUNT_HERO_SIZE,
+  APPROXIMATE_SYMBOL,
+  TYPE,
+} from '../../../../constants';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { fromMicros } from './utils';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
@@ -841,8 +845,7 @@ const styles = StyleSheet.create({
     flexGrow: 0,
   },
   rowTitle: {
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
   },
   disabledRow: {
     opacity: 0.45,
@@ -853,8 +856,7 @@ const styles = StyleSheet.create({
   },
   hint: {
     marginTop: 4,
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     textAlign: 'center',
     includeFontPadding: false,
   },

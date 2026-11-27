@@ -9,6 +9,7 @@ import {
   FONT,
   TOKEN_TICKER_MAX_LENGTH,
   USDB_TOKEN_ID,
+  TYPE,
 } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { ThemeText } from '../../functions/CustomElements';
@@ -923,8 +924,7 @@ const styles = StyleSheet.create({
   collapsed: { position: 'absolute', left: 0, right: 0, opacity: 0 },
   title: {
     marginTop: 14,
-    fontSize: 17,
-    lineHeight: 22,
+    ...TYPE.rowTitle,
     textAlign: 'center',
     includeFontPadding: false,
   },
@@ -954,8 +954,7 @@ const styles = StyleSheet.create({
   },
   secondaryAmountContainer: { marginTop: 2 },
   secondaryAmount: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
     textAlign: 'center',
   },
@@ -977,22 +976,19 @@ const styles = StyleSheet.create({
   },
   rowLabel: {
     flexShrink: 1,
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     includeFontPadding: false,
   },
   rowValue: {
     flex: 1,
     minWidth: 0,
     textAlign: 'right',
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     includeFontPadding: false,
   },
   rowValueMono: {
     fontFamily: FONT.mono,
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
   },
   rowButton: {
     width: 44,
@@ -1005,8 +1001,7 @@ const styles = StyleSheet.create({
   sectionLabel: {
     marginTop: 12,
     marginBottom: 4,
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     includeFontPadding: false,
   },
   memoInput: { marginTop: 6 },

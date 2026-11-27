@@ -11,7 +11,12 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import { useAccumulationAddresses } from '../../../../hooks/useAccumulationAddresses';
 import { useAppStatus } from '../../../../../context-store/appStatus';
 import { FONT } from '../../../../constants/theme';
-import { CENTER, MAX_WEB_CONTENT_WIDTH, SIZES } from '../../../../constants';
+import {
+  CENTER,
+  MAX_WEB_CONTENT_WIDTH,
+  SIZES,
+  TYPE,
+} from '../../../../constants';
 import { getPairKey } from '../../../../constants/accumulationAddresses';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import InfoDropdown from '../../../../functions/CustomElements/redesign/InfoDropdown';
@@ -159,14 +164,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   bodyText: {
-    fontSize: SIZES.small,
+    ...TYPE.caption,
     opacity: 0.8,
-    lineHeight: 18,
   },
   bulletText: {
-    fontSize: SIZES.small,
+    ...TYPE.caption,
     opacity: 0.8,
-    lineHeight: 18,
     paddingLeft: 8,
     marginBottom: 2,
   },

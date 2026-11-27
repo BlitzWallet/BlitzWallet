@@ -8,7 +8,7 @@ import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH, TYPE } from '../../../../constants';
 import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
@@ -102,7 +102,7 @@ export default function TokensPage() {
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
   scrollContent: { paddingTop: FADE_TOP },
-  label: { marginTop: 16, fontSize: 14, lineHeight: 21, marginBottom: 8 },
+  label: { marginTop: 16, ...TYPE.label, marginBottom: 8 },
   card: { paddingVertical: 4 },
   rows: { paddingHorizontal: 0 },
   viewAll: {
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 4,
   },
-  viewAllText: { fontSize: 15, lineHeight: 22, includeFontPadding: false },
+  viewAllText: { ...TYPE.body, includeFontPadding: false },
   buttons: { marginTop: 24 },
   activity: { marginTop: 36 },
 });

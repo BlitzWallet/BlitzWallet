@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { AMOUNT_HERO_SIZE, CENTER } from '../../../../../constants';
+import { AMOUNT_HERO_SIZE, CENTER, TYPE } from '../../../../../constants';
 import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import {
   GlobalThemeView,
@@ -375,8 +375,7 @@ const styles = StyleSheet.create({
     paddingRight: 12,
   },
   resetLabel: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   spacer: {

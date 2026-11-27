@@ -1,4 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { TYPE } from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
 import ThemeText from '../textTheme';
 import ThemeIcon from '../themeIcon';
@@ -84,8 +85,7 @@ const styles = StyleSheet.create({
   },
   text: {
     flex: 1,
-    fontSize: 14,
-    lineHeight: 21,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   link: { textDecorationLine: 'underline' },

@@ -26,6 +26,7 @@ import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   MAX_WEB_CONTENT_WIDTH,
+  TYPE,
 } from '../../../../constants';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
@@ -627,8 +628,7 @@ const styles = StyleSheet.create({
   segmented: { marginTop: 16 },
   people: { marginTop: 16 },
   amountText: {
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     includeFontPadding: false,
     fontVariant: ['tabular-nums'],
     flexShrink: 1,

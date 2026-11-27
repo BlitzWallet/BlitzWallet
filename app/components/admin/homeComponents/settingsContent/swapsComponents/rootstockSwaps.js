@@ -11,7 +11,7 @@ import displayCorrectDenomination from '../../../../../functions/displayCorrectD
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import { useTheme } from '../../../../../../context-store/theme';
-import { FONT } from '../../../../../constants';
+import { FONT, TYPE } from '../../../../../constants';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
@@ -131,15 +131,13 @@ const styles = StyleSheet.create({
   card: { marginTop: 0 },
   amount: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
     fontVariant: ['tabular-nums'],
     includeFontPadding: false,
   },
   swapId: {
     fontFamily: FONT.mono,
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     includeFontPadding: false,
   },
   statusContainer: {
@@ -150,8 +148,7 @@ const styles = StyleSheet.create({
   },
   status: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
     flexShrink: 1,
     textAlign: 'right',

@@ -63,6 +63,7 @@ import {
   AMOUNT_HERO_SIZE,
   FONT,
   SATSPERBITCOIN,
+  TYPE,
 } from '../../../../../constants';
 import { HIDDEN_OPACITY } from '../../../../../constants/theme';
 import { useKeysContext } from '../../../../../../context-store/keys';
@@ -937,8 +938,7 @@ const styles = StyleSheet.create({
   failedTitle: {
     marginTop: 20,
     fontFamily: FONT.Title_Regular,
-    fontSize: 20,
-    lineHeight: 26,
+    ...TYPE.section,
     textAlign: 'center',
     includeFontPadding: false,
   },

@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
     paddingLeft: 14,
     paddingRight: 14,
-    fontSize: 15,
+    fontSize: SIZES.body,
   },
   pill: { borderRadius: 999 },
   multiline: { height: 120, paddingTop: 14, paddingBottom: 14 },

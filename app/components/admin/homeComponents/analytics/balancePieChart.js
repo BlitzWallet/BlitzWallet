@@ -8,7 +8,7 @@ import Animated, {
   Easing,
   cancelAnimation,
 } from 'react-native-reanimated';
-import { CARD_RADIUS, HIDDEN_BALANCE_CLOSE } from '../../../../constants';
+import { CARD_RADIUS, HIDDEN_BALANCE_CLOSE, TYPE } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
@@ -177,8 +177,7 @@ const styles = StyleSheet.create({
   },
   texts: { flex: 1, gap: 8 },
   label: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   total: {
@@ -200,14 +199,12 @@ const styles = StyleSheet.create({
   },
   legendLabel: {
     flex: 1,
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   legendAmount: {
     flexShrink: 1,
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     fontVariant: ['tabular-nums'],
     includeFontPadding: false,
   },

@@ -1,7 +1,7 @@
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import { MAX_WEB_CONTENT_WIDTH, TYPE } from '../../../../constants';
 import {
   GlobalThemeView,
   ThemeText,
@@ -122,21 +122,20 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   scrollContent: { paddingTop: FADE_TOP },
   switchCard: { marginTop: 0 },
-  rowTitle: { fontSize: 15, lineHeight: 21 },
+  rowTitle: { ...TYPE.body },
   explainerCard: {
     marginTop: 12,
     borderRadius: 20,
     padding: 16,
   },
-  explainerText: { fontSize: 14, lineHeight: 21 },
+  explainerText: { ...TYPE.label },
   bullets: { marginTop: 4 },
   bulletRow: { flexDirection: 'row', marginTop: 6 },
   bullet: {
     width: 20,
     paddingRight: 6,
     textAlign: 'right',
-    fontSize: 14,
-    lineHeight: 21,
+    ...TYPE.label,
   },
-  bulletText: { flex: 1, fontSize: 14, lineHeight: 21 },
+  bulletText: { flex: 1, ...TYPE.label },
 });

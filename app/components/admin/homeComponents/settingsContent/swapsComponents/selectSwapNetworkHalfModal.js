@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { FONT, ICONS } from '../../../../../constants';
+import { FONT, ICONS, TYPE } from '../../../../../constants';
 import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
@@ -66,8 +66,7 @@ export default function SelectSwapNetworkHalfModal({
 const styles = StyleSheet.create({
   rowTitle: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 16,
-    lineHeight: 22,
+    ...TYPE.button,
     includeFontPadding: false,
   },
   logo: {

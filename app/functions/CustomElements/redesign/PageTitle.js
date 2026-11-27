@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import ThemeText from '../textTheme';
-import { FONT } from '../../../constants';
+import { FONT, TYPE } from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
 
 export default function PageTitle({ text = '', titleStyles = {} }) {
@@ -15,8 +15,7 @@ export default function PageTitle({ text = '', titleStyles = {} }) {
 const styles = StyleSheet.create({
   title: {
     fontFamily: FONT.Title_Medium,
-    fontSize: 28,
-    lineHeight: 34,
+    ...TYPE.pageTitle,
     letterSpacing: -0.56,
     includeFontPadding: false,
   },

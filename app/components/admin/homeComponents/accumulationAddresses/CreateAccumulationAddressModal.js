@@ -8,7 +8,7 @@ import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import CustomButton from '../../../../functions/CustomElements/button';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useAccumulationAddresses } from '../../../../hooks/useAccumulationAddresses';
-import { FONT } from '../../../../constants/theme';
+import { FONT, TYPE } from '../../../../constants/theme';
 import {
   ACCUMULATION_CHAINS,
   ACCUMULATION_DESTINATIONS,
@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   list: { flexGrow: 0, flexShrink: 1 },
-  rowTitle: { fontSize: 15, lineHeight: 21 },
+  rowTitle: { ...TYPE.body },
   disabledRow: { opacity: 0.5 },
   confirmContent: {
     flex: 1,
@@ -338,8 +338,7 @@ const styles = StyleSheet.create({
   confirmSubtitle: {
     maxWidth: 280,
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     textAlign: 'center',
     includeFontPadding: false,
   },

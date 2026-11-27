@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { KeyContainer } from '../../../login';
 import { useEffect, useState } from 'react';
-import { FONT } from '../../../../constants';
+import { FONT, TYPE } from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useTranslation } from 'react-i18next';
@@ -131,8 +131,7 @@ const styles = StyleSheet.create({
   scrollContent: { paddingTop: FADE_TOP + FADE_TOP_BUFFER },
   title: {
     fontFamily: FONT.Title_Medium,
-    fontSize: 28,
-    lineHeight: 34,
+    ...TYPE.pageTitle,
     letterSpacing: -0.56,
     includeFontPadding: false,
   },

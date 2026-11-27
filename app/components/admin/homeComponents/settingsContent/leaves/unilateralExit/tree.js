@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { GlobalThemeView } from '../../../../../../functions/CustomElements';
 import CustomScrollView from '../../../../../../functions/CustomElements/scrollView';
 import CustomButton from '../../../../../../functions/CustomElements/button';
-import { CENTER, FONT } from '../../../../../../constants';
+import { CENTER, FONT, TYPE } from '../../../../../../constants';
 import { useTheme } from '../../../../../../../context-store/theme';
 import { useKeysContext } from '../../../../../../../context-store/keys';
 import TopBar from '../../../../../../functions/CustomElements/redesign/TopBar';
@@ -373,15 +373,13 @@ const styles = StyleSheet.create({
   stripDot: { width: DOT, height: DOT, borderRadius: DOT / 2 },
   title: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 16,
-    lineHeight: 20,
+    ...TYPE.button,
     includeFontPadding: false,
   },
   sub: {
     marginTop: 2,
     fontFamily: FONT.Title_Regular,
-    fontSize: 13,
-    lineHeight: 18,
+    ...TYPE.hint,
     includeFontPadding: false,
   },
 });

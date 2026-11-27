@@ -4,7 +4,7 @@ import {
   ThemeText,
 } from '../../../../functions/CustomElements';
 import { useNavigation } from '@react-navigation/native';
-import { FONT, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import { FONT, MAX_WEB_CONTENT_WIDTH, TYPE } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
@@ -145,16 +145,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: FONT.Title_Medium,
-    fontSize: 28,
-    lineHeight: 34,
+    ...TYPE.pageTitle,
     letterSpacing: -0.56,
     includeFontPadding: false,
   },
   card: { marginTop: 24 },
   rowTitle: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
   },
   footer: {
     gap: 12,

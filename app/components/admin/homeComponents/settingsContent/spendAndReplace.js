@@ -9,6 +9,7 @@ import {
 import {
   MAX_WEB_CONTENT_WIDTH,
   SPEND_AND_REPLACE_STORAGE_KEY,
+  TYPE,
 } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
@@ -127,20 +128,18 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   scrollContent: { paddingTop: FADE_TOP },
   firstCard: { marginTop: 0 },
-  rowTitle: { fontSize: 15, lineHeight: 21 },
+  rowTitle: { ...TYPE.body },
   balanceCard: {
     marginTop: 12,
     borderRadius: 20,
     padding: 16,
   },
   balanceLabel: {
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     includeFontPadding: false,
   },
   balanceValue: {
-    fontSize: 22,
-    lineHeight: 30,
+    ...TYPE.title,
     fontVariant: ['tabular-nums'],
     includeFontPadding: false,
   },
@@ -152,8 +151,7 @@ const styles = StyleSheet.create({
   },
   divider: { height: 1 },
   explainer: {
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     includeFontPadding: false,
     marginTop: 14,
   },

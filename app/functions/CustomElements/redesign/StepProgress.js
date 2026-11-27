@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native';
-import { FONT } from '../../../constants';
+import { FONT, TYPE } from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
 import ThemeText from '../textTheme';
 import ThemeIcon from '../themeIcon';
@@ -70,16 +70,14 @@ const styles = StyleSheet.create({
   container: { alignItems: 'center', paddingHorizontal: 12 },
   title: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 20,
-    lineHeight: 26,
+    ...TYPE.section,
     textAlign: 'center',
     includeFontPadding: false,
     marginTop: 18,
   },
   subtitle: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     textAlign: 'center',
     includeFontPadding: false,
     marginTop: 6,
@@ -103,8 +101,7 @@ const styles = StyleSheet.create({
   stepLabel: {
     flex: 1,
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
     includeFontPadding: false,
   },
 });

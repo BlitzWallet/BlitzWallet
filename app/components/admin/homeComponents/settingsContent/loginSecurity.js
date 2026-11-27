@@ -5,6 +5,7 @@ import {
   LOGIN_SECUITY_MODE_KEY,
   RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY,
   RANDOM_LOGIN_KEYBOARD_INFO_SEEN_KEY,
+  TYPE,
 } from '../../../../constants';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
@@ -937,14 +938,12 @@ const styles = StyleSheet.create({
   },
   rowTitle: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
     includeFontPadding: false,
   },
   rowSub: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
   },
   noteCard: {
     marginTop: 16,
@@ -953,15 +952,13 @@ const styles = StyleSheet.create({
   },
   noteTitle: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     includeFontPadding: false,
   },
   noteBody: {
     marginTop: 6,
     fontFamily: FONT.Title_Regular,
-    fontSize: 14,
-    lineHeight: 21,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   cardSpacing: {
@@ -978,8 +975,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   backText: {
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
   },
   webErrorText: {
     marginTop: 8,

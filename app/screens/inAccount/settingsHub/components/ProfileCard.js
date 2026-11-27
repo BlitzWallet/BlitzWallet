@@ -4,7 +4,7 @@ import Animated, { useSharedValue, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import { FONT } from '../../../../constants';
+import { FONT, TYPE } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
 import ContactRingAvatar from '../../../../components/admin/homeComponents/contacts/internalComponents/contactsRingAvatar';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
@@ -107,22 +107,19 @@ export default function ProfileCard({
         pill
         labels={[editProfileLabel, showQrLabel]}
         containerStyle={styles.buttonContainer}
-        textStyle={styles.buttonText}
       >
         {({ buttonStyle }) => (
           <>
             <CustomButton
               tone="secondary"
-              buttonStyles={[styles.button, buttonStyle]}
-              textStyles={styles.buttonText}
+              buttonStyles={buttonStyle}
               enableElipsis={false}
               textContent={editProfileLabel}
               actionFunction={onEditPress}
             />
             <CustomButton
               tone="secondary"
-              buttonStyles={[styles.button, buttonStyle]}
-              textStyles={styles.buttonText}
+              buttonStyles={buttonStyle}
               enableElipsis={false}
               textContent={showQrLabel}
               actionFunction={onShowQRPress}
@@ -148,26 +145,21 @@ const styles = StyleSheet.create({
   },
   name: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 22,
-    lineHeight: 30,
+    ...TYPE.title,
     letterSpacing: -0.22,
     includeFontPadding: false,
   },
   uniqueName: {
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     includeFontPadding: false,
   },
   identiconMessage: {
     textAlign: 'center',
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     includeFontPadding: false,
   },
   buttonContainer: {
     width: '100%',
     marginTop: 16,
   },
-  button: { minHeight: 48 },
-  buttonText: { fontSize: 15, lineHeight: 22 },
 });

@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { COLORS, FONT } from '../../../../../../constants';
+import { COLORS, FONT, TYPE } from '../../../../../../constants';
 import { useTheme } from '../../../../../../../context-store/theme';
 import SheetHeader from '../../../../../../functions/CustomElements/redesign/SheetHeader';
 import KeyValueRow from '../../../../../../functions/CustomElements/redesign/KeyValueRow';
@@ -222,8 +222,7 @@ const styles = StyleSheet.create({
   },
   pillText: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 13,
-    lineHeight: 18,
+    ...TYPE.hint,
     includeFontPadding: false,
   },
   rows: { marginTop: 12 },
@@ -231,8 +230,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     textAlign: 'center',
     fontFamily: FONT.Title_Regular,
-    fontSize: 14,
-    lineHeight: 21,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   link: { fontSize: 15 },

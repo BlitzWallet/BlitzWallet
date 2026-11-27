@@ -9,7 +9,7 @@ import {
 import CustomScrollView from '../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../functions/CustomElements';
 import GetThemeColors from '../../hooks/themeColors';
-import { FONT, SIZES } from '../../constants';
+import { FONT, SIZES, TYPE } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../../functions/CustomElements/button';
 import { useBTCMap } from '../../../context-store/btcMapContext';
@@ -247,16 +247,14 @@ const styles = StyleSheet.create({
   },
   name: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 22,
-    lineHeight: 28,
+    ...TYPE.title,
     textAlign: 'center',
     marginBottom: 2,
     includeFontPadding: false,
   },
   addressLine: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     textAlign: 'center',
     includeFontPadding: false,
   },
@@ -303,8 +301,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     includeFontPadding: false,
   },
   actionRow: {
@@ -321,8 +318,7 @@ const styles = StyleSheet.create({
   },
   attribution: {
     fontFamily: FONT.Title_Regular,
-    fontSize: SIZES.small,
-    lineHeight: 18,
+    ...TYPE.caption,
     marginTop: 12,
     textAlign: 'center',
     includeFontPadding: false,

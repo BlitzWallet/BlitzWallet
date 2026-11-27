@@ -1,6 +1,6 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { FONT } from '../../../constants';
+import { FONT, TYPE } from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
 import { useToast } from '../../../../context-store/toastManager';
 import copyToClipboard from '../../copyToClipboard';
@@ -137,14 +137,12 @@ const styles = StyleSheet.create({
     minWidth: 0,
     textAlign: 'right',
     fontFamily: FONT.mono,
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     includeFontPadding: false,
   },
   valueText: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
   },
   copyButton: {
     width: 44,
@@ -160,6 +158,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   stacked: { paddingVertical: 14 },
-  stackedLabel: { fontSize: 15, lineHeight: 22 },
-  stackedValue: { fontSize: 14, lineHeight: 20, marginTop: 2 },
+  stackedLabel: { ...TYPE.body },
+  stackedValue: { ...TYPE.label, marginTop: 2 },
 });

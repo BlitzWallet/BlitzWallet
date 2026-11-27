@@ -6,7 +6,11 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { useReducedMotion, enterAnim } from '../../constants/motion';
 import { Stop } from 'react-native-svg';
 import CustomScrollView from '../../functions/CustomElements/scrollView';
-import { BLITZ_GOAL_USER_COUNT, MAX_WEB_CONTENT_WIDTH } from '../../constants';
+import {
+  BLITZ_GOAL_USER_COUNT,
+  MAX_WEB_CONTENT_WIDTH,
+  TYPE,
+} from '../../constants';
 import { FONT, SIZES } from '../../constants/theme';
 import {
   DAY_IN_MILLS,
@@ -386,8 +390,7 @@ const styles = StyleSheet.create({
   scrollContent: { paddingTop: FADE_TOP },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   label: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     textAlign: 'center',
     includeFontPadding: false,
     marginTop: 16,
@@ -402,15 +405,13 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   goal: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     textAlign: 'center',
     includeFontPadding: false,
   },
   progress: { marginTop: 12, marginHorizontal: 24 },
   today: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     textAlign: 'center',
     includeFontPadding: false,
     marginTop: 10,

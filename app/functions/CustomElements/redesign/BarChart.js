@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { TYPE } from '../../../constants';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -186,6 +187,6 @@ const styles = StyleSheet.create({
   },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   dot: { width: 8, height: 8, borderRadius: 4 },
-  legendText: { fontSize: 13, lineHeight: 18, includeFontPadding: false },
+  legendText: { ...TYPE.hint, includeFontPadding: false },
   legendValue: { fontVariant: ['tabular-nums'] },
 });

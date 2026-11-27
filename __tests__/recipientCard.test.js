@@ -12,12 +12,13 @@ jest.mock('react-native-country-flag', () => ({
   default: () => null,
 }));
 jest.mock('../app/constants', () => {
-  const { FONT, SIZES } = jest.requireActual('../app/constants/theme');
+  const { FONT, SIZES, TYPE } = jest.requireActual('../app/constants/theme');
   return {
     COLORS: {},
     ICONS: {},
     FONT,
     SIZES,
+    TYPE,
     USDB_TOKEN_ID: 'usdb-token-id',
   };
 });

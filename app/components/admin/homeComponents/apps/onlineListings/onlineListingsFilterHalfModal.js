@@ -30,6 +30,7 @@ import TextButton from '../../../../../functions/CustomElements/redesign/TextBut
 import IconButton from '../../../../../functions/CustomElements/redesign/IconButton';
 import SearchField from '../../../../../functions/CustomElements/redesign/SearchField';
 import PickRow from '../../../../../functions/CustomElements/redesign/PickRow';
+import { TYPE } from '../../../../../constants';
 
 const DEFAULT_FILTER = {
   categories: [],
@@ -518,13 +519,11 @@ const styles = StyleSheet.create({
   pillActive: {},
   pillInactive: {},
   pillText: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   selectedCountryName: {
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
     includeFontPadding: false,
   },
   bottomBar: {
@@ -553,8 +552,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   countryName: {
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
     includeFontPadding: false,
   },
   countryDivider: {

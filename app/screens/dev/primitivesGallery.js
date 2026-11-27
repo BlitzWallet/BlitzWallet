@@ -21,6 +21,7 @@ import Note from '../../functions/CustomElements/redesign/Note';
 import { SheetSurface } from '../../functions/CustomElements/redesign/sheetSurface';
 import useContentWidth from '../../functions/CustomElements/redesign/useContentWidth';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
+import { TYPE } from '../../constants';
 
 // Dev-only proof surface (audit/IMPLEMENTATION_PLAN.md §10 T9). Every T7/T8
 // part in every mode × skin, plus the token roles the owner signs off.
@@ -637,7 +638,7 @@ const styles = StyleSheet.create({
   controls: { paddingHorizontal: 16, paddingTop: 12, gap: 10 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: { borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7 },
-  chipText: { fontSize: 13, lineHeight: 19, includeFontPadding: false },
+  chipText: { ...TYPE.hint, includeFontPadding: false },
   body: { flex: 1, width: '100%' },
   bodyContent: { paddingTop: 4 },
   section: { width: '100%' },

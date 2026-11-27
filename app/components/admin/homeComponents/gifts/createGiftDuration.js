@@ -23,6 +23,7 @@ import {
   MAX_WEB_CONTENT_WIDTH,
   STARTING_INDEX_FOR_GIFTS_DERIVE,
   USDB_TOKEN_ID,
+  TYPE,
 } from '../../../../constants';
 import CustomButton from '../../../../functions/CustomElements/button';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
@@ -1028,8 +1029,7 @@ const styles = StyleSheet.create({
   },
   pillText: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
     includeFontPadding: false,
   },
 });

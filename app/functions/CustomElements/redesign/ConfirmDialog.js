@@ -7,7 +7,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../../../context-store/theme';
-import { FONT } from '../../../constants';
+import { FONT, TYPE } from '../../../constants';
 import {
   useReducedMotion,
   ReduceMotion,
@@ -195,16 +195,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 17,
-    lineHeight: 24,
+    ...TYPE.rowTitle,
     marginBottom: 6,
     textAlign: 'center',
     includeFontPadding: false,
   },
   message: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     textAlign: 'center',
     includeFontPadding: false,
   },
@@ -221,8 +219,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 16,
-    lineHeight: 22,
+    ...TYPE.button,
     textAlign: 'center',
     includeFontPadding: false,
   },

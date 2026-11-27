@@ -1,5 +1,5 @@
 import { StyleSheet, Text } from 'react-native';
-import { COLORS, FONT, SIZES } from '../../constants';
+import { COLORS, FONT, SIZES, TYPE } from '../../constants';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useCallback, useMemo } from 'react';
 
@@ -81,32 +81,27 @@ export default function ThemeText({
 const VARIANT_STYLES = {
   title: {
     fontFamily: FONT.Title_Medium,
-    fontSize: 22,
-    lineHeight: 28,
+    ...TYPE.title,
     includeFontPadding: false,
   },
   body: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     includeFontPadding: false,
   },
   hint: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     includeFontPadding: false,
   },
   note: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     includeFontPadding: false,
   },
   amount: {
     fontFamily: FONT.Title_Medium,
-    fontSize: 48,
-    lineHeight: 56,
+    ...TYPE.amount,
     includeFontPadding: false,
   },
 };

@@ -8,6 +8,7 @@ jest.mock('react-i18next', () => ({
 }));
 
 jest.mock('../app/constants', () => ({
+  TYPE: jest.requireActual('../app/constants/theme').TYPE,
   SIZES: { small: 12, medium: 16 },
   COLORS: { opaicityGray: '#ccc' },
   BASIC_ACCOUNT_NAME_REGEX: /^$/,

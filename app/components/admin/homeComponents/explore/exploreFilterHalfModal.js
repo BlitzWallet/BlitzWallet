@@ -5,6 +5,7 @@ import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHead
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import PickRow from '../../../../functions/CustomElements/redesign/PickRow';
 import { EXPLORE_TIMEFRAMES } from './constants';
+import { TYPE } from '../../../../constants';
 
 // Same layout as AnalyticsFilterHalfModal: title, one card of radio rows.
 // Picking a row applies it and closes the sheet.
@@ -44,8 +45,7 @@ export default function ExploreFilterHalfModal({
 
 const styles = StyleSheet.create({
   optionTitle: {
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
     textTransform: 'capitalize',
   },
 });

@@ -5,6 +5,7 @@ import {
   CONTENT_KEYBOARD_OFFSET,
   FONT,
   MAX_WEB_CONTENT_WIDTH,
+  TYPE,
 } from '../../../constants';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import isValidMnemonic from '../../../functions/isValidMnemonic';
@@ -428,8 +429,7 @@ const styles = StyleSheet.create({
   },
   numberText: {
     width: 22,
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     fontVariant: ['tabular-nums'],
     includeFontPadding: false,
   },

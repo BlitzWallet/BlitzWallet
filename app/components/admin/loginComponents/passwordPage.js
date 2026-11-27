@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, Platform } from 'react-native';
 import { getLocalStorageItem, setLocalStorageItem } from '../../../functions';
-import { ICONS, PERSISTED_LOGIN_COUNT_KEY } from '../../../constants';
+import { ICONS, PERSISTED_LOGIN_COUNT_KEY, TYPE } from '../../../constants';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../functions/CustomElements';
 import TextButton from '../../../functions/CustomElements/redesign/TextButton';
@@ -233,8 +233,7 @@ const styles = StyleSheet.create({
     right: 0,
   },
   forgotText: {
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
   },
   buttonContainer: {
     marginTop: 'auto',

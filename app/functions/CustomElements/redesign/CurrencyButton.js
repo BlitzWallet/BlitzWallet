@@ -1,4 +1,5 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
+import { TYPE } from '../../../constants';
 import ThemeText from '../textTheme';
 import ThemeIcon from '../themeIcon';
 import { useTheme } from '../../../../context-store/theme';
@@ -57,8 +58,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   currencyLabel: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
   },
 });

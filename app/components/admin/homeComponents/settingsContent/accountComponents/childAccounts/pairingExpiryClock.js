@@ -5,6 +5,7 @@ import { formatCountdown } from '../../../../../../functions/timeFormatter';
 import { useAccountsExpiryTimeTick } from '../../../../../../functions/accounts/expiryTimeTick';
 import ThemeIcon from '../../../../../../functions/CustomElements/themeIcon';
 import { useTheme } from '../../../../../../../context-store/theme';
+import { TYPE } from '../../../../../../constants';
 
 const PAIRING_STATE_TTL_MS = 180000; // 3 min per state, the rules' server deadline.
 
@@ -50,8 +51,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   countdownText: {
-    fontSize: 14,
-    lineHeight: 18,
+    ...TYPE.label,
     includeFontPadding: false,
     fontVariant: ['tabular-nums'],
   },

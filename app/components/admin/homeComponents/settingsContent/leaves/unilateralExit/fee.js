@@ -16,6 +16,7 @@ import {
   CENTER,
   FONT,
   MAX_WEB_CONTENT_WIDTH,
+  TYPE,
 } from '../../../../../../constants';
 import { useTheme } from '../../../../../../../context-store/theme';
 import { useKeysContext } from '../../../../../../../context-store/keys';
@@ -148,14 +149,12 @@ const styles = StyleSheet.create({
   },
   costText: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 12,
-    lineHeight: 16,
+    ...TYPE.caption,
     includeFontPadding: false,
   },
   pillText: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
     includeFontPadding: false,
   },
 });

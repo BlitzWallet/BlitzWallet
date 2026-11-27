@@ -5,7 +5,7 @@ import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useSavings } from '../../../../../context-store/savingsContext';
 import { GlobalThemeView } from '../../../../functions/CustomElements';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH, TYPE } from '../../../../constants';
 import CircularProgress from '../pools/circularProgress';
 import { fromMicros } from './utils';
 import SavingsActivityContainer from './SavingsActivityContainer';
@@ -179,8 +179,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   rowTitle: {
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
   },
   emptyWrap: {
     flex: 1,

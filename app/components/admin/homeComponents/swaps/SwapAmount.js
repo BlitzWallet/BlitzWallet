@@ -7,7 +7,7 @@ import CustomNumberKeyboard from '../../../../functions/CustomElements/customNum
 import SkeletonBar from '../../../../functions/CustomElements/redesign/SkeletonBar';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { formatBalanceAmount } from '../../../../functions';
-import { FONT } from '../../../../constants';
+import { FONT, TYPE } from '../../../../constants';
 import { useTheme } from '../../../../../context-store/theme';
 import { AssetDisc } from '../savings/savingsSheetParts';
 import { SwapBackRow, SwapDisclaimer, useSwapFormatters } from './swapParts';
@@ -248,8 +248,7 @@ const styles = StyleSheet.create({
   },
   fieldText: { flex: 1, minWidth: 0 },
   fieldLabel: {
-    fontSize: 13,
-    lineHeight: 18,
+    ...TYPE.hint,
     includeFontPadding: false,
   },
   fieldValue: {
@@ -290,8 +289,7 @@ const styles = StyleSheet.create({
   },
   pillText: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   keypad: { marginTop: 'auto' },

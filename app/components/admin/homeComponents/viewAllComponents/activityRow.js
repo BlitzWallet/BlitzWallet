@@ -5,6 +5,7 @@ import {
   APPROXIMATE_SYMBOL,
   BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
   USDB_TOKEN_ID,
+  TYPE,
 } from '../../../../constants';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
@@ -221,6 +222,6 @@ export function ActivityRowSkeleton() {
 }
 
 const styles = StyleSheet.create({
-  title: { fontSize: 15, lineHeight: 21 },
+  title: { ...TYPE.body },
   amount: { fontSize: 15, includeFontPadding: false },
 });

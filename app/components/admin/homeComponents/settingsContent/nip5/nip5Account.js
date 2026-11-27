@@ -9,6 +9,7 @@ import {
   CENTER,
   MAX_WEB_CONTENT_WIDTH,
   NOSTR_NAME_REGEX,
+  TYPE,
 } from '../../../../../constants';
 import {
   CustomKeyboardAvoidingView,
@@ -392,8 +393,7 @@ const styles = StyleSheet.create({
   },
   addressDomain: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     includeFontPadding: false,
     textAlign: 'center',
   },
@@ -401,8 +401,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   copyText: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
   },
   inputCard: {
     borderRadius: 20,
@@ -420,8 +419,7 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 13,
-    lineHeight: 18,
+    ...TYPE.hint,
     includeFontPadding: false,
   },
   divider: {
@@ -448,14 +446,12 @@ const styles = StyleSheet.create({
   },
   pasteText: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   statusText: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 13,
-    lineHeight: 18,
+    ...TYPE.hint,
     marginTop: 8,
     marginHorizontal: 4,
     includeFontPadding: false,

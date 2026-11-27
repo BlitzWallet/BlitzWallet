@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../context-store/theme';
 import CustomSearchInput from '../../../functions/CustomElements/searchInput';
 import ThemeIcon from '../../../functions/CustomElements/themeIcon';
+import { TYPE } from '../../../constants';
 
 // Web password field in the redesign look: r16, 52 high, surface fill, 44
 // show/hide eye inset 4 (audit/design OnboardingWeb + LoginWeb).
@@ -73,8 +74,7 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
     paddingLeft: 16,
     paddingRight: 56,
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
   },
   eye: {
     position: 'absolute',

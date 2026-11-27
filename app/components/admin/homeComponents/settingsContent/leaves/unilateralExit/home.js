@@ -12,6 +12,7 @@ import {
   CENTER,
   FONT,
   MAX_WEB_CONTENT_WIDTH,
+  TYPE,
 } from '../../../../../../constants';
 import { useKeysContext } from '../../../../../../../context-store/keys';
 import { useGlobalContextProvider } from '../../../../../../../context-store/context';
@@ -274,8 +275,7 @@ const styles = StyleSheet.create({
   scrollContent: { paddingTop: FADE_TOP, paddingBottom: FADE },
   title: {
     fontFamily: FONT.Title_Medium,
-    fontSize: 28,
-    lineHeight: 34,
+    ...TYPE.pageTitle,
     letterSpacing: -0.56,
     includeFontPadding: false,
   },
@@ -284,8 +284,7 @@ const styles = StyleSheet.create({
   details: { gap: 12 },
   rowTitle: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
   },
   footer: {
     gap: 12,

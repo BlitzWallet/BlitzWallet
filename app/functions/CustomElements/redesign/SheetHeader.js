@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import ThemeText from '../textTheme';
-import { FONT } from '../../../constants';
+import { FONT, TYPE } from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
 
 // Half modal title block: 20/26 Medium title, optional 15/22 muted sub, 16 to
@@ -48,8 +48,7 @@ const styles = StyleSheet.create({
   afterIcon: { marginTop: 16 },
   title: {
     fontFamily: FONT.Title_Medium,
-    fontSize: 20,
-    lineHeight: 26,
+    ...TYPE.section,
     includeFontPadding: false,
   },
   sub: { marginTop: 4 },

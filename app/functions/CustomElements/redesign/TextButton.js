@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { FONT } from '../../../constants';
+import { FONT, TYPE } from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
 import ThemeText from '../textTheme';
 import ThemeIcon from '../themeIcon';
@@ -58,8 +58,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
     flexShrink: 1,
   },

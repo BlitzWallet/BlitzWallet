@@ -10,7 +10,7 @@ import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import { useNavigation } from '@react-navigation/native';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MAX_WEB_CONTENT_WIDTH } from '../../constants';
+import { MAX_WEB_CONTENT_WIDTH, TYPE } from '../../constants';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useAppStatus } from '../../../context-store/appStatus';
 import { supportedLanguagesList } from '../../../locales/localeslist';
@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
   scrollContent: { paddingTop: FADE_TOP },
   section: { width: '100%' },
   cardSpacing: { marginTop: 24 },
-  rowTitle: { fontSize: 15, lineHeight: 21 },
+  rowTitle: { ...TYPE.body },
   footer: {
     marginTop: 20,
     flexDirection: 'row',
@@ -324,5 +324,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  footerText: { fontSize: 14, lineHeight: 19, includeFontPadding: false },
+  footerText: { ...TYPE.label, includeFontPadding: false },
 });

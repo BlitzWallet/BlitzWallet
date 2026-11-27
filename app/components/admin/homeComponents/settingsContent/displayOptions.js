@@ -11,6 +11,7 @@ import {
   FONT,
   HIDDEN_BALANCE_CLOSE,
   MAX_WEB_CONTENT_WIDTH,
+  TYPE,
 } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useAppStatus } from '../../../../../context-store/appStatus';
@@ -215,8 +216,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   previewLabel: {
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     includeFontPadding: false,
   },
   previewBalance: {
@@ -236,12 +236,11 @@ const styles = StyleSheet.create({
   },
   section: { marginTop: 20 },
   fieldLabel: {
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     marginHorizontal: 4,
     marginBottom: 6,
     includeFontPadding: false,
   },
   labelSpacing: { marginTop: 14 },
-  rowTitle: { fontSize: 15, lineHeight: 21 },
+  rowTitle: { ...TYPE.body },
 });

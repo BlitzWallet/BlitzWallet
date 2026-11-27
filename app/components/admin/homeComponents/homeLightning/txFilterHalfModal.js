@@ -3,7 +3,7 @@ import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import { FONT, HIDDEN_OPACITY, SIZES } from '../../../../constants/theme';
+import { FONT, HIDDEN_OPACITY, SIZES, TYPE } from '../../../../constants/theme';
 import { useEffect, useState } from 'react';
 import GetThemeColors from '../../../../hooks/themeColors';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -223,8 +223,7 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontFamily: FONT.Title_Regular,
-    fontSize: SIZES.smedium,
-    lineHeight: 20,
+    ...TYPE.label,
     marginTop: 20,
     marginBottom: 10,
     includeFontPadding: false,
@@ -256,8 +255,7 @@ const styles = StyleSheet.create({
   },
   pillText: {
     fontFamily: FONT.Title_Regular,
-    fontSize: SIZES.smedium,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
     flexShrink: 1,
   },
@@ -279,8 +277,7 @@ const styles = StyleSheet.create({
   },
   clearText: {
     fontFamily: FONT.Title_Regular,
-    fontSize: SIZES.medium,
-    lineHeight: 22,
+    ...TYPE.button,
     includeFontPadding: false,
   },
   applyButton: {

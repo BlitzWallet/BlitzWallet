@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { setLocalStorageItem } from '../../../functions';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH, TYPE } from '../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
@@ -523,8 +523,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   attemptsText: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     marginTop: 8,
     includeFontPadding: false,
   },
@@ -537,8 +536,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   passkeyError: {
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     marginTop: 12,
   },
   keyIconContainer: {
@@ -558,7 +556,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   usePasswordText: {
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
   },
 });

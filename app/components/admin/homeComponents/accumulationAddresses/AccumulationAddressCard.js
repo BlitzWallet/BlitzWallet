@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ACCUMULATION_CHAINS } from '../../../../constants/accumulationAddresses';
 import { Image } from 'expo-image';
-import { ICONS } from '../../../../constants';
+import { ICONS, TYPE } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
 import CurrencyIcon from '../../../../functions/CustomElements/redesign/CurrencyIcon';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
@@ -111,5 +111,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  title: { fontSize: 15, lineHeight: 21 },
+  title: { ...TYPE.body },
 });

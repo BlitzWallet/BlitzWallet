@@ -13,6 +13,7 @@ import {
   EMAIL_REGEX,
   MAX_WEB_CONTENT_WIDTH,
   VALID_NAME_BIO_REGEX,
+  TYPE,
 } from '../../../../constants';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useState, useRef, useCallback } from 'react';
@@ -778,9 +779,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     overflow: 'hidden',
   },
-  rowTitle: { fontSize: 15, lineHeight: 22 },
-  shareTitle: { fontSize: 13, lineHeight: 19 },
-  shareSub: { fontSize: 15, lineHeight: 22 },
+  rowTitle: { ...TYPE.body },
+  shareTitle: { ...TYPE.hint },
+  shareSub: { ...TYPE.body },
   copyDisc: {
     width: 44,
     height: 44,

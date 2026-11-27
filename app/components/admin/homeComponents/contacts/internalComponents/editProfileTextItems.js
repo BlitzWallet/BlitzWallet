@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
-import { FONT } from '../../../../../constants';
+import { FONT, TYPE } from '../../../../../constants';
 import { ThemeText } from '../../../../../functions/CustomElements';
 
 /**
@@ -72,8 +72,7 @@ const styles = StyleSheet.create({
   label: {
     marginHorizontal: 4,
     marginBottom: 8,
-    fontSize: 12,
-    lineHeight: 16,
+    ...TYPE.caption,
     letterSpacing: 0.48,
     textTransform: 'uppercase',
     includeFontPadding: false,

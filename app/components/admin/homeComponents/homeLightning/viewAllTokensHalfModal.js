@@ -11,6 +11,7 @@ import {
   FONT,
   HIDDEN_BALANCE_CLOSE,
   INFINITY_SYMBOL,
+  TYPE,
 } from '../../../../constants';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
@@ -137,13 +138,12 @@ export default function ViewAllTokensHalfModal({ token, setContentHeight }) {
 const styles = StyleSheet.create({
   container: { paddingTop: 16 },
   card: { marginTop: 16, marginBottom: 8 },
-  name: { fontSize: 15, lineHeight: 21 },
-  sub: { fontSize: 13, lineHeight: 19, includeFontPadding: false },
-  detail: { fontSize: 14, lineHeight: 20, includeFontPadding: false },
+  name: { ...TYPE.body },
+  sub: { ...TYPE.hint, includeFontPadding: false },
+  detail: { ...TYPE.label, includeFontPadding: false },
   key: {
     fontFamily: FONT.mono,
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     includeFontPadding: false,
   },
 });

@@ -8,6 +8,7 @@ import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import { useTranslation } from 'react-i18next';
 import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
+import { TYPE } from '../../../../constants';
 
 // D280 footer (Q19-4): three muted text buttons, same URLs and openers.
 export const NAVITEMS = [
@@ -72,8 +73,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  linkText: { fontSize: 14, lineHeight: 19, includeFontPadding: false },
-  sheetRowTitle: { fontSize: 16, lineHeight: 22 },
+  linkText: { ...TYPE.label, includeFontPadding: false },
+  sheetRowTitle: { ...TYPE.button },
 });
 
 // Profile › Social sheet (Q12-5): the same three links as rows.

@@ -6,7 +6,7 @@ import { ThemeText } from '../../functions/CustomElements';
 import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import CustomButton from '../../functions/CustomElements/button';
 import GetThemeColors from '../../hooks/themeColors';
-import { FONT } from '../../constants';
+import { FONT, TYPE } from '../../constants';
 import { HIDDEN_OPACITY, SIZES } from '../../constants/theme';
 import SheetHeader from '../../functions/CustomElements/redesign/SheetHeader';
 import {
@@ -205,8 +205,7 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontFamily: FONT.Title_Regular,
-    fontSize: SIZES.smedium,
-    lineHeight: 20,
+    ...TYPE.label,
     marginTop: 0,
     marginHorizontal: 4,
     marginBottom: 8,
@@ -214,8 +213,7 @@ const styles = StyleSheet.create({
   },
   distanceLabel: {
     fontFamily: FONT.Title_Regular,
-    fontSize: SIZES.smedium,
-    lineHeight: 20,
+    ...TYPE.label,
     marginTop: 20,
     marginHorizontal: 4,
     marginBottom: 8,
@@ -238,8 +236,7 @@ const styles = StyleSheet.create({
   },
   pillText: {
     fontFamily: FONT.Title_Regular,
-    fontSize: SIZES.smedium,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   bottomBar: {
@@ -256,8 +253,7 @@ const styles = StyleSheet.create({
   },
   clearText: {
     fontFamily: FONT.Title_Regular,
-    fontSize: SIZES.medium,
-    lineHeight: 22,
+    ...TYPE.button,
     includeFontPadding: false,
   },
   applyButton: {

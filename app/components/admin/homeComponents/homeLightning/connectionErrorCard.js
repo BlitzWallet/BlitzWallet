@@ -15,6 +15,7 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
 import HomeCard from './homeCard';
 import formatDate from '../../../../functions/formatDate';
+import { TYPE } from '../../../../constants';
 
 const SUPPORT_EMAIL = 'support@blitzwalletapp.com';
 
@@ -130,5 +131,5 @@ export default function ConnectionErrorCard({ visible }) {
 }
 
 const styles = StyleSheet.create({
-  retryText: { fontSize: 14, lineHeight: 20 },
+  retryText: { ...TYPE.label },
 });

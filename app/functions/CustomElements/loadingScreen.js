@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native';
-import { COLORS, FONT } from '../../constants';
+import { COLORS, FONT, TYPE } from '../../constants';
 import ThemeText from './textTheme';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useInSheet } from './redesign/sheetSurface';
@@ -69,8 +69,7 @@ const styles = StyleSheet.create({
   sheetText: {
     marginTop: 18,
     fontFamily: FONT.Title_Regular,
-    fontSize: 20,
-    lineHeight: 26,
+    ...TYPE.section,
     textAlign: 'center',
     includeFontPadding: false,
   },

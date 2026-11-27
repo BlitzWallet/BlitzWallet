@@ -11,6 +11,7 @@ import {
   LOGIN_SECUITY_MODE_KEY,
   PERSISTED_LOGIN_COUNT_KEY,
   RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY,
+  TYPE,
 } from '../../../constants';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../functions/CustomElements';
@@ -456,8 +457,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   attemptsText: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     marginTop: 8,
     textAlign: 'center',
     includeFontPadding: false,

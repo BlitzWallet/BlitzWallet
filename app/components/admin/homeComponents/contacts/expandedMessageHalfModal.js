@@ -7,6 +7,7 @@ import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHead
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import ContactAvatar from './internalComponents/contactAvatar';
 import formatDate from '../../../../functions/formatDate';
+import { TYPE } from '../../../../constants';
 
 // "Today" / "Yesterday" / "Oct 2", same titles as the contact history.
 const dayLabel = timestamp => formatDate(timestamp, 'day');
@@ -82,7 +83,7 @@ export default function ExpandedMessageHalfModal({
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  rowTitle: { fontSize: 15, lineHeight: 21 },
+  rowTitle: { ...TYPE.body },
   scroll: { marginTop: 16, flexGrow: 0 },
   listCard: { marginBottom: 10 },
   card: {

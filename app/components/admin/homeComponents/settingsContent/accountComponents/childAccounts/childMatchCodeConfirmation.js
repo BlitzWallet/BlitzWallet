@@ -5,6 +5,7 @@ import { ThemeText } from '../../../../../../functions/CustomElements';
 import CustomButton from '../../../../../../functions/CustomElements/button';
 import { useTheme } from '../../../../../../../context-store/theme';
 import SheetHeader from '../../../../../../functions/CustomElements/redesign/SheetHeader';
+import { TYPE } from '../../../../../../constants';
 
 // "Are you sure?" gate (D270). Swiping down goes back to the pattern.
 export default function ChildMatchCodeConfirmation({
@@ -53,8 +54,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   description: {
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
   },
   button: {
     width: '100%',

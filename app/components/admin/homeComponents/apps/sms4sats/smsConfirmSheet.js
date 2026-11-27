@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../../../functions/CustomElements';
-import { FONT } from '../../../../../constants';
+import { FONT, TYPE } from '../../../../../constants';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import SwipeButtonNew from '../../../../../functions/CustomElements/sliderButton';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
@@ -237,8 +237,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   label: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   headline: {

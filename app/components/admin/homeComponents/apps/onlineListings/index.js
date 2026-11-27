@@ -16,7 +16,7 @@ import {
   useGlobalThemeContext,
   useTheme,
 } from '../../../../../../context-store/theme';
-import { CENTER, SHOPS_DIRECTORY_KEY } from '../../../../../constants';
+import { CENTER, SHOPS_DIRECTORY_KEY, TYPE } from '../../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { keyboardNavigate } from '../../../../../functions/customNavigation';
@@ -480,8 +480,7 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   title: {
-    fontSize: 16,
-    lineHeight: 22,
+    ...TYPE.button,
     includeFontPadding: false,
   },
   countryLocation: {

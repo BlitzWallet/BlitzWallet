@@ -16,6 +16,7 @@ const mockGetStoredPasskeyInfo = jest.fn();
 const mockFactoryReset = jest.fn();
 
 jest.mock('../app/constants', () => ({
+  TYPE: jest.requireActual('../app/constants/theme').TYPE,
   CENTER: {},
   COLORS: { gray: '#888', cancelRed: '#f00' },
   FONT: {},

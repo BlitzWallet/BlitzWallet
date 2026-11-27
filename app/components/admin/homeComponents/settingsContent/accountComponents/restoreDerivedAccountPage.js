@@ -7,7 +7,7 @@ import { useMemo, useState } from 'react';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import AccountCard from '../../accounts/accountCard';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH, TYPE } from '../../../../../constants';
 import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
 import EmptyState from '../../../../../functions/CustomElements/redesign/EmptyState';
 import {
@@ -177,15 +177,13 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     textAlign: 'center',
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     marginTop: 8,
     marginBottom: 20,
     paddingHorizontal: 12,
   },
   restoreText: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
   },
 });

@@ -27,6 +27,7 @@ import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   MAX_WEB_CONTENT_WIDTH,
+  TYPE,
 } from '../../../../constants';
 import PickRow from '../../../../functions/CustomElements/redesign/PickRow';
 
@@ -264,7 +265,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
   },
-  chipName: { fontSize: 14, lineHeight: 20, maxWidth: 120 },
+  chipName: { ...TYPE.label, maxWidth: 120 },
   card: { flexShrink: 1 },
   empty: { marginTop: 24 },
   list: { flexGrow: 0 },

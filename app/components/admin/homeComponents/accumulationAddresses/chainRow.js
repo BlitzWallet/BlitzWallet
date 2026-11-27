@@ -5,7 +5,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { ICONS } from '../../../../constants';
+import { ICONS, TYPE } from '../../../../constants';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import {
   CHAIN_ASSET_ROW_HEIGHT,
@@ -153,8 +153,7 @@ const styles = StyleSheet.create({
   },
   label: {
     flex: 1,
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
     includeFontPadding: false,
   },
   assetOptionsContainer: {

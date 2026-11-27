@@ -6,6 +6,7 @@ import {
   FONT,
   MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
   SATSPERBITCOIN,
+  TYPE,
 } from '../../constants';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
@@ -560,20 +561,17 @@ const styles = StyleSheet.create({
   qr: { alignItems: 'center', marginTop: 22 },
   anyAmount: {
     fontFamily: FONT.Title_Medium,
-    fontSize: 48,
-    lineHeight: 56,
+    ...TYPE.amount,
     letterSpacing: -1,
     includeFontPadding: false,
   },
   bigSecondary: {
     fontFamily: FONT.Title_Medium,
-    fontSize: 28,
-    lineHeight: 36,
+    ...TYPE.pageTitle,
     includeFontPadding: false,
   },
   sub: {
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     includeFontPadding: false,
   },
   note: { marginBottom: 16 },

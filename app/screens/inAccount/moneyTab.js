@@ -26,6 +26,7 @@ import {
   FONT,
   HIDDEN_BALANCE_CLOSE,
   MAX_WEB_CONTENT_WIDTH,
+  TYPE,
 } from '../../constants';
 import { useReducedMotion } from '../../constants/motion';
 import { TAB_ITEM_HEIGHT } from '../../../navigation/tabs';
@@ -364,17 +365,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  spentLabel: { fontSize: 14, lineHeight: 21, includeFontPadding: false },
+  spentLabel: { ...TYPE.label, includeFontPadding: false },
   spentAmount: {
     marginTop: 2,
     fontFamily: FONT.Title_Medium,
-    fontSize: 40,
-    lineHeight: 48,
+    ...TYPE.amountSmall,
     letterSpacing: -1.2,
     includeFontPadding: false,
   },
   chart: { marginTop: 20 },
   rowsCard: { marginTop: 12 },
-  rowTitle: { fontSize: 15, lineHeight: 22 },
-  rowValue: { fontSize: 14, lineHeight: 21, marginRight: 4 },
+  rowTitle: { ...TYPE.body },
 });

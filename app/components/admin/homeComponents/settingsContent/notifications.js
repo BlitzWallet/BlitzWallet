@@ -13,7 +13,7 @@ import {
   ThemeText,
 } from '../../../../functions/CustomElements';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
-import { MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import { MAX_WEB_CONTENT_WIDTH, TYPE } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { usePushNotification } from '../../../../../context-store/notificationManager';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   scrollContent: { paddingTop: FADE_TOP },
   firstCard: { marginTop: 0 },
-  rowTitle: { fontSize: 15, lineHeight: 21 },
+  rowTitle: { ...TYPE.body },
   openButton: {
     minHeight: 44,
     paddingHorizontal: 16,
@@ -188,8 +188,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   openButtonText: {
-    fontSize: 14,
-    lineHeight: 19,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   empty: { marginTop: 96 },

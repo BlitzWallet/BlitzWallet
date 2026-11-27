@@ -2,7 +2,7 @@ import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import DeviceInfo from 'react-native-device-info';
-import { FONT, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import { FONT, MAX_WEB_CONTENT_WIDTH, TYPE } from '../../../../constants';
 import {
   GlobalThemeView,
   ThemeText,
@@ -269,22 +269,19 @@ const styles = StyleSheet.create({
   },
   bodyBlock: { paddingTop: 14, paddingBottom: 12 },
   bodyText: {
-    fontSize: 14,
-    lineHeight: 22,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   label: {
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     includeFontPadding: false,
   },
   labelRow: { paddingTop: 12, paddingBottom: 4 },
-  rowTitle: { fontSize: 15, lineHeight: 21 },
+  rowTitle: { ...TYPE.body },
   versionRow: { minHeight: 48, justifyContent: 'center' },
   versionText: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
     includeFontPadding: false,
   },
 });

@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useCallback, useRef } from 'react';
-import { CONTENT_KEYBOARD_OFFSET, FONT } from '../../../constants';
+import { CONTENT_KEYBOARD_OFFSET, FONT, SIZES } from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
 import ThemeText from '../textTheme';
 import IconButton from './IconButton';
@@ -144,7 +144,8 @@ const styles = StyleSheet.create({
   scrolled: { borderBottomWidth: 1 },
   title: {
     fontFamily: FONT.Title_Medium,
-    fontSize: 17,
+    // Single-line bar title: tighter than TYPE.rowTitle on purpose.
+    fontSize: SIZES.rowTitle,
     lineHeight: 20,
     textAlign: 'center',
     flex: 1,

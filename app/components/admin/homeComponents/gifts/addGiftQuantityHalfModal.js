@@ -6,6 +6,7 @@ import {
   GIFTS_QUANTITY_PRESETS,
   MAX_GIFT_QUANTITY,
   MAX_GIFTS,
+  TYPE,
 } from '../../../../constants';
 import { useTheme } from '../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
@@ -291,8 +292,7 @@ const styles = StyleSheet.create({
   },
   presetText: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 16,
-    lineHeight: 22,
+    ...TYPE.button,
     includeFontPadding: false,
   },
   inputContainer: {
@@ -301,8 +301,7 @@ const styles = StyleSheet.create({
   },
   quantityDisplay: {
     fontFamily: FONT.Title_Medium,
-    fontSize: 40,
-    lineHeight: 48,
+    ...TYPE.amountSmall,
     includeFontPadding: false,
     pointerEvents: 'none',
     textAlign: 'center',
@@ -310,8 +309,7 @@ const styles = StyleSheet.create({
   maxGiftHint: {
     textAlign: 'center',
     fontFamily: FONT.Title_Regular,
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     marginTop: 4,
     includeFontPadding: false,
   },

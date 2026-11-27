@@ -2,6 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../../context-store/theme';
 import ThemeText from '../../../../functions/CustomElements/textTheme';
+import { TYPE } from '../../../../constants';
 
 const KIND_INDEX = { contacts: 0, pools: 1, gifts: 2 };
 
@@ -73,6 +74,6 @@ const styles = StyleSheet.create({
   },
   label: { flexDirection: 'row', alignItems: 'center', gap: 10, flexShrink: 1 },
   dot: { width: 8, height: 8, borderRadius: 4 },
-  text: { fontSize: 14, lineHeight: 20, includeFontPadding: false },
+  text: { ...TYPE.label, includeFontPadding: false },
   amount: { flexShrink: 1, textAlign: 'right', fontVariant: ['tabular-nums'] },
 });

@@ -1,7 +1,7 @@
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import { MAX_WEB_CONTENT_WIDTH, TYPE } from '../../../../constants';
 import {
   CustomKeyboardAvoidingView,
   GlobalThemeView,
@@ -103,5 +103,5 @@ export default function ChooseLangugae() {
 const styles = StyleSheet.create({
   content: { alignSelf: 'center', flex: 1 },
   empty: { marginTop: 48 },
-  rowTitle: { fontSize: 15, lineHeight: 21 },
+  rowTitle: { ...TYPE.body },
 });

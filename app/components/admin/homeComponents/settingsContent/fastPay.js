@@ -17,6 +17,7 @@ import {
   FONT,
   MAX_WEB_CONTENT_WIDTH,
   QUICK_PAY_STORAGE_KEY,
+  TYPE,
 } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
@@ -329,7 +330,7 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   scrollContent: { paddingTop: FADE_TOP, paddingBottom: FADE },
   firstCard: { marginTop: 0 },
-  rowTitle: { fontSize: 15, lineHeight: 21 },
+  rowTitle: { ...TYPE.body },
   thresholdHeader: { marginTop: 20 },
   amountCard: {
     borderRadius: 20,
@@ -350,8 +351,7 @@ const styles = StyleSheet.create({
   },
   divider: { height: 1 },
   explainer: {
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     paddingTop: 14,
     paddingBottom: 16,
     includeFontPadding: false,

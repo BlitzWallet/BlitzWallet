@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { ICONS } from '../../../constants';
+import { ICONS, TYPE } from '../../../constants';
 import { useTranslation } from 'react-i18next';
 import CustomButton from '../../../functions/CustomElements/button';
 import { useNavigation } from '@react-navigation/native';
@@ -153,8 +153,7 @@ const styles = StyleSheet.create({
     height: 88,
   },
   errorText: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     textAlign: 'center',
     includeFontPadding: false,
     marginBottom: 12,
@@ -163,7 +162,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   lostText: {
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
   },
 });

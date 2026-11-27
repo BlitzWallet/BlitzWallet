@@ -1,4 +1,5 @@
 import { StyleSheet, View } from 'react-native';
+import { TYPE } from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
 import ThemeText from '../textTheme';
 
@@ -37,8 +38,7 @@ const styles = StyleSheet.create({
   first: { marginTop: 16, marginBottom: 8 },
   withRight: { minHeight: 44, marginBottom: 8 },
   header: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
     flexShrink: 1,
   },

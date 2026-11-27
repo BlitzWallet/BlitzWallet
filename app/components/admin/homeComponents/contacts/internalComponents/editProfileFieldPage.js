@@ -6,6 +6,7 @@ import {
   MAX_WEB_CONTENT_WIDTH,
   VALID_USERNAME_REGEX,
   VALID_NAME_BIO_REGEX,
+  TYPE,
 } from '../../../../../constants';
 import { CENTER } from '../../../../../constants';
 import {
@@ -386,23 +387,20 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: FONT.Title_Medium,
-    fontSize: 22,
-    lineHeight: 30,
+    ...TYPE.title,
     includeFontPadding: false,
     marginTop: 16,
     marginBottom: 8,
   },
   description: {
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     includeFontPadding: false,
   },
   inputCard: {
     justifyContent: 'center',
   },
   inputLabel: {
-    fontSize: 12,
-    lineHeight: 16,
+    ...TYPE.caption,
     letterSpacing: 0.48,
     includeFontPadding: false,
     textTransform: 'uppercase',
@@ -426,8 +424,7 @@ const styles = StyleSheet.create({
     paddingBottom: 14,
     paddingLeft: 16,
     paddingRight: 16,
-    fontSize: 16,
-    lineHeight: 24,
+    ...TYPE.button,
   },
   usernameIcon: {
     width: 24,
@@ -437,8 +434,7 @@ const styles = StyleSheet.create({
     right: 14,
   },
   statusText: {
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     includeFontPadding: false,
     marginTop: 8,
     marginHorizontal: 4,

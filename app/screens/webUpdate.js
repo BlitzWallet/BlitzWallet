@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 import { GlobalThemeView, ThemeText } from '../functions/CustomElements';
 import CustomButton from '../functions/CustomElements/button';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH, TYPE } from '../constants';
 import { useTheme } from '../../context-store/theme';
 import { applyWebUpdate, getPendingWebUpdate } from '../functions/pwaRelease';
 import Disc from '../functions/CustomElements/redesign/Disc';
@@ -115,5 +115,5 @@ const styles = StyleSheet.create({
   title: { marginTop: 28, textAlign: 'center' },
   subtitle: { marginTop: 8, textAlign: 'center' },
   buttonContainer: { width: '100%', gap: 12 },
-  laterText: { fontSize: 15, lineHeight: 22 },
+  laterText: { ...TYPE.body },
 });

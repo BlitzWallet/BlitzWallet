@@ -17,6 +17,7 @@ import {
   CENTER,
   FONT,
   MAX_WEB_CONTENT_WIDTH,
+  TYPE,
 } from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import {
@@ -106,8 +107,7 @@ const styles = StyleSheet.create({
   lottie: { width: 125, height: 125 },
   status: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 16,
-    lineHeight: 24,
+    ...TYPE.button,
     includeFontPadding: false,
     maxWidth: 300,
     textAlign: 'center',

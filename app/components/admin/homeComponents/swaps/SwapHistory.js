@@ -19,6 +19,7 @@ import { useActiveCustodyAccount } from '../../../../../context-store/activeAcco
 import { useTheme } from '../../../../../context-store/theme';
 import { AssetDisc } from '../savings/savingsSheetParts';
 import { SwapBackRow, useSwapFormatters } from './swapParts';
+import { TYPE } from '../../../../constants';
 
 const PAGE_SIZE = 20;
 
@@ -227,10 +228,10 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 12,
   },
-  rowTitle: { fontSize: 15, lineHeight: 21 },
-  received: { fontSize: 15, lineHeight: 21, textAlign: 'right' },
+  rowTitle: { ...TYPE.body },
+  received: { ...TYPE.body, textAlign: 'right' },
   amounts: { alignItems: 'flex-end' },
-  sent: { fontSize: 13, lineHeight: 19, textAlign: 'right' },
+  sent: { ...TYPE.hint, textAlign: 'right' },
   empty: { marginTop: 40 },
   loadMore: { marginTop: 16, paddingHorizontal: 18 },
 });

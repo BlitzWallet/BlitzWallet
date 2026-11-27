@@ -4,6 +4,7 @@ import {
   BASIC_ACCOUNT_NAME_REGEX,
   MAIN_ACCOUNT_UUID,
   NWC_ACCOUNT_UUID,
+  TYPE,
 } from '../../../../constants';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../../context-store/theme';
@@ -89,12 +90,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
   },
   trailingText: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
   },
 });

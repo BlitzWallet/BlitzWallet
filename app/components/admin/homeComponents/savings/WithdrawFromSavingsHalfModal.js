@@ -13,6 +13,7 @@ import {
   AMOUNT_HERO_SIZE,
   STARTING_INDEX_FOR_SAVINGS_DERIVE,
   USDB_TOKEN_ID,
+  TYPE,
 } from '../../../../constants';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { fromMicros } from './utils';
@@ -1308,8 +1309,7 @@ const styles = StyleSheet.create({
     flexGrow: 0,
   },
   rowTitle: {
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
   },
   disabledRow: {
     opacity: 0.45,
@@ -1320,8 +1320,7 @@ const styles = StyleSheet.create({
   },
   hint: {
     marginTop: 4,
-    fontSize: 14,
-    lineHeight: 21,
+    ...TYPE.label,
     textAlign: 'center',
     includeFontPadding: false,
   },
@@ -1335,8 +1334,7 @@ const styles = StyleSheet.create({
   },
   maxPillText: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   keypad: {

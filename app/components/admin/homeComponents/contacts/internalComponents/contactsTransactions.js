@@ -24,6 +24,7 @@ import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../../functions/CustomElements/redesign/Disc';
 import AdaptiveButtonRow from '../../../../../functions/CustomElements/adaptiveButtonRow';
 import formatDate from '../../../../../functions/formatDate';
+import { TYPE } from '../../../../../constants';
 
 // An unpaid request from the contact that is waiting on me. Same condition the
 // old render used for "not a completed transaction".
@@ -553,7 +554,7 @@ export default function ContactsTransactionItem(props) {
 }
 
 const styles = StyleSheet.create({
-  title: { fontSize: 15, lineHeight: 21 },
+  title: { ...TYPE.body },
   amount: { fontSize: 15, includeFontPadding: false },
   waitingItem: { paddingVertical: 16 },
   waitingButtons: { width: '100%', marginTop: 14 },

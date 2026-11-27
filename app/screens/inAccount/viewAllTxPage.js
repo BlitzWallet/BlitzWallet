@@ -5,7 +5,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH, TYPE } from '../../constants';
 import { GlobalThemeView } from '../../functions/CustomElements';
 import { useTranslation } from 'react-i18next';
 import { useGlobalContextProvider } from '../../../context-store/context';
@@ -289,8 +289,7 @@ const styles = StyleSheet.create({
   },
   filterText: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
     flexShrink: 1,
   },

@@ -13,6 +13,7 @@ import {
   CENTER,
   FONT,
   MAX_WEB_CONTENT_WIDTH,
+  TYPE,
 } from '../../constants';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
@@ -323,21 +324,20 @@ const styles = StyleSheet.create({
     width: '100%',
     flexShrink: 1,
   },
-  datePillText: { fontSize: 13, lineHeight: 18, includeFontPadding: false },
+  datePillText: { ...TYPE.hint, includeFontPadding: false },
   empty: { paddingVertical: 48 },
   heroCard: { marginTop: 8, borderRadius: CARD_RADIUS, padding: 20 },
   heroAmount: {
     marginTop: 2,
     fontFamily: FONT.Title_Medium,
-    fontSize: 40,
-    lineHeight: 48,
+    ...TYPE.amountSmall,
     letterSpacing: -1.4,
     fontVariant: ['tabular-nums'],
     includeFontPadding: false,
   },
   heroSkeleton: { marginTop: 6, gap: 10 },
   chart: { marginTop: 20 },
-  muted: { fontSize: 13, lineHeight: 18, includeFontPadding: false },
+  muted: { ...TYPE.hint, includeFontPadding: false },
   card: { borderRadius: CARD_RADIUS, padding: 20 },
   budgetCard: { borderRadius: CARD_RADIUS, padding: 20 },
   budgetSkeleton: { gap: 12 },
@@ -356,8 +356,7 @@ const styles = StyleSheet.create({
   },
   budgetTitleTexts: { flexShrink: 1, gap: 2 },
   budgetTitle: {
-    fontSize: 17,
-    lineHeight: 24,
+    ...TYPE.rowTitle,
     fontVariant: ['tabular-nums'],
     includeFontPadding: false,
   },
@@ -370,8 +369,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   statusText: {
-    fontSize: 12,
-    lineHeight: 16,
+    ...TYPE.caption,
     includeFontPadding: false,
   },
   progressBar: { marginTop: 14 },

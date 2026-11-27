@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import ThemeText from '../textTheme';
-import { FONT } from '../../../constants';
+import { FONT, TYPE } from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
 import Disc from './Disc';
 
@@ -29,8 +29,7 @@ export default function RemoveConfirmationHeader({ title, description }) {
 const styles = StyleSheet.create({
   title: {
     fontFamily: FONT.Title_Medium,
-    fontSize: 28,
-    lineHeight: 34,
+    ...TYPE.pageTitle,
     letterSpacing: -0.56,
     includeFontPadding: false,
     marginTop: 16,

@@ -10,7 +10,7 @@ import {
   fetchAndCacheGiftCardData,
   saveGiftCardData,
 } from '../../../../functions/contacts/giftCardStorage';
-import { AMOUNT_HERO_SIZE, CENTER, FONT } from '../../../../constants';
+import { AMOUNT_HERO_SIZE, CENTER, FONT, TYPE } from '../../../../constants';
 import { useTheme } from '../../../../../context-store/theme';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
   warning: { marginTop: 24 },
   messageCard: { marginTop: 24, borderRadius: 20, padding: 16 },
   messageLabel: { marginBottom: 6 },
-  messageText: { fontSize: 14, lineHeight: 21 },
+  messageText: { ...TYPE.label },
   idRow: {
     minHeight: 72,
     flexDirection: 'row',
@@ -343,12 +343,11 @@ const styles = StyleSheet.create({
   idTexts: { flex: 1, minWidth: 0 },
   idValue: {
     fontFamily: FONT.mono,
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     includeFontPadding: false,
   },
   codeRow: { paddingVertical: 12 },
-  codeValue: { fontSize: 15, lineHeight: 22, includeFontPadding: false },
+  codeValue: { ...TYPE.body, includeFontPadding: false },
   helpText: { marginTop: 8, marginHorizontal: 4 },
   bodyText: { marginHorizontal: 4 },
   actions: { gap: 12, paddingTop: 12 },

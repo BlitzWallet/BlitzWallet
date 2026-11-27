@@ -2,6 +2,7 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../../context-store/theme';
 import ThemeText from '../textTheme';
+import { TYPE } from '../../../constants';
 
 // Controlled. White track, selected pill accent + white text in every mode
 // (rule 5). Labels wrap, never truncate.
@@ -78,8 +79,7 @@ const styles = StyleSheet.create({
     textTransform: 'capitalize',
     // 1pt inset: iOS clips glyph ink past the advance width ("QR" → "QF").
     paddingHorizontal: 1,
-    fontSize: 14,
-    lineHeight: 19,
+    ...TYPE.label,
     textAlign: 'center',
     includeFontPadding: false,
   },

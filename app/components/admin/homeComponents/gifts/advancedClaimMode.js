@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements';
-import { CENTER, FONT, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import {
+  CENTER,
+  FONT,
+  MAX_WEB_CONTENT_WIDTH,
+  TYPE,
+} from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -137,8 +142,7 @@ const styles = StyleSheet.create({
   buttonContainer: { gap: 10 },
   label: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     marginBottom: 8,
     includeFontPadding: false,
   },

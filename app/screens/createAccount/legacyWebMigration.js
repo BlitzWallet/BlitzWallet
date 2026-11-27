@@ -9,7 +9,7 @@ import RNRestart from 'react-native-restart-newarch';
 
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH, TYPE } from '../../constants';
 import {
   LEGACY_WALLET_KEY,
   migrateLegacyWallet,
@@ -183,7 +183,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   recoveryText: {
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
   },
 });

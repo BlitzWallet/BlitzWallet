@@ -7,7 +7,7 @@ import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import { getTokenIcon } from '../../../../functions/lrc20/utils';
 import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
 import formatBalanceAmount from '../../../../functions/formatNumber';
-import { HIDDEN_BALANCE_CLOSE } from '../../../../constants';
+import { HIDDEN_BALANCE_CLOSE, TYPE } from '../../../../constants';
 
 // `token` is an [identifier, tokenInfo] entry of sparkInformation.tokens.
 export default function TokenRow({ token }) {
@@ -51,8 +51,8 @@ export default function TokenRow({ token }) {
 }
 
 const styles = StyleSheet.create({
-  title: { fontSize: 15, lineHeight: 21 },
-  sub: { fontSize: 13, lineHeight: 19, includeFontPadding: false },
+  title: { ...TYPE.body },
+  sub: { ...TYPE.hint, includeFontPadding: false },
   amount: {
     fontSize: 17,
     letterSpacing: -0.17,

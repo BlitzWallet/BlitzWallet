@@ -11,7 +11,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useBTCMap } from '../../../context-store/btcMapContext';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import GetThemeColors from '../../hooks/themeColors';
-import { FONT, ICONS, SIZES } from '../../constants';
+import { FONT, ICONS, SIZES, TYPE } from '../../constants';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { useAppStatus } from '../../../context-store/appStatus';
@@ -638,8 +638,7 @@ const styles = StyleSheet.create({
   },
   navTitle: {
     fontFamily: FONT.Title_Regular,
-    fontSize: SIZES.medium,
-    lineHeight: 22,
+    ...TYPE.button,
     textAlign: 'center',
     includeFontPadding: false,
   },
@@ -656,8 +655,7 @@ const styles = StyleSheet.create({
   },
   countText: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     includeFontPadding: false,
   },
   fabStack: { position: 'absolute', right: 16, gap: 10 },
@@ -678,8 +676,7 @@ const styles = StyleSheet.create({
   },
   clusterText: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     includeFontPadding: false,
   },
 });

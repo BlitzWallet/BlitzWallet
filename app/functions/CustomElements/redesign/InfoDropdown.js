@@ -9,7 +9,7 @@ import Animated, {
 import { ThemeText } from '../../../functions/CustomElements';
 import ThemeIcon from '../../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../../hooks/themeColors';
-import { FONT } from '../../../constants/theme';
+import { FONT, SIZES } from '../../../constants/theme';
 import Disc from './Disc';
 import { useReducedMotion } from '../../../constants/motion';
 
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     flex: 1,
-    fontSize: 15,
+    fontSize: SIZES.body,
     fontFamily: FONT.Title_Regular,
     marginLeft: 12,
     includeFontPadding: false,

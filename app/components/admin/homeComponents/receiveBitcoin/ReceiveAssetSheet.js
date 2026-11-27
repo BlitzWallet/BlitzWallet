@@ -19,6 +19,7 @@ import {
 } from '../../../../constants/accumulationAddresses';
 import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import { AssetLogo, QrBadge } from './receiveParts';
+import { TYPE } from '../../../../constants';
 
 // Receive Bitcoin / Receive Dollars sheet (Receive.dc.html "Bitcoin tapped",
 // "Dollars tapped", "Other networks"). Other networks is a second step in
@@ -276,9 +277,9 @@ const styles = StyleSheet.create({
   page: { flex: 1 },
   inset: { paddingHorizontal: 20 },
   rowTexts: { flex: 1, gap: 4 },
-  rowTitle: { fontSize: 17, lineHeight: 24, includeFontPadding: false },
+  rowTitle: { ...TYPE.rowTitle, includeFontPadding: false },
   pills: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   pill: { borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2 },
-  pillText: { fontSize: 12, lineHeight: 17, includeFontPadding: false },
-  more: { fontSize: 12, lineHeight: 17, includeFontPadding: false },
+  pillText: { ...TYPE.caption, includeFontPadding: false },
+  more: { ...TYPE.caption, includeFontPadding: false },
 });

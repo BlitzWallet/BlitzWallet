@@ -12,6 +12,7 @@ import AnimatedStep, {
 } from '../../../functions/CustomElements/redesign/AnimatedStep';
 import { useTheme } from '../../../../context-store/theme';
 import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
+import { TYPE } from '../../../constants';
 
 // Sheet chrome around the content: grab area (10 + 5 + 5) + 34 bottom padding.
 const SHEET_CHROME = 54;
@@ -112,5 +113,5 @@ export default function ActionsHalfModal({
 const styles = StyleSheet.create({
   container: { flex: 1, overflow: 'hidden' },
   menu: { marginTop: 14 },
-  rowTitle: { fontSize: 15, lineHeight: 21 },
+  rowTitle: { ...TYPE.body },
 });

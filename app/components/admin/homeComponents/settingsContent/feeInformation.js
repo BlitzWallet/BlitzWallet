@@ -1,6 +1,6 @@
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import { MAX_WEB_CONTENT_WIDTH, TYPE } from '../../../../constants';
 import {
   GlobalThemeView,
   ThemeText,
@@ -101,12 +101,11 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   scrollContent: { paddingTop: FADE_TOP },
   intro: {
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     includeFontPadding: false,
     marginHorizontal: 4,
   },
   card: { marginTop: 20 },
   linkWrap: { marginTop: 8 },
-  linkText: { fontSize: 14, lineHeight: 20 },
+  linkText: { ...TYPE.label },
 });

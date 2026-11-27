@@ -1,5 +1,5 @@
 import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { FONT } from '../../../constants';
+import { FONT, TYPE } from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
 import ThemeText from '../textTheme';
 import ThemeIcon from '../themeIcon';
@@ -187,8 +187,7 @@ const styles = StyleSheet.create({
   textsWithValue: { flexGrow: 0 },
   title: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 17,
-    lineHeight: 24,
+    ...TYPE.rowTitle,
     includeFontPadding: false,
   },
   trailing: { flexDirection: 'row', alignItems: 'center', gap: 4 },

@@ -5,6 +5,7 @@ import { useTheme } from '../../../../../context-store/theme';
 import { ThemeText } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
 import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
+import { TYPE } from '../../../../constants';
 
 // Explainer for a QR card row (Receive.dc.html "Network fee tapped"):
 // the row label as the title, the full explanation as the body.
@@ -40,6 +41,6 @@ export default function ReceiveInfoSheet({
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  body: { fontSize: 15, lineHeight: 22 },
+  body: { ...TYPE.body },
   button: { marginTop: 'auto' },
 });

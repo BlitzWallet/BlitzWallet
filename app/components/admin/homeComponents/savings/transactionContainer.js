@@ -6,6 +6,7 @@ import { useNodeContext } from '../../../../../context-store/nodeContext';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import Disc from '../../../../functions/CustomElements/redesign/Disc';
+import { TYPE } from '../../../../constants';
 
 const ICON_BY_TYPE = {
   interest: 'Sparkles',
@@ -54,12 +55,10 @@ export default function SavingsTransactionComponenet({ item }) {
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
   },
   activityAmount: {
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
     fontVariant: ['tabular-nums'],
     includeFontPadding: false,
   },

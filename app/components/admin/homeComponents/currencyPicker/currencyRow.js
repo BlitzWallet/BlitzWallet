@@ -3,6 +3,7 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import { getCurrencySymbol } from '../../../../functions/displayCurrency';
 import PickRow from '../../../../functions/CustomElements/redesign/PickRow';
 import CurrencyCoin from './currencyCoin';
+import { TYPE } from '../../../../constants';
 
 const CurrencyRow = memo(
   ({ currency, isSelected, onSelect, saving, disabled }) => {
@@ -14,7 +15,7 @@ const CurrencyRow = memo(
         sub={currency.id}
         minHeight={60}
         paddingVertical={10}
-        titleStyle={{ fontSize: 15, lineHeight: 21 }}
+        titleStyle={{ ...TYPE.body }}
         lead={
           <CurrencyCoin
             symbol={getCurrencySymbol(currency.id)}

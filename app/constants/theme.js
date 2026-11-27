@@ -108,6 +108,28 @@ const SIZES = {
   xxLarge: 32,
   huge: 40,
   userSatText: 30,
+  hint: 13,
+  body: 15,
+  rowTitle: 17,
+  title: 22,
+  pageTitle: 28,
+  amount: 48,
+};
+
+// Typography pairs: every text size owns one line height. Spread into styles
+// (`...TYPE.body`) instead of writing fontSize/lineHeight inline.
+const TYPE = {
+  caption: { fontSize: SIZES.small, lineHeight: 18 },
+  hint: { fontSize: SIZES.hint, lineHeight: 19 },
+  label: { fontSize: SIZES.smedium, lineHeight: 20 },
+  body: { fontSize: SIZES.body, lineHeight: 22 },
+  button: { fontSize: SIZES.medium, lineHeight: 22 },
+  rowTitle: { fontSize: SIZES.rowTitle, lineHeight: 24 },
+  section: { fontSize: SIZES.large, lineHeight: 26 },
+  title: { fontSize: SIZES.title, lineHeight: 28 },
+  pageTitle: { fontSize: SIZES.pageTitle, lineHeight: 34 },
+  amountSmall: { fontSize: SIZES.huge, lineHeight: 48 },
+  amount: { fontSize: SIZES.amount, lineHeight: 56 },
 };
 
 const makeShadow = (color, offsetY, opacity, radius, offsetX = 0) => {
@@ -167,6 +189,7 @@ export {
   COLORS,
   FONT,
   SIZES,
+  TYPE,
   SHADOWS,
   WINDOWWIDTH,
   INSET_WINDOW_WIDTH,

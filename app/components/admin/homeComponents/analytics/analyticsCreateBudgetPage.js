@@ -5,6 +5,7 @@ import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   MAX_WEB_CONTENT_WIDTH,
+  TYPE,
 } from '../../../../constants';
 import {
   GlobalThemeView,
@@ -209,8 +210,7 @@ const styles = StyleSheet.create({
   },
   resets: {
     marginTop: 4,
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     textAlign: 'center',
     includeFontPadding: false,
   },

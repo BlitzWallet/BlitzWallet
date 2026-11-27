@@ -12,6 +12,7 @@ import {
   FONT,
   MAX_WEB_CONTENT_WIDTH,
   QUICK_PAY_STORAGE_KEY,
+  TYPE,
 } from '../../../../constants';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import {
@@ -501,8 +502,7 @@ const styles = StyleSheet.create({
   },
   contactName: {
     marginTop: 10,
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     textAlign: 'center',
     includeFontPadding: false,
   },

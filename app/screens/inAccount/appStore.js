@@ -4,7 +4,7 @@ import CustomScrollView from '../../functions/CustomElements/scrollView';
 import { useNavigation } from '@react-navigation/native';
 import { GlobalThemeView } from '../../functions/CustomElements';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
-import { MAX_WEB_CONTENT_WIDTH } from '../../constants';
+import { MAX_WEB_CONTENT_WIDTH, TYPE } from '../../constants';
 import { TAB_ITEM_HEIGHT } from '../../../navigation/tabs';
 import { useTabScrollToTop } from '../../../navigation/tabs/useTabScrollToTop';
 import BTCMapPreviewCard from '../../components/admin/homeComponents/store/BTCMapPreviewCard';
@@ -150,6 +150,7 @@ const styles = StyleSheet.create({
     minHeight: 44,
     justifyContent: 'center',
   },
+  rowTitle: { ...TYPE.body },
   card: { marginTop: 12 },
 
   scrollContent: {

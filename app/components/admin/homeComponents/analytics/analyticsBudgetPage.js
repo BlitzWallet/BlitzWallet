@@ -2,7 +2,12 @@ import { useNavigation } from '@react-navigation/native';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import Svg, { Circle } from 'react-native-svg';
-import { CENTER, FONT, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import {
+  CENTER,
+  FONT,
+  MAX_WEB_CONTENT_WIDTH,
+  TYPE,
+} from '../../../../constants';
 import {
   GlobalThemeView,
   ThemeText,
@@ -255,15 +260,14 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   centerTextLabel: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     textAlign: 'center',
     includeFontPadding: false,
   },
   statsCard: {
     width: '100%',
   },
-  rowTitle: { fontSize: 15, lineHeight: 21 },
+  rowTitle: { ...TYPE.body },
   statsRowRight: {
     flexDirection: 'row',
     alignItems: 'center',

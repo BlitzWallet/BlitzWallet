@@ -1,7 +1,7 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
-import { FONT } from '../../../../../../constants';
+import { FONT, TYPE } from '../../../../../../constants';
 import { MODES } from '../../../../../../constants/themes';
 import { ThemeText } from '../../../../../../functions/CustomElements';
 import QRCode from '../../../../../../functions/CustomElements/StyledQRCode';
@@ -84,8 +84,7 @@ const styles = StyleSheet.create({
   },
   headingGap: { marginTop: 16 },
   instructions: {
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     marginTop: 10,
     textAlign: 'center',
     color: SIGN.muted,
@@ -98,8 +97,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   link: {
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     textAlign: 'center',
     color: SIGN.muted,
     includeFontPadding: false,

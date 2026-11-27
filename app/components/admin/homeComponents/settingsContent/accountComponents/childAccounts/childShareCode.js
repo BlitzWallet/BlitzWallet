@@ -12,7 +12,11 @@ import {
   ThemeText,
 } from '../../../../../../functions/CustomElements';
 import FullLoadingScreen from '../../../../../../functions/CustomElements/loadingScreen';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../../constants';
+import {
+  CENTER,
+  MAX_WEB_CONTENT_WIDTH,
+  TYPE,
+} from '../../../../../../constants';
 import { useTheme } from '../../../../../../../context-store/theme';
 import { useChildPairing } from '../../../../../../../context-store/childPairingContext';
 import ChildLinkError from './childLinkError';
@@ -136,8 +140,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   hint: {
-    fontSize: 13,
-    lineHeight: 18,
+    ...TYPE.hint,
     includeFontPadding: false,
   },
 });

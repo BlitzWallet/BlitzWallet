@@ -9,6 +9,7 @@ import {
   CONTENT_KEYBOARD_OFFSET,
   QUICK_PAY_STORAGE_KEY,
   USDB_TOKEN_ID,
+  TYPE,
 } from '../../../../constants';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import {
@@ -919,6 +920,6 @@ const styles = StyleSheet.create({
   feeText: { flex: 1 },
   // Matches KeyValueRow stacked: 14 pad, 22 label, 2 gap, 20 value.
   feeLoading: { paddingVertical: 14 },
-  feeLoadingLabel: { fontSize: 15, lineHeight: 22 },
+  feeLoadingLabel: { ...TYPE.body },
   feeLoadingValue: { height: 20, marginTop: 2, justifyContent: 'center' },
 });

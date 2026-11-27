@@ -12,6 +12,7 @@ import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   FONT,
+  TYPE,
 } from '../../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -270,8 +271,7 @@ const styles = StyleSheet.create({
   },
   confirmTitle: {
     fontFamily: FONT.Title_Medium,
-    fontSize: 20,
-    lineHeight: 26,
+    ...TYPE.section,
     marginTop: 20,
     textAlign: 'center',
     includeFontPadding: false,

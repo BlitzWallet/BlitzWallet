@@ -1,5 +1,5 @@
 import { View, StyleSheet } from 'react-native';
-import { FONT } from '../../constants';
+import { FONT, TYPE } from '../../constants';
 import { ThemeText } from '../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 
@@ -101,16 +101,14 @@ const styles = StyleSheet.create({
   },
   numberText: {
     width: 22,
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     fontVariant: ['tabular-nums'],
     includeFontPadding: false,
   },
   wordText: {
     flexShrink: 1,
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     includeFontPadding: false,
   },
 
@@ -132,16 +130,14 @@ const styles = StyleSheet.create({
   },
   cardNumber: {
     width: 22,
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     fontVariant: ['tabular-nums'],
     includeFontPadding: false,
   },
   cardWord: {
     flexShrink: 1,
     fontFamily: FONT.Title_Regular,
-    fontSize: 16,
-    lineHeight: 22,
+    ...TYPE.button,
     includeFontPadding: false,
   },
 });

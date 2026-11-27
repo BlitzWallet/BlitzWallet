@@ -5,7 +5,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH, TYPE } from '../../../../constants';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import {
@@ -427,12 +427,11 @@ const memoizedStyles = StyleSheet.create({
     gap: 5,
   },
   pinnedContactName: {
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     flexShrink: 1,
     includeFontPadding: false,
   },
-  rowTitle: { fontSize: 15, lineHeight: 21 },
+  rowTitle: { ...TYPE.body },
   noResultsContainer: {
     alignItems: 'center',
     justifyContent: 'center',

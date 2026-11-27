@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
+import { TYPE } from '../../../../constants';
 
 // Circular badge used in the currency picker. Renders a brand icon (Bitcoin /
 // Dollars) when `iconImage` is passed, otherwise the fiat currency symbol.
@@ -42,8 +43,7 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   symbol: {
-    fontSize: 14,
-    lineHeight: 19,
+    ...TYPE.label,
     includeFontPadding: false,
   },
 });

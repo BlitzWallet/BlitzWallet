@@ -28,6 +28,7 @@ import {
   MAIN_ACCOUNT_UUID,
   MAX_WEB_CONTENT_WIDTH,
   NWC_ACCOUNT_UUID,
+  TYPE,
 } from '../../../../../constants';
 import { formatBalanceAmount } from '../../../../../functions';
 import {
@@ -756,8 +757,7 @@ const styles = StyleSheet.create({
   },
 
   rowTitle: {
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
   },
 
   buttonRow: {

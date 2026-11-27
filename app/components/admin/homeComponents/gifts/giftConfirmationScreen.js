@@ -15,6 +15,7 @@ import {
   CONTENT_KEYBOARD_OFFSET,
   FONT,
   MAX_WEB_CONTENT_WIDTH,
+  TYPE,
 } from '../../../../constants';
 import { useTheme } from '../../../../../context-store/theme';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
@@ -263,16 +264,14 @@ const styles = StyleSheet.create({
   title: {
     marginTop: 16,
     fontFamily: FONT.Title_Medium,
-    fontSize: 22,
-    lineHeight: 28,
+    ...TYPE.title,
     textAlign: 'center',
     includeFontPadding: false,
   },
   subtitle: {
     marginTop: 6,
     fontFamily: FONT.Title_Regular,
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     textAlign: 'center',
     includeFontPadding: false,
   },
@@ -286,14 +285,12 @@ const styles = StyleSheet.create({
   rowText: { flex: 1, minWidth: 0 },
   rowTitle: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
     includeFontPadding: false,
   },
   rowSub: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     includeFontPadding: false,
   },
   divider: { height: StyleSheet.hairlineWidth },

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { AMOUNT_HERO_SIZE } from '../../../../constants';
+import { AMOUNT_HERO_SIZE, TYPE } from '../../../../constants';
 import { StyleSheet, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useTranslation } from 'react-i18next';
@@ -447,8 +447,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   muted: {
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     textAlign: 'center',
     marginTop: 4,
     includeFontPadding: false,

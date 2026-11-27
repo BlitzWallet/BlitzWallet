@@ -1,6 +1,6 @@
 import { FlatList, StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { EMAIL_REGEX, VALID_URL_REGEX } from '../../../../constants';
+import { EMAIL_REGEX, VALID_URL_REGEX, TYPE } from '../../../../constants';
 import { useGlobalContactsInfo } from '../../../../../context-store/globalContacts';
 import useDebounce from '../../../../hooks/useDebounce';
 import { useEffect, useRef, useState } from 'react';
@@ -624,6 +624,6 @@ const styles = StyleSheet.create({
   results: { flexShrink: 1 },
   address: { flex: 1, marginTop: 20 },
   card: { width: '100%' },
-  rowTitle: { fontSize: 15, lineHeight: 21 },
+  rowTitle: { ...TYPE.body },
   continueButton: { marginTop: 'auto' },
 });

@@ -18,6 +18,7 @@ import ActivityRow, {
   dayStart,
   sectionTitle,
 } from '../viewAllComponents/activityRow';
+import { TYPE } from '../../../../constants';
 
 // The card reads its own rows from SQLite while mounted (max 25, no
 // load-more) and re-reads on every tx event (txsVersion). Newest-first
@@ -145,10 +146,9 @@ const styles = StyleSheet.create({
   card: { paddingTop: 2, paddingBottom: 4 },
   rows: { paddingHorizontal: 0 },
   header: { minHeight: 48, justifyContent: 'center' },
-  title: { fontSize: 16, lineHeight: 22, includeFontPadding: false },
+  title: { ...TYPE.button, includeFontPadding: false },
   empty: {
-    fontSize: 14,
-    lineHeight: 21,
+    ...TYPE.label,
     marginBottom: 12,
     includeFontPadding: false,
   },

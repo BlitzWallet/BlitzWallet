@@ -5,6 +5,7 @@ import {
   CENTER,
   HIDDEN_BALANCE_CLOSE,
   MAX_WEB_CONTENT_WIDTH,
+  TYPE,
 } from '../../../constants';
 import { useTranslation } from 'react-i18next';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
@@ -188,15 +189,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   revealTitle: {
-    fontSize: 17,
-    lineHeight: 24,
+    ...TYPE.rowTitle,
     marginTop: 14,
     textAlign: 'center',
     includeFontPadding: false,
   },
   seedPrivacyMessage: {
-    fontSize: 14,
-    lineHeight: 21,
+    ...TYPE.label,
     marginTop: 4,
     marginBottom: 20,
     textAlign: 'center',
@@ -209,8 +208,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   footerText: {
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     textAlign: 'center',
     includeFontPadding: false,
   },

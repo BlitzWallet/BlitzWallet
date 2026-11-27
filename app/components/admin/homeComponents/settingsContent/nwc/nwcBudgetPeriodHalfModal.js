@@ -4,6 +4,7 @@ import { useTheme } from '../../../../../../context-store/theme';
 import SheetHeader from '../../../../../functions/CustomElements/redesign/SheetHeader';
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import PickRow from '../../../../../functions/CustomElements/redesign/PickRow';
+import { TYPE } from '../../../../../constants';
 
 const BUDGET_RENEWAL_OPTIONS = [
   { label: 'timeLabels.daily', value: 'Daily' },
@@ -52,7 +53,6 @@ export default function NWCBudgetPeriodHalfModal({
 
 const styles = StyleSheet.create({
   optionTitle: {
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
   },
 });

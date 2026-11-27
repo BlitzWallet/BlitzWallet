@@ -13,7 +13,7 @@ import ThemeText from '../../../../../functions/CustomElements/textTheme';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import { useTheme } from '../../../../../../context-store/theme';
-import { FONT } from '../../../../../constants';
+import { FONT, TYPE } from '../../../../../constants';
 import { ReduceMotion } from '../../../../../constants/motion';
 import EmptyState from '../../../../../functions/CustomElements/redesign/EmptyState';
 
@@ -124,8 +124,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
     textAlign: 'center',
     flexShrink: 1,

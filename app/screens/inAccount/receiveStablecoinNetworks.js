@@ -1,7 +1,7 @@
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH, TYPE } from '../../constants';
 import GlobalThemeView from '../../functions/CustomElements/globalThemeView';
 import CustomScrollView from '../../functions/CustomElements/scrollView';
 import TopBar from '../../functions/CustomElements/redesign/TopBar';
@@ -66,5 +66,5 @@ export default function ReceiveStablecoinNetworks(props) {
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
   scroll: { paddingTop: FADE_TOP },
-  sub: { fontSize: 14, lineHeight: 20, marginBottom: 12, marginHorizontal: 4 },
+  sub: { ...TYPE.label, marginBottom: 12, marginHorizontal: 4 },
 });

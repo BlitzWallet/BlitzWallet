@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { AMOUNT_HERO_SIZE } from '../../../../../constants';
+import { AMOUNT_HERO_SIZE, TYPE } from '../../../../../constants';
 import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -184,14 +184,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   label: {
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     marginBottom: 2,
     includeFontPadding: false,
   },
   sub: {
-    fontSize: 14,
-    lineHeight: 21,
+    ...TYPE.label,
     marginTop: 4,
     textAlign: 'center',
     includeFontPadding: false,

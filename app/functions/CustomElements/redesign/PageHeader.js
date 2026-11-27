@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import PageTitle from './PageTitle';
 import ThemeText from '../textTheme';
-import { FONT, SIZES } from '../../../constants';
+import { FONT, SIZES, TYPE } from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
 
 export default function PageHeader({
@@ -47,11 +47,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   titleLarge: { marginTop: 28 },
-  subtitleLarge: { fontSize: 15, lineHeight: 22, marginTop: 8 },
+  subtitleLarge: { ...TYPE.body, marginTop: 8 },
   subtitle: {
     opacity: 0.6,
-    fontSize: SIZES.smedium,
-    lineHeight: 22,
+    ...TYPE.label,
     marginBottom: 20,
   },
 });

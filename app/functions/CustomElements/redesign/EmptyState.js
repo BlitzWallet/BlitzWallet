@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { FONT } from '../../../constants';
+import { FONT, TYPE } from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
 import ThemeText from '../textTheme';
 import ThemeIcon from '../themeIcon';
@@ -87,15 +87,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 17,
-    lineHeight: 24,
+    ...TYPE.rowTitle,
     textAlign: 'center',
     includeFontPadding: false,
     marginTop: 16,
   },
   titleLarge: {
-    fontSize: 20,
-    lineHeight: 26,
+    ...TYPE.section,
   },
   sub: { textAlign: 'center', marginTop: 6 },
   retry: { marginTop: 16 },

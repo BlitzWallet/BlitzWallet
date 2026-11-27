@@ -12,6 +12,7 @@ import {
   AMOUNT_HERO_SIZE,
   CENTER,
   MAX_WEB_CONTENT_WIDTH,
+  TYPE,
 } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import CircularProgress from '../pools/circularProgress';
@@ -281,8 +282,7 @@ const styles = StyleSheet.create({
   },
   balanceLabel: {
     includeFontPadding: false,
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     textAlign: 'center',
   },
   goalsCard: {
@@ -291,8 +291,7 @@ const styles = StyleSheet.create({
   // Same spacing as SavingsActivityContainer's header.
   skeletonActivityHeader: { marginTop: 20, marginBottom: 8 },
   rowTitle: {
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
   },
   goalEmojiCircle: {
     width: 40,
@@ -307,9 +306,8 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   disclaimer: {
-    fontSize: 12,
+    ...TYPE.caption,
     includeFontPadding: false,
-    lineHeight: 18,
     marginTop: 20,
     paddingHorizontal: 4,
   },

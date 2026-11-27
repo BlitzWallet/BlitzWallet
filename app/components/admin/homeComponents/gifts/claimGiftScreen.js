@@ -15,6 +15,7 @@ import {
   STARTING_INDEX_FOR_GIFTS_DERIVE,
   USDB_TOKEN_ID,
   WEBSITE_REGEX,
+  TYPE,
 } from '../../../../constants';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { useTheme } from '../../../../../context-store/theme';
@@ -716,8 +717,7 @@ const styles = StyleSheet.create({
   note: { marginTop: 14, textAlign: 'center' },
   amount: {
     fontFamily: FONT.Title_Medium,
-    fontSize: 40,
-    lineHeight: 48,
+    ...TYPE.amountSmall,
     marginTop: 14,
     textAlign: 'center',
     includeFontPadding: false,
@@ -732,8 +732,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 20,
-    lineHeight: 26,
+    ...TYPE.section,
     marginTop: 24,
     textAlign: 'center',
     includeFontPadding: false,

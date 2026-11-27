@@ -17,7 +17,11 @@ import CustomButton from '../../../../../../functions/CustomElements/button';
 import QrCard from '../../../../../../functions/CustomElements/redesign/QrCard';
 import ThemeIcon from '../../../../../../functions/CustomElements/themeIcon';
 import FullLoadingScreen from '../../../../../../functions/CustomElements/loadingScreen';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../../constants';
+import {
+  CENTER,
+  MAX_WEB_CONTENT_WIDTH,
+  TYPE,
+} from '../../../../../../constants';
 import { useTheme } from '../../../../../../../context-store/theme';
 import { useChildPairing } from '../../../../../../../context-store/childPairingContext';
 import ChildLinkError from './childLinkError';
@@ -323,8 +327,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   downloadHint: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
     textAlign: 'center',
     marginBottom: 8,
@@ -338,13 +341,11 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   downloadLinkText: {
-    fontSize: 14,
-    lineHeight: 18,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   usernameValue: {
-    fontSize: 20,
-    lineHeight: 26,
+    ...TYPE.section,
     includeFontPadding: false,
     flexShrink: 1,
   },

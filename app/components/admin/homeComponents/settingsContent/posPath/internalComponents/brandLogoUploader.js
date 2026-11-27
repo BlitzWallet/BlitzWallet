@@ -14,6 +14,7 @@ import FullLoadingScreen from '../../../../../../functions/CustomElements/loadin
 import { ThemeText } from '../../../../../../functions/CustomElements';
 import ThemeIcon from '../../../../../../functions/CustomElements/themeIcon';
 import { useTheme } from '../../../../../../../context-store/theme';
+import { TYPE } from '../../../../../../constants';
 
 export default function BrandLogoUploader({
   onLogoChange,
@@ -236,8 +237,7 @@ const styles = StyleSheet.create({
   },
   logoInfo: { flex: 1, minWidth: 0 },
   title: {
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
     includeFontPadding: false,
   },
   logoButtons: {
@@ -253,8 +253,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   pillText: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   emptyCard: {
@@ -269,8 +268,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   sizeText: {
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     includeFontPadding: false,
     textAlign: 'center',
   },

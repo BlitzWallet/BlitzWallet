@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { CARD_RADIUS, FONT, ICONS, SIZES } from '../../../../constants';
+import { CARD_RADIUS, FONT, ICONS, SIZES, TYPE } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
@@ -150,8 +150,7 @@ const styles = StyleSheet.create({
     maxWidth: '80%',
   },
   overlayLabel: {
-    fontSize: SIZES.medium,
-    lineHeight: 20,
+    ...TYPE.button,
     marginBottom: 8,
     fontFamily: FONT.Title_SemiBold,
     opacity: HIDDEN_OPACITY,

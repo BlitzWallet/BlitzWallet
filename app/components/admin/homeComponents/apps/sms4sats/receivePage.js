@@ -10,6 +10,7 @@ import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   FONT,
+  TYPE,
 } from '../../../../../constants';
 import { KEYBOARDTIMEOUT } from '../../../../../constants/styles';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -573,8 +574,7 @@ const styles = StyleSheet.create({
   },
   number: {
     fontFamily: FONT.Title_Medium,
-    fontSize: 28,
-    lineHeight: 36,
+    ...TYPE.pageTitle,
     marginTop: 6,
     marginBottom: 14,
     includeFontPadding: false,
@@ -588,8 +588,7 @@ const styles = StyleSheet.create({
   },
   stepText: {
     flex: 1,
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   resultText: {

@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
-import { AMOUNT_HERO_SIZE, CENTER } from '../../../../constants';
+import { AMOUNT_HERO_SIZE, CENTER, TYPE } from '../../../../constants';
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import {
@@ -981,12 +981,12 @@ const styles = StyleSheet.create({
   secondary: { marginTop: 4, textAlign: 'center' },
   card: { marginTop: 48 },
   splitTexts: { flexGrow: 1, flexShrink: 1 },
-  splitNames: { fontSize: 15, lineHeight: 21, includeFontPadding: false },
+  splitNames: { ...TYPE.body, includeFontPadding: false },
   avatars: { flexDirection: 'row', alignItems: 'center' },
   avatarRing: { borderRadius: 18, padding: 2 },
   avatarOverlap: { marginLeft: -10 },
   feeLoading: { paddingVertical: 14, gap: 8 },
-  feeLabel: { fontSize: 15, lineHeight: 22 },
+  feeLabel: { ...TYPE.body },
   swapContainer: { flexGrow: 1, paddingTop: 132, paddingBottom: FADE },
   balanceScrollContainer: {
     flexGrow: 1,

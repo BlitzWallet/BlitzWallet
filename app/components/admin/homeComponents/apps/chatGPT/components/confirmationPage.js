@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { AMOUNT_HERO_SIZE } from '../../../../../../constants';
+import { AMOUNT_HERO_SIZE, TYPE } from '../../../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { ThemeText } from '../../../../../../functions/CustomElements';
 import SheetHeader from '../../../../../../functions/CustomElements/redesign/SheetHeader';
@@ -593,8 +593,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   customError: {
-    fontSize: 14,
-    lineHeight: 21,
+    ...TYPE.label,
     marginTop: 4,
     textAlign: 'center',
     includeFontPadding: false,

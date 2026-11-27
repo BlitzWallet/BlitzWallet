@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
 import ResultAnimation from '../../../../functions/CustomElements/redesign/ResultAnimation';
-import { FONT } from '../../../../constants';
+import { FONT, TYPE } from '../../../../constants';
 
 export default function SwapSuccess({ onDone, onNewSwap }) {
   const { t } = useTranslation();
@@ -38,8 +38,7 @@ const styles = StyleSheet.create({
   title: {
     marginTop: 24,
     fontFamily: FONT.Title_Regular,
-    fontSize: 22,
-    lineHeight: 28,
+    ...TYPE.title,
     textAlign: 'center',
     includeFontPadding: false,
   },

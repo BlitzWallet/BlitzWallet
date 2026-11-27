@@ -6,7 +6,7 @@ import displayCorrectDenomination from '../../../../functions/displayCorrectDeno
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useTheme } from '../../../../../context-store/theme';
-import { FONT } from '../../../../constants';
+import { FONT, TYPE } from '../../../../constants';
 
 // Shared pieces of the swap sheet steps (Swap.dc.html).
 
@@ -80,14 +80,12 @@ const styles = StyleSheet.create({
   backTitle: {
     flexShrink: 1,
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
     includeFontPadding: false,
   },
   disclaimer: {
     marginTop: 10,
-    fontSize: 12,
-    lineHeight: 17,
+    ...TYPE.caption,
     textAlign: 'center',
     includeFontPadding: false,
   },

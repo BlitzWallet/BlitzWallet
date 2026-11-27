@@ -13,6 +13,7 @@ import {
   FONT,
   MAX_WEB_CONTENT_WIDTH,
   SATSPERBITCOIN,
+  TYPE,
 } from '../../../../../constants';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { copyToClipboard } from '../../../../../functions';
@@ -575,8 +576,7 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   creditsText: {
-    fontSize: 13,
-    lineHeight: 18,
+    ...TYPE.hint,
     marginTop: 8,
     textAlign: 'center',
     includeFontPadding: false,
@@ -638,8 +638,7 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   messageText: {
-    fontSize: 15,
-    lineHeight: 23,
+    ...TYPE.body,
     marginTop: 6,
     marginLeft: 36,
     includeFontPadding: false,

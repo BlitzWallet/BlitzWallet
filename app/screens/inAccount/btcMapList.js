@@ -8,7 +8,7 @@ import ThemeIcon from '../../functions/CustomElements/themeIcon';
 import GetThemeColors from '../../hooks/themeColors';
 import { useAppStatus } from '../../../context-store/appStatus';
 import { useBTCMap } from '../../../context-store/btcMapContext';
-import { FONT } from '../../constants';
+import { FONT, TYPE } from '../../constants';
 import { getBtcMapIcon } from '../../functions/btcMap/iconMaping';
 import {
   CATEGORY_META,
@@ -207,13 +207,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 40,
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     includeFontPadding: false,
   },
   hasMoreMessage: {
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     textAlign: 'center',
     marginTop: 16,
     includeFontPadding: false,

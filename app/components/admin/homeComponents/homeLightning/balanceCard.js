@@ -4,7 +4,12 @@ import { useReducedMotion, enterAnim } from '../../../../constants/motion';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeIcon from '../../../../functions/CustomElements/themeIcon';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { CARD_RADIUS, FONT, HIDDEN_BALANCE_CLOSE } from '../../../../constants';
+import {
+  CARD_RADIUS,
+  FONT,
+  HIDDEN_BALANCE_CLOSE,
+  TYPE,
+} from '../../../../constants';
 import CurrencyIcon from '../../../../functions/CustomElements/redesign/CurrencyIcon';
 import SkeletonBar from '../../../../functions/CustomElements/redesign/SkeletonBar';
 import DustChevron from '../../../../functions/CustomElements/redesign/DustChevron';
@@ -144,14 +149,12 @@ const styles = StyleSheet.create({
   amountRow: { flexDirection: 'row', alignItems: 'baseline' },
   label: {
     fontFamily: FONT.Title_Medium,
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   amount: {
     fontFamily: FONT.Title_Medium,
-    fontSize: 22,
-    lineHeight: 28,
+    ...TYPE.title,
     letterSpacing: -0.44,
     fontVariant: ['tabular-nums'],
     includeFontPadding: false,

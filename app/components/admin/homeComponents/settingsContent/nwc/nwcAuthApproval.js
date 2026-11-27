@@ -18,6 +18,7 @@ import {
   AMOUNT_HERO_SIZE,
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
+  TYPE,
 } from '../../../../../constants';
 import { SIZES } from '../../../../../constants/theme';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
@@ -592,21 +593,18 @@ const styles = StyleSheet.create({
     paddingTop: 16,
   },
   title: {
-    fontSize: 22,
-    lineHeight: 28,
+    ...TYPE.title,
     marginTop: 12,
     textAlign: 'center',
     includeFontPadding: false,
   },
   subtitle: {
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     textAlign: 'center',
     includeFontPadding: false,
   },
   caption: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     paddingTop: 20,
     paddingBottom: 8,
     paddingHorizontal: 4,
@@ -641,8 +639,7 @@ const styles = StyleSheet.create({
     paddingRight: 12,
   },
   resetLabel: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   resultContent: {

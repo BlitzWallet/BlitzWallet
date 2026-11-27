@@ -7,6 +7,7 @@ import Disc from '../../../../functions/CustomElements/redesign/Disc';
 import SheetHeader from '../../../../functions/CustomElements/redesign/SheetHeader';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useEffect } from 'react';
+import { TYPE } from '../../../../constants';
 
 export default function ProfilePhotoModal({
   setContentHeight,
@@ -74,6 +75,6 @@ export default function ProfilePhotoModal({
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  rowTitle: { fontSize: 16, lineHeight: 22 },
+  rowTitle: { ...TYPE.button },
   cancel: { marginTop: 'auto' },
 });

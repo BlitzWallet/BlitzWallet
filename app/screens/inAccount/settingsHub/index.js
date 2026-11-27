@@ -13,7 +13,7 @@ import ProfileCard from './components/ProfileCard';
 import AccountsPreview from './components/AccountsPreview';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
 import openWebBrowser from '../../../functions/openWebBrowser';
-import { MAX_WEB_CONTENT_WIDTH } from '../../../constants';
+import { MAX_WEB_CONTENT_WIDTH, TYPE } from '../../../constants';
 import TopBar from '../../../functions/CustomElements/redesign/TopBar';
 import ListCard from '../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../functions/CustomElements/redesign/ListRow';
@@ -258,11 +258,11 @@ export default function SettingsHub(props) {
 const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
   rowsCard: { marginTop: 12 },
-  rowTitle: { fontSize: 15, lineHeight: 22 },
+  rowTitle: { ...TYPE.body },
   doomedayContianer: {
     flex: 1,
     alignSelf: 'center',
   },
   doomedayCard: { marginTop: 16 },
-  doomedayRowTitle: { fontSize: 15, lineHeight: 21 },
+  doomedayRowTitle: { ...TYPE.body },
 });

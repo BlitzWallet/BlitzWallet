@@ -20,7 +20,7 @@ import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
 import DiscText from '../../../../functions/CustomElements/redesign/DiscText';
 import EmptyState from '../../../../functions/CustomElements/redesign/EmptyState';
 import Note from '../../../../functions/CustomElements/redesign/Note';
-import { CENTER } from '../../../../constants';
+import { CENTER, TYPE } from '../../../../constants';
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { formatDisplayName } from './utils/formatListDisplayName';
 import formatDate from '../../../../functions/formatDate';
@@ -218,10 +218,10 @@ export default function ViewAllGiftCards() {
 const styles = StyleSheet.create({
   page: { width: '100%' },
   inner: { flex: 1 },
-  title: { fontSize: 15, lineHeight: 21 },
+  title: { ...TYPE.body },
   amountColumn: { alignItems: 'flex-end' },
   amount: { fontSize: 15, includeFontPadding: false },
-  used: { fontSize: 12, lineHeight: 18, includeFontPadding: false },
+  used: { ...TYPE.caption, includeFontPadding: false },
   note: { marginTop: 16, paddingHorizontal: 4 },
   empty: { flex: 1, justifyContent: 'center' },
 });

@@ -1,6 +1,6 @@
 import { GlobalThemeView } from '../../../../../functions/CustomElements';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../constants';
+import { CENTER, MAX_WEB_CONTENT_WIDTH, TYPE } from '../../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { getRestorableIndices } from '../../../../../functions/accounts/derivedAccounts';
@@ -75,7 +75,6 @@ const styles = StyleSheet.create({
     ...CENTER,
   },
   rowTitle: {
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
   },
 });

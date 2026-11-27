@@ -4,6 +4,7 @@ import { ThemeText } from '../../../../../functions/CustomElements';
 import { shuffleArray } from '../../../../../functions';
 import { useTheme } from '../../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
+import { TYPE } from '../../../../../constants';
 
 // "Try asking" 2x2 card grid: Unlock AI (display only) and the empty chat,
 // where `onSelect(text)` sends the example.
@@ -58,8 +59,7 @@ export default memo(QuestionDiscoveryGridComponent);
 
 const styles = StyleSheet.create({
   label: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     marginTop: 24,
     marginHorizontal: 4,
     marginBottom: 8,
@@ -79,18 +79,15 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   category: {
-    fontSize: 12,
-    lineHeight: 16,
+    ...TYPE.caption,
     includeFontPadding: false,
   },
   question: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   context: {
-    fontSize: 13,
-    lineHeight: 18,
+    ...TYPE.hint,
     includeFontPadding: false,
   },
 });

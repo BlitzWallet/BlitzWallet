@@ -7,6 +7,7 @@ import CustomToggleSwitch from '../../../../../../functions/CustomElements/switc
 import ListRow from '../../../../../../functions/CustomElements/redesign/ListRow';
 import { useTheme } from '../../../../../../../context-store/theme';
 import formatDate from '../../../../../../functions/formatDate';
+import { TYPE } from '../../../../../../constants';
 
 export const formatTipDate = timestamp => formatDate(timestamp, 'date');
 
@@ -70,12 +71,11 @@ export default function TipsTXItem({ item, masterInfoObject, fiatStats, t }) {
 }
 
 const styles = StyleSheet.create({
-  title: { fontSize: 15, lineHeight: 21 },
-  sub: { fontSize: 13, lineHeight: 19 },
+  title: { ...TYPE.body },
+  sub: { ...TYPE.hint },
   trailing: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   status: {
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     includeFontPadding: false,
     textTransform: 'capitalize',
   },

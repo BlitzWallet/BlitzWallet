@@ -38,6 +38,7 @@ import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   MAX_WEB_CONTENT_WIDTH,
+  TYPE,
 } from '../../../../constants';
 import { createPdf } from 'react-native-pdf-from-image';
 import { shareFile } from '../../../../functions/handleShare';
@@ -353,8 +354,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   address: {
-    fontSize: 14,
-    lineHeight: 21,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   note: { marginTop: 16 },

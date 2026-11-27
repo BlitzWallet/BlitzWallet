@@ -9,7 +9,11 @@ import CustomButton from '../../../../../../functions/CustomElements/button';
 import { useMemo, useState } from 'react';
 import { useGlobalContextProvider } from '../../../../../../../context-store/context';
 import { useNavigation } from '@react-navigation/native';
-import { CENTER, MAX_WEB_CONTENT_WIDTH } from '../../../../../../constants';
+import {
+  CENTER,
+  MAX_WEB_CONTENT_WIDTH,
+  TYPE,
+} from '../../../../../../constants';
 import { formatCurrency } from '../../../../../../functions/formatCurrency';
 import { useTheme } from '../../../../../../../context-store/theme';
 import { useTranslation } from 'react-i18next';
@@ -223,8 +227,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingBottom: FADE,
   },
-  title: { fontSize: 15, lineHeight: 21 },
-  sub: { fontSize: 13, lineHeight: 19 },
+  title: { ...TYPE.body },
+  sub: { ...TYPE.hint },
   buttons: { flexDirection: 'row' },
   empty: {
     flex: 1,

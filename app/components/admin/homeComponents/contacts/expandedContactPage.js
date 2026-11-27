@@ -10,6 +10,7 @@ import {
   CONTENT_KEYBOARD_OFFSET,
   FONT,
   MAX_WEB_CONTENT_WIDTH,
+  TYPE,
 } from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useEffect, useMemo } from 'react';
@@ -455,15 +456,13 @@ const styles = StyleSheet.create({
   avatar: { ...CENTER },
   nameText: {
     fontFamily: FONT.Title_Medium,
-    fontSize: 22,
-    lineHeight: 30,
+    ...TYPE.title,
     textAlign: 'center',
     includeFontPadding: false,
   },
   nameGap: { marginTop: 14 },
   usernameText: {
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     textAlign: 'center',
     includeFontPadding: false,
   },

@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { ThemeText } from '../../../../functions/CustomElements';
-import { FONT } from '../../../../constants';
+import { FONT, TYPE } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useTranslation } from 'react-i18next';
@@ -58,8 +58,7 @@ const styles = StyleSheet.create({
   nameText: {
     marginTop: 14,
     fontFamily: FONT.Title_Regular,
-    fontSize: 22,
-    lineHeight: 30,
+    ...TYPE.title,
     letterSpacing: -0.22,
     textAlign: 'center',
     includeFontPadding: false,

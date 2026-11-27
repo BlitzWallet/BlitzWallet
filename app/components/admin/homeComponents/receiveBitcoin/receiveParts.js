@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
-import { COLORS, FONT, ICONS } from '../../../../constants';
+import { COLORS, FONT, ICONS, TYPE } from '../../../../constants';
 import { MODES } from '../../../../constants/themes';
 import { useToast } from '../../../../../context-store/toastManager';
 import { copyToClipboard } from '../../../../functions';
@@ -252,8 +252,7 @@ const styles = StyleSheet.create({
   errorText: {
     color: LIGHT.ink,
     textAlign: 'center',
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     paddingHorizontal: 12,
   },
   caption: {
@@ -261,16 +260,14 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     color: LIGHT.muted,
     fontFamily: FONT.mono,
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     includeFontPadding: false,
   },
   hint: {
     marginTop: 16,
     color: LIGHT.ink,
     textAlign: 'center',
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
   },
   rows: { alignSelf: 'stretch', marginTop: 10 },
   row: {
@@ -284,14 +281,12 @@ const styles = StyleSheet.create({
   rowLabel: {
     flex: 1,
     color: LIGHT.muted,
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   rowValue: {
     color: LIGHT.ink,
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   badge: { alignItems: 'center', justifyContent: 'center' },

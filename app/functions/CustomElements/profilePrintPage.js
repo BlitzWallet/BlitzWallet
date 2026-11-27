@@ -11,7 +11,7 @@ import TopBar from './redesign/TopBar';
 import IconButton from './redesign/IconButton';
 import QrCard from './redesign/QrCard';
 import CustomButton from './button';
-import { CENTER, FONT } from '../../constants';
+import { CENTER, FONT, TYPE } from '../../constants';
 import { MODES } from '../../constants/themes';
 import { useGlobalContactsInfo } from '../../../context-store/globalContacts';
 import { useToast } from '../../../context-store/toastManager';
@@ -153,15 +153,13 @@ const styles = StyleSheet.create({
   },
   name: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 16,
-    lineHeight: 22,
+    ...TYPE.button,
     textAlign: 'center',
     color: MODES.light.ink,
     includeFontPadding: false,
   },
   uniqueName: {
-    fontSize: 13,
-    lineHeight: 18,
+    ...TYPE.hint,
     marginBottom: 12,
     color: MODES.light.muted,
     includeFontPadding: false,
@@ -175,16 +173,14 @@ const styles = StyleSheet.create({
   },
   address: {
     marginTop: 12,
-    fontSize: 13,
-    lineHeight: 18,
+    ...TYPE.hint,
     textAlign: 'center',
     color: MODES.light.ink,
     opacity: 0.5,
     includeFontPadding: false,
   },
   hint: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     textAlign: 'center',
     color: MODES.light.ink,
     includeFontPadding: false,

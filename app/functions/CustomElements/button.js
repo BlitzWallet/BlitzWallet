@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { COLORS } from '../../constants';
+import { COLORS, TYPE } from '../../constants';
 import FullLoadingScreen from './loadingScreen';
 import ThemeText from './textTheme';
 import { useGlobalThemeContext } from '../../../context-store/theme';
@@ -246,8 +246,7 @@ const styles = StyleSheet.create({
   },
   withIcon: { flexDirection: 'row', gap: 8 },
   pillText: {
-    fontSize: 16,
-    lineHeight: 22,
+    ...TYPE.button,
     includeFontPadding: false,
     textAlign: 'center',
   },

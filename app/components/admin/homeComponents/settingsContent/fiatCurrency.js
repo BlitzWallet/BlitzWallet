@@ -2,7 +2,7 @@ import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import { MAX_WEB_CONTENT_WIDTH, TYPE } from '../../../../constants';
 import {
   GlobalThemeView,
   ThemeText,
@@ -173,8 +173,7 @@ export default function FiatCurrencyPage() {
 const styles = StyleSheet.create({
   content: { alignSelf: 'center', flex: 1 },
   rate: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     textAlign: 'center',
     marginTop: 2,
     includeFontPadding: false,

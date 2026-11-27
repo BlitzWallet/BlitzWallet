@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { InputTypes } from 'bitcoin-address-parser';
-import { FONT } from '../../../../../constants';
+import { FONT, TYPE } from '../../../../../constants';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import ThemeText from '../../../../../functions/CustomElements/textTheme';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
@@ -165,8 +165,7 @@ const styles = StyleSheet.create({
   texts: { flexGrow: 1, flexShrink: 1 },
   name: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
     includeFontPadding: false,
   },
   verified: { flexDirection: 'row', alignItems: 'center', gap: 4 },

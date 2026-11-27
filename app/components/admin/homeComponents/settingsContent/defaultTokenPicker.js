@@ -2,6 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import PickRow from '../../../../functions/CustomElements/redesign/PickRow';
+import { TYPE } from '../../../../constants';
 
 export default function DefaultTokenPicker({
   options = [],
@@ -36,5 +37,5 @@ export default function DefaultTokenPicker({
 const styles = StyleSheet.create({
   container: { flex: 1, paddingBottom: 24, marginTop: 20 },
   card: { marginTop: 4 },
-  rowTitle: { fontSize: 15, lineHeight: 21 },
+  rowTitle: { ...TYPE.body },
 });

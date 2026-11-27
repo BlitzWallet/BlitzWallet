@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FONT } from '../../../../constants';
+import { FONT, TYPE } from '../../../../constants';
 import { ACCUMULATION_CHAINS } from '../../../../constants/accumulationAddresses';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import PickRow from '../../../../functions/CustomElements/redesign/PickRow';
@@ -94,8 +94,7 @@ const styles = StyleSheet.create({
   list: { flexGrow: 0 },
   address: {
     fontFamily: FONT.mono,
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
     includeFontPadding: false,
   },
 });

@@ -1,4 +1,5 @@
 import { StyleSheet, View } from 'react-native';
+import { TYPE } from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
 import ThemeText from '../textTheme';
 import ThemeIcon from '../themeIcon';
@@ -68,7 +69,7 @@ export default function PickRow({
 
 const styles = StyleSheet.create({
   texts: { flex: 1 },
-  title: { fontSize: 17, lineHeight: 24 },
+  title: { ...TYPE.rowTitle },
   radioSaving: { borderWidth: 0, backgroundColor: 'transparent' },
   radio: {
     width: 24,

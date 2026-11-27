@@ -8,6 +8,7 @@ import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   MAX_WEB_CONTENT_WIDTH,
+  TYPE,
 } from '../../../constants';
 import { crashlyticsLogReport } from '../../../functions/crashlyticsLogs';
 import TopBar from '../../../functions/CustomElements/redesign/TopBar';
@@ -130,6 +131,6 @@ const styles = StyleSheet.create({
   contentContainer: { flexGrow: 1, paddingTop: FADE_TOP, paddingBottom: FADE },
   infoCard: { marginTop: 32 },
   termsCard: { marginTop: 12 },
-  rowTitle: { fontSize: 15, lineHeight: 21 },
+  rowTitle: { ...TYPE.body },
   footer: { gap: 12, paddingTop: CONTENT_KEYBOARD_OFFSET },
 });

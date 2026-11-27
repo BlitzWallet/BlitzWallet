@@ -1,4 +1,4 @@
-import { COLORS, FONT, SIZES, SHADOWS } from './theme';
+import { COLORS, FONT, SIZES, TYPE, SHADOWS } from './theme';
 import ICONS from './icons';
 import { CENTER, BTN, Background } from './styles';
 import { SATSPERBITCOIN } from './math';
@@ -193,6 +193,7 @@ export {
   COLORS,
   FONT,
   SIZES,
+  TYPE,
   SHADOWS,
   ICONS,
   CENTER,

@@ -8,7 +8,7 @@ import { useTheme } from '../../../../../../context-store/theme';
 import { getRootstockSwapStatusLabel } from '../../../../../functions/boltz/rootstock/swapProgress';
 import { canRefundRootstockSwap } from '../../../../../functions/boltz/rootstock/swapStatus';
 import { loadSwaps } from '../../../../../functions/boltz/rootstock/swapDb';
-import { FONT } from '../../../../../constants';
+import { FONT, TYPE } from '../../../../../constants';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import ThemeText from '../../../../../functions/CustomElements/textTheme';
@@ -219,8 +219,7 @@ const styles = StyleSheet.create({
   },
   pillText: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 13,
-    lineHeight: 18,
+    ...TYPE.hint,
     includeFontPadding: false,
   },
   amount: {
@@ -233,8 +232,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   details: {

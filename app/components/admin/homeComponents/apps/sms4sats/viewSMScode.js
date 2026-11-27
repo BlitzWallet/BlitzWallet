@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../../../functions/CustomElements';
-import { FONT } from '../../../../../constants';
+import { FONT, TYPE } from '../../../../../constants';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { copyToClipboard } from '../../../../../functions';
 import { useToast } from '../../../../../../context-store/toastManager';
@@ -76,8 +76,7 @@ const styles = StyleSheet.create({
   },
   label: {
     marginTop: 24,
-    fontSize: 14,
-    lineHeight: 20,
+    ...TYPE.label,
     includeFontPadding: false,
   },
   code: {
@@ -95,8 +94,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   warningText: {
-    fontSize: 13,
-    lineHeight: 19,
+    ...TYPE.hint,
     flexShrink: 1,
     includeFontPadding: false,
   },

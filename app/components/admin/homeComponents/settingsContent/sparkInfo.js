@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { useReducedMotion } from '../../../../constants/motion';
-import { MAX_WEB_CONTENT_WIDTH } from '../../../../constants';
+import { MAX_WEB_CONTENT_WIDTH, TYPE } from '../../../../constants';
 import {
   GlobalThemeView,
   ThemeText,
@@ -152,6 +152,6 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   scrollContent: { paddingTop: FADE_TOP },
   infoCard: { marginVertical: 6 },
-  rowTitle: { fontSize: 15, lineHeight: 21 },
+  rowTitle: { ...TYPE.body },
   note: { marginTop: 8, marginHorizontal: 4 },
 });

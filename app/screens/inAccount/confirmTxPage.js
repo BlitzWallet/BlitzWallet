@@ -1,5 +1,5 @@
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
-import { AMOUNT_HERO_SIZE, FONT } from '../../constants';
+import { AMOUNT_HERO_SIZE, FONT, TYPE } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useEffect, useRef, useState } from 'react';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
@@ -532,8 +532,7 @@ const styles = StyleSheet.create({
   title: { textAlign: 'center', marginTop: 12 },
   status: {
     fontFamily: FONT.Title_Regular,
-    fontSize: 16,
-    lineHeight: 24,
+    ...TYPE.button,
     includeFontPadding: false,
     maxWidth: 300,
     textAlign: 'center',

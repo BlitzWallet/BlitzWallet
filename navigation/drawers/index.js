@@ -19,6 +19,7 @@ import { ThemeText } from '../../app/functions/CustomElements';
 import CustomScrollView from '../../app/functions/CustomElements/scrollView';
 import ListCard from '../../app/functions/CustomElements/redesign/ListCard';
 import Disc from '../../app/functions/CustomElements/redesign/Disc';
+import { TYPE } from '../../app/constants';
 
 const Drawer = createDrawerNavigator();
 
@@ -177,8 +178,9 @@ const styles = StyleSheet.create({
   },
   drawerTitle: {
     minHeight: 44,
-    fontSize: 20,
-    lineHeight: 44,
+    ...TYPE.section,
+    // 26 line + 9 + 9 = the old 44 pt row, without centring via lineHeight.
+    paddingVertical: 9,
     includeFontPadding: false,
   },
   drawerList: {

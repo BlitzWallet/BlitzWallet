@@ -12,6 +12,7 @@ import ListCard, {
   ListDivider,
 } from '../../../../../../functions/CustomElements/redesign/ListCard';
 import PickRow from '../../../../../../functions/CustomElements/redesign/PickRow';
+import { TYPE } from '../../../../../../constants';
 
 const formatPrice = price => Number(price).toFixed(2);
 
@@ -111,8 +112,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   rowTitle: {
-    fontSize: 15,
-    lineHeight: 21,
+    ...TYPE.body,
   },
   noModelsText: {
     textAlign: 'center',

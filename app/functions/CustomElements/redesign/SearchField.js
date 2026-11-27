@@ -1,4 +1,5 @@
 import { StyleSheet, View } from 'react-native';
+import { TYPE } from '../../../constants';
 import { useTheme } from '../../../../context-store/theme';
 import CustomSearchInput from '../searchInput';
 import ThemeIcon from '../themeIcon';
@@ -61,8 +62,7 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
     paddingLeft: 48,
     paddingRight: 16,
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
   },
   pill: { borderRadius: 999 },
   glyph: { position: 'absolute', left: 16, top: 17 },

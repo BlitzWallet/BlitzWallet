@@ -7,6 +7,7 @@ import {
   CONTENT_KEYBOARD_OFFSET,
   MAX_WEB_CONTENT_WIDTH,
   MIN_BTC_USD_AMOUNT_RECEIVEPAGE,
+  TYPE,
 } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useCallback, useMemo, useState } from 'react';
@@ -367,8 +368,7 @@ const styles = StyleSheet.create({
   note: { marginBottom: 12 },
   secondary: {
     marginTop: 4,
-    fontSize: 15,
-    lineHeight: 22,
+    ...TYPE.body,
     textAlign: 'center',
     includeFontPadding: false,
   },

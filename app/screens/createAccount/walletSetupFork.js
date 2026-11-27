@@ -5,6 +5,7 @@ import {
   CENTER,
   MAX_WEB_CONTENT_WIDTH,
   PENDING_PARENT_CONTACT_KEY,
+  TYPE,
 } from '../../constants';
 import GlobalThemeView from '../../functions/CustomElements/globalThemeView';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
@@ -93,5 +94,5 @@ const styles = StyleSheet.create({
     ...CENTER,
   },
   card: { marginTop: 32 },
-  rowTitle: { fontSize: 15, lineHeight: 21 },
+  rowTitle: { ...TYPE.body },
 });
