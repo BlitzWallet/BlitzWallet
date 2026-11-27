@@ -129,6 +129,8 @@ jest.mock('../../app/functions/spark/walletRuntime', () => ({
   acquire: async () => {
     mockWorld.bridgeCalls.push('addListeners');
     return {
+      lastVerifiedAt: () => null,
+      initialSyncFailed: () => false,
       on: cb => {
         mockWorld.breezListener = cb;
         return () => {

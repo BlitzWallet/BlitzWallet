@@ -8,7 +8,11 @@ import {
   useCallback,
 } from 'react';
 import { clearMnemonicCache } from '../app/functions/spark';
-import { acquire, disposeIdentity } from '../app/functions/spark/walletRuntime';
+import {
+  acquire,
+  disposeIdentity,
+  getSparkNetworkStatus,
+} from '../app/functions/spark/walletRuntime';
 import { createBalanceEngine } from '../app/functions/spark/balanceEngine';
 import { clearEnrichedTxCache } from '../app/functions/spark/enrichedTxCache';
 import { disposeWalletViewer } from '../app/functions/spark/walletViewer';
@@ -145,6 +149,14 @@ const SparkWalletProvider = ({ children }) => {
     sparkAddress: '',
     didConnect: null,
     didConnectToFlashnet: null,
+    // True once a balance confirmed by a Breez sync is on screen. didConnect /
+    // identityPubKey only mean the local SDK opened.
+    didSync: false,
+    // The first Breez sync could not reach Spark; sparkStatus is Spark's
+    // status page then ('operational' | 'degraded' | 'partial' | 'major' |
+    // 'unknown'), null until it answers.
+    syncFailed: false,
+    sparkStatus: null,
   });
   const [tokensImageCache, setTokensImageCache] = useState({});
   // Tx lists are not held here: pages read SQLite on demand. txsVersion bumps
@@ -587,9 +599,16 @@ const SparkWalletProvider = ({ children }) => {
             verified ? lastVerifiedAt : null,
           );
           setSparkInformation(prev =>
-            prev.balance === value && (!tokens || prev.tokens === tokens)
+            prev.balance === value &&
+            (!tokens || prev.tokens === tokens) &&
+            (!verified || prev.didSync)
               ? prev
-              : { ...prev, balance: value, ...(tokens ? { tokens } : {}) },
+              : {
+                  ...prev,
+                  balance: value,
+                  ...(tokens ? { tokens } : {}),
+                  ...(verified ? { didSync: true } : {}),
+                },
           );
         },
         read: () => getBalanceWithTimeout(currentMnemonicRef.current),
@@ -650,8 +669,32 @@ const SparkWalletProvider = ({ children }) => {
       .catch(err => console.log('ingestBreezPayment error', err));
   };
 
+  // Home falls back to the cached balance; the status picks its message.
+  const markSyncFailed = () => {
+    const authKey = authResetKeyRef.current;
+    setSparkInformation(prev =>
+      prev.syncFailed ? prev : { ...prev, syncFailed: true },
+    );
+    getSparkNetworkStatus()
+      .catch(() => 'unknown')
+      .then(sparkStatus => {
+        if (authKey !== authResetKeyRef.current) return;
+        setSparkInformation(prev => ({ ...prev, sparkStatus }));
+      });
+  };
+
+  // Breez resolves syncWallet even when the wallet sync failed (syncError).
+  // A success also emits Synced, which lands the verified balance.
+  const retrySparkSync = useCallback(async () => {
+    const r = await walletHandleRef.current?.sync();
+    return { didWork: !!r && !r.timedOut && !r.error && !r.syncError };
+  }, []);
+
   const handleBreezEvent = event => {
     switch (event?.type) {
+      case 'syncFailed':
+        markSyncFailed();
+        break;
       case 'synced':
         getBalanceEngine().onEvent(event);
         scheduleHistoryDiff();
@@ -718,6 +761,12 @@ const SparkWalletProvider = ({ children }) => {
       }
       walletHandleRef.current = handle;
       unsubscribeRef.current = handle.on(handleBreezEvent);
+      // The first sync can finish before this subscription exists.
+      if (handle.lastVerifiedAt()) {
+        getBalanceEngine().onEvent({ type: 'synced' });
+      } else if (handle.initialSyncFailed()) {
+        markSyncFailed();
+      }
       attachedMnemonicRef.current = mnemonic;
       return true;
     } catch (err) {
@@ -828,6 +877,9 @@ const SparkWalletProvider = ({ children }) => {
         sparkAddress: '',
         didConnect: null,
         didConnectToFlashnet: null,
+        didSync: false,
+        syncFailed: false,
+        sparkStatus: null,
       }));
       contactsPrivateKeyRef.current = '';
       contactsPublicKeyRef.current = null;
@@ -1116,6 +1168,7 @@ const SparkWalletProvider = ({ children }) => {
       txsVersion,
       setSparkInformation,
       connectToSparkWallet,
+      retrySparkSync,
       sparkConnectionError,
       tokensImageCache,
       showTokensInformation,
@@ -1127,6 +1180,7 @@ const SparkWalletProvider = ({ children }) => {
       txsVersion,
       setSparkInformation,
       connectToSparkWallet,
+      retrySparkSync,
       sparkConnectionError,
       tokensImageCache,
       showTokensInformation,

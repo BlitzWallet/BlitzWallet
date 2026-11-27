@@ -134,10 +134,14 @@ export default function HomeLightning() {
   const showWalletConnectionError =
     !isConnectedToTheInternet ||
     (sparkInformation.didConnect === false && !!sparkConnectionError);
-  // A failed connect never sets the key, so fall back to the cached snapshot.
+  // Connected, but the first Breez sync could not reach Spark.
+  const showSyncError =
+    !!sparkInformation.syncFailed && !sparkInformation.didSync;
+  // Without a synced balance, fall back to the cached snapshot.
   const isWalletLoaded =
-    !!sparkInformation.identityPubKey ||
-    (showWalletConnectionError && !!sparkInformation.balanceUpdatedAt);
+    !!sparkInformation.didSync ||
+    ((showWalletConnectionError || showSyncError) &&
+      !!sparkInformation.balanceUpdatedAt);
   // Total includes dollars, which need the pool price to convert (R2). Flashnet
   // retries forever, so stop waiting after a while: until the price arrives the
   // total counts Bitcoin only, and the Dollars tile still reads right.
@@ -151,7 +155,10 @@ export default function HomeLightning() {
   }, [isWaitingForPrice]);
   const isTotalLoaded =
     isWalletLoaded &&
-    (!isWaitingForPrice || didPriceTimeOut || showWalletConnectionError);
+    (!isWaitingForPrice ||
+      didPriceTimeOut ||
+      showWalletConnectionError ||
+      showSyncError);
   const isHidden = masterInfoObject.userBalanceDenomination === 'hidden';
   // Fiat mode shows the total at market rates (display only; totalSatValue and
   // dollarBalanceSat stay pool-valued). Null -> render the sats total instead.
@@ -328,7 +335,10 @@ export default function HomeLightning() {
           <BalanceActions />
 
           <View style={styles.footer}>
-            <ConnectionErrorCard visible={showWalletConnectionError} />
+            <ConnectionErrorCard
+              visible={showWalletConnectionError || showSyncError}
+              isSyncError={!showWalletConnectionError && showSyncError}
+            />
             {showBackupWalletWarning && (
               <HomeCard
                 onPress={handleBackupRecovery}

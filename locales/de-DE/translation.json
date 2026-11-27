@@ -1440,6 +1440,7 @@
         "backupSub": "Bewahren Sie Ihre Wiederherstellungsphrase sicher auf",
         "connectionTitle": "Verbindung derzeit nicht möglich",
         "connectionSub": "Zeigt Ihr Guthaben von {{time}}",
+        "sparkOutageTitle": "Spark hat eine Störung",
         "tokensOne": "{{first}}",
         "tokensTwo": "{{first}} und {{second}}",
         "tokensMore": "{{first}}, {{second}} und {{count}} weitere"

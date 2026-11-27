@@ -149,6 +149,25 @@ function attach(sdk, entry) {
     });
 }
 
+// Breez does not replay events, so a first Synced that lands before attach()
+// is lost. getInfo({ ensureSynced }) resolves after the initial Full sync (at
+// once if it already ran); lastSyncError says it could not reach the network.
+function watchInitialSync(sdk, entry) {
+  call(() => sdk.getInfo({ ensureSynced: true })).then(
+    info => {
+      if (entry.disposed) return;
+      if (info?.lastSyncError) {
+        entry.initialSyncFailed = true;
+        for (const cb of entry.listeners) cb({ type: 'syncFailed' });
+        return;
+      }
+      entry.lastVerifiedAt = Date.now();
+      for (const cb of entry.listeners) cb({ type: 'synced' });
+    },
+    () => {},
+  );
+}
+
 function makeHandle(entry) {
   const sdk = entry.sdk;
   return {
@@ -168,7 +187,7 @@ function makeHandle(entry) {
     },
     async sync(timeoutMs = 15000) {
       try {
-        await call(() =>
+        const res = await call(() =>
           withTimeout(sdk.syncWallet({}), timeoutMs, 'syncWallet'),
         );
         // Server mode has no background processor, so the SDK never emits
@@ -176,7 +195,8 @@ function makeHandle(entry) {
         if (entry.mode === 'server') {
           for (const cb of entry.listeners) cb({ type: 'synced' });
         }
-        return { timedOut: false };
+        // Breez resolves even when the wallet sync failed; this says so.
+        return { timedOut: false, syncError: res?.lastSyncError };
       } catch (e) {
         if (e?.requiresReload) throw e;
         return {
@@ -419,6 +439,9 @@ function makeHandle(entry) {
     lastVerifiedAt() {
       return entry.lastVerifiedAt || null;
     },
+    initialSyncFailed() {
+      return !!entry.initialSyncFailed;
+    },
     async dispose({ wipe = false } = {}) {
       await disposeEntry(entry, { wipe });
     },
@@ -501,10 +524,13 @@ async function createEntry(
       refs: 1,
       listeners: new Set(),
       lastVerifiedAt: 0,
+      initialSyncFailed: false,
       releaseTimer: null,
       disposed: false,
     };
     await attach(sdk, entry);
+    // Server mode has no background sync (ensureSynced is rejected there).
+    if (mode === 'client') watchInitialSync(sdk, entry);
     return entry;
   } catch (e) {
     await sdk.disconnect().catch(() => {});
@@ -694,5 +720,14 @@ export function peek(identity) {
 }
 
 export const isAppActive = () => document.visibilityState === 'visible';
+
+// Spark's public status page (Operators + SSP), not this device's connection.
+export async function getSparkNetworkStatus() {
+  await ensureBreez();
+  const res = await call(() =>
+    withTimeout(breez.getSparkStatus(), READ_TIMEOUT_MS, 'getSparkStatus'),
+  );
+  return res?.status || 'unknown';
+}
 
 export { withTimeout, identityFor, storageDirFor };

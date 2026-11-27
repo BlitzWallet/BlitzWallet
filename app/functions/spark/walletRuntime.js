@@ -2,6 +2,8 @@ import { AppState } from 'react-native';
 import { documentDirectory, deleteAsync } from 'expo-file-system/legacy';
 import {
   connect,
+  getSparkStatus,
+  ServiceStatus,
   defaultConfig,
   defaultServerConfig,
   defaultExternalSigners,
@@ -144,6 +146,25 @@ function attach(sdk, entry) {
   });
 }
 
+// Breez does not replay events, so a first Synced that lands before attach()
+// is lost. getInfo({ ensureSynced }) resolves after the initial Full sync (at
+// once if it already ran); lastSyncError says it could not reach the network.
+function watchInitialSync(sdk, entry) {
+  sdk.getInfo({ ensureSynced: true }).then(
+    info => {
+      if (entry.disposed) return;
+      if (info?.lastSyncError) {
+        entry.initialSyncFailed = true;
+        for (const cb of entry.listeners) cb({ type: 'syncFailed' });
+        return;
+      }
+      entry.lastVerifiedAt = Date.now();
+      for (const cb of entry.listeners) cb({ type: 'synced' });
+    },
+    () => {},
+  );
+}
+
 function makeHandle(entry) {
   const sdk = entry.sdk;
   return {
@@ -160,13 +181,18 @@ function makeHandle(entry) {
     },
     async sync(timeoutMs = 15000) {
       try {
-        await withTimeout(sdk.syncWallet({}), timeoutMs, 'syncWallet');
+        const res = await withTimeout(
+          sdk.syncWallet({}),
+          timeoutMs,
+          'syncWallet',
+        );
         // Server mode has no background processor, so the SDK never emits
         // Synced: emit it here so balance subscribers re-read after a sync.
         if (entry.mode === 'server') {
           for (const cb of entry.listeners) cb({ type: 'synced' });
         }
-        return { timedOut: false };
+        // Breez resolves even when the wallet sync failed; this says so.
+        return { timedOut: false, syncError: res?.lastSyncError };
       } catch (e) {
         return {
           timedOut: e?.kind === 'timeout',
@@ -408,6 +434,9 @@ function makeHandle(entry) {
     lastVerifiedAt() {
       return entry.lastVerifiedAt || null;
     },
+    initialSyncFailed() {
+      return !!entry.initialSyncFailed;
+    },
     async dispose({ wipe = false } = {}) {
       await disposeEntry(entry, { wipe });
     },
@@ -492,10 +521,13 @@ async function createEntry(
       refs: 1,
       listeners: new Set(),
       lastVerifiedAt: 0,
+      initialSyncFailed: false,
       releaseTimer: null,
       disposed: false,
     };
     await attach(sdk, entry);
+    // Server mode has no background sync (ensureSynced is rejected there).
+    if (mode === 'client') watchInitialSync(sdk, entry);
     return entry;
   } catch (e) {
     await disconnectQuietly(sdk);
@@ -676,6 +708,27 @@ export function peek(identity) {
 
 export function isAppActive() {
   return activeApp.value;
+}
+
+// Spark's public status page (Operators + SSP), not this device's connection.
+export async function getSparkNetworkStatus() {
+  const res = await withTimeout(
+    getSparkStatus({ proxy: undefined }),
+    READ_TIMEOUT_MS,
+    'getSparkStatus',
+  );
+  switch (res?.status) {
+    case ServiceStatus.Operational:
+      return 'operational';
+    case ServiceStatus.Degraded:
+      return 'degraded';
+    case ServiceStatus.Partial:
+      return 'partial';
+    case ServiceStatus.Major:
+      return 'major';
+    default:
+      return 'unknown';
+  }
 }
 
 export { withTimeout, identityFor, storageDirFor };

@@ -29,15 +29,21 @@ function formatLastConnected(timestamp) {
 // Retry reconnects; after one failed retry the pill reports the error (same
 // two steps as SparkErrorScreen). The last connected time lives on the wallet's
 // balance snapshot, so a failure right at launch can say how old the balance is.
-export default function ConnectionErrorCard({ visible }) {
+// isSyncError: connected, but the Breez sync can't reach Spark. Retry syncs
+// again and the title says when Spark's status page reports an outage.
+export default function ConnectionErrorCard({ visible, isSyncError }) {
   const reduced = useReducedMotion();
   const { t } = useTranslation();
   const navigate = useNavigation();
   const { tokens } = useTheme();
   const { showToast } = useToast();
   const { isConnectedToTheInternet } = useAppStatus();
-  const { sparkInformation, sparkConnectionError, connectToSparkWallet } =
-    useSparkWallet();
+  const {
+    sparkInformation,
+    sparkConnectionError,
+    connectToSparkWallet,
+    retrySparkSync,
+  } = useSparkWallet();
   const [isRetrying, setIsRetrying] = useState(false);
   const [didRetryFail, setDidRetryFail] = useState(false);
   const [connectedAt, setConnectedAt] = useState(null);
@@ -50,12 +56,13 @@ export default function ConnectionErrorCard({ visible }) {
 
   useEffect(() => {
     if (!sparkInformation.identityPubKey) return;
-    if (!sparkInformation.didConnect || !isConnectedToTheInternet) return;
+    // Only a synced balance is current; a connect alone may be the cache.
+    if (!sparkInformation.didSync || !isConnectedToTheInternet) return;
     setConnectedAt(Date.now());
     touchAccountBalanceSnapshot(sparkInformation.identityPubKey);
   }, [
     sparkInformation.identityPubKey,
-    sparkInformation.didConnect,
+    sparkInformation.didSync,
     sparkInformation.balance,
     isConnectedToTheInternet,
   ]);
@@ -83,9 +90,9 @@ export default function ConnectionErrorCard({ visible }) {
     }
     setIsRetrying(true);
     try {
-      const { didWork } = await connectToSparkWallet(
-        sparkInformation.identityPubKey,
-      );
+      const { didWork } = isSyncError
+        ? await retrySparkSync()
+        : await connectToSparkWallet(sparkInformation.identityPubKey);
       setDidRetryFail(!didWork);
     } catch (err) {
       console.log('home connection retry error', err);
@@ -104,7 +111,12 @@ export default function ConnectionErrorCard({ visible }) {
     >
       <HomeCard
         lead={<Disc icon={'WifiOff'} size={44} iconSize={20} tone="warm" />}
-        title={t('wallet.homeLightning.home.connectionTitle')}
+        title={t(
+          isSyncError &&
+            ['partial', 'major'].includes(sparkInformation.sparkStatus)
+            ? 'wallet.homeLightning.home.sparkOutageTitle'
+            : 'wallet.homeLightning.home.connectionTitle',
+        )}
         sub={
           lastConnectedAt
             ? t('wallet.homeLightning.home.connectionSub', {

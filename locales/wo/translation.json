@@ -1436,6 +1436,7 @@
         "backupSub": "Dencal sa baati jotaat yi ci bérab bu wóor",
         "connectionTitle": "Mënuloo lëkkaloo léegi",
         "connectionSub": "Mingi wone sa xaalis ci {{time}}",
+        "sparkOutageTitle": "Spark jàppandiwul léegi",
         "tokensOne": "{{first}}",
         "tokensTwo": "{{first}} ak {{second}}",
         "tokensMore": "{{first}}, {{second}} ak {{count}} yeneen"

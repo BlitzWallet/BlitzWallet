@@ -1450,6 +1450,7 @@
         "backupSub": "Храните фразу восстановления в безопасности",
         "connectionTitle": "Сейчас нет подключения",
         "connectionSub": "Показан баланс на {{time}}",
+        "sparkOutageTitle": "В Spark произошёл сбой",
         "tokensOne": "{{first}}",
         "tokensTwo": "{{first}} и {{second}}",
         "tokensMore": "{{first}}, {{second}} и ещё {{count}}"

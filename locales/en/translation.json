@@ -1440,6 +1440,7 @@
         "backupSub": "Keep your recovery phrase safe",
         "connectionTitle": "Can’t connect right now",
         "connectionSub": "Showing your balance from {{time}}",
+        "sparkOutageTitle": "Spark is having an outage",
         "tokensOne": "{{first}}",
         "tokensTwo": "{{first}} and {{second}}",
         "tokensMore": "{{first}}, {{second}} and {{count}} more"

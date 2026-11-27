@@ -1440,6 +1440,7 @@
         "backupSub": "Håll din återställningsfras säker",
         "connectionTitle": "Kan inte ansluta just nu",
         "connectionSub": "Visar ditt saldo från {{time}}",
+        "sparkOutageTitle": "Spark har en driftstörning",
         "tokensOne": "{{first}}",
         "tokensTwo": "{{first}} och {{second}}",
         "tokensMore": "{{first}}, {{second}} och {{count}} till"
