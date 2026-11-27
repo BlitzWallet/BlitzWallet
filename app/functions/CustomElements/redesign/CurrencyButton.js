@@ -25,7 +25,12 @@ export default function BudgetCurrencyButton({
         { backgroundColor: inSheet ? tokens.disc : tokens.surface },
       ]}
     >
-      <ThemeText content={label} styles={styles.currencyLabel} />
+      {/* No font scaling: the pill must fit TopBar's fixed TOPBAR_SIDE.pill. */}
+      <ThemeText
+        content={label}
+        styles={styles.currencyLabel}
+        allowFontScaling={false}
+      />
       {disabled ? (
         <Spinner size="small" color={tokens.ink} />
       ) : (

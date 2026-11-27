@@ -40,7 +40,9 @@ import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import truncateToTwoDecimals from '../../../../functions/truncateNumber';
-import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import TopBar, {
+  TOPBAR_SIDE,
+} from '../../../../functions/CustomElements/redesign/TopBar';
 import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
@@ -582,6 +584,7 @@ export default function AddMoneyToSavingsHalfModal({
     return (
       <>
         <TopBar
+          sideWidth={TOPBAR_SIDE.pill}
           onBack={goBack}
           right={
             <BudgetCurrencyButton

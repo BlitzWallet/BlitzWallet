@@ -21,7 +21,9 @@ import {
 import CustomButton from '../../../../functions/CustomElements/button';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
-import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import TopBar, {
+  TOPBAR_SIDE,
+} from '../../../../functions/CustomElements/redesign/TopBar';
 import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
 import AnimatedStep from '../../../../functions/CustomElements/redesign/AnimatedStep';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
@@ -265,6 +267,7 @@ export default function SendAndRequestPage(props) {
     >
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          sideWidth={TOPBAR_SIDE.pill}
           fade
           title={title}
           onBack={step === 'note' ? goToAmount : undefined}

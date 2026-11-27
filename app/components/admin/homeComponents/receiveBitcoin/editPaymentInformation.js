@@ -15,7 +15,9 @@ import CustomNumberKeyboard from '../../../../functions/CustomElements/customNum
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useTranslation } from 'react-i18next';
 import UserInput from '../../../../functions/CustomElements/redesign/UserInput';
-import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import TopBar, {
+  TOPBAR_SIDE,
+} from '../../../../functions/CustomElements/redesign/TopBar';
 import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
 import BudgetCurrencyButton from '../../../../functions/CustomElements/redesign/CurrencyButton';
 import formatBalanceAmount from '../../../../functions/formatNumber';
@@ -269,6 +271,7 @@ export default function EditReceivePaymentInformation(props) {
     >
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          sideWidth={TOPBAR_SIDE.pill}
           shouldDismissKeyboard={true}
           title={t(
             fromPage === 'homepage'

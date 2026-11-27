@@ -30,7 +30,9 @@ import { useServerTimeOnly } from '../../../../../context-store/serverTime';
 import { useTranslation } from 'react-i18next';
 import { useExpandedNavbar } from './hooks/useExpandedNavbar';
 import { shareMessage } from '../../../../functions/handleShare';
-import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import TopBar, {
+  TOPBAR_SIDE,
+} from '../../../../functions/CustomElements/redesign/TopBar';
 import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import SectionHeader from '../../../../functions/CustomElements/redesign/SectionHeader';
@@ -330,6 +332,7 @@ export default function ExpandedContactsPage(props) {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          sideWidth={TOPBAR_SIDE.twoIcons}
           fade
           right={
             selectedContact && (
@@ -439,7 +442,7 @@ const styles = StyleSheet.create({
   },
   topBar: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 8,
   },
   buttonContainer: {
     width: '100%',

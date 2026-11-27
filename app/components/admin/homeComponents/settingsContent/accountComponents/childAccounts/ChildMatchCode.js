@@ -7,7 +7,9 @@ import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../../functions/CustomElements';
-import TopBar from '../../../../../../functions/CustomElements/redesign/TopBar';
+import TopBar, {
+  TOPBAR_SIDE,
+} from '../../../../../../functions/CustomElements/redesign/TopBar';
 import PageHeader from '../../../../../../functions/CustomElements/redesign/PageHeader';
 import CustomButton from '../../../../../../functions/CustomElements/button';
 import {
@@ -74,6 +76,7 @@ export default function ChildMatchCode() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          sideWidth={TOPBAR_SIDE.pill}
           fade
           title={t('settings.childAccounts.pairing.sasNavTitle')}
           onBack={handleNoMatch}

@@ -27,7 +27,9 @@ import {
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { satsToDollars } from '../../../../functions/spark/flashnet';
-import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import TopBar, {
+  TOPBAR_SIDE,
+} from '../../../../functions/CustomElements/redesign/TopBar';
 import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
 import GetThemeColors from '../../../../hooks/themeColors';
 
@@ -121,6 +123,7 @@ export default function SavingsGoalAmount(props) {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          sideWidth={TOPBAR_SIDE.pill}
           title={
             mode === 'update' ? goalName : t('savings.goalAmount.screenTitle')
           }

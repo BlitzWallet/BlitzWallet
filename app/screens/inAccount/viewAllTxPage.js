@@ -14,7 +14,9 @@ import { useSparkWallet } from '../../../context-store/sparkContext';
 import { useActivitySeen } from '../../../context-store/activitySeen';
 import { useFlashnet } from '../../../context-store/flashnetContext';
 import { getFilteredTransactions } from '../../functions/spark/transactions';
-import TopBar from '../../functions/CustomElements/redesign/TopBar';
+import TopBar, {
+  TOPBAR_SIDE,
+} from '../../functions/CustomElements/redesign/TopBar';
 import IconButton from '../../functions/CustomElements/redesign/IconButton';
 import EmptyState from '../../functions/CustomElements/redesign/EmptyState';
 import SectionHeader from '../../functions/CustomElements/redesign/SectionHeader';
@@ -195,6 +197,7 @@ export default function ViewAllTxPage() {
     <GlobalThemeView edgeToEdge useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          sideWidth={TOPBAR_SIDE.twoIcons}
           fade
           title={t(`${NS}.title`)}
           right={

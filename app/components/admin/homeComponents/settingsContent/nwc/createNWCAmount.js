@@ -18,7 +18,9 @@ import FullLoadingScreen from '../../../../../functions/CustomElements/loadingSc
 import CustomNumberKeyboard from '../../../../../functions/CustomElements/customNumberKeyboard';
 import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import AmountHero from '../../../../../functions/CustomElements/redesign/AmountHero';
-import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
+import TopBar, {
+  TOPBAR_SIDE,
+} from '../../../../../functions/CustomElements/redesign/TopBar';
 import BudgetCurrencyButton from '../../../../../functions/CustomElements/redesign/CurrencyButton';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
@@ -268,6 +270,7 @@ export default function CreateNWCAmount(props) {
     <GlobalThemeView useStandardWidth={true} styles={{ width: '100%' }}>
       <View style={[styles.inner, { width: INSET_WINDOW_WIDTH }, CENTER]}>
         <TopBar
+          sideWidth={TOPBAR_SIDE.pill}
           title={t('settings.nwc.createNWCAmount.title')}
           shouldDismissKeyboard={true}
           right={

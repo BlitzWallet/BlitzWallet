@@ -30,7 +30,9 @@ import {
   SATS_DISPLAY_CURRENCY,
 } from '../../../../../../functions/displayCurrency';
 import ThemeIcon from '../../../../../../functions/CustomElements/themeIcon';
-import TopBar from '../../../../../../functions/CustomElements/redesign/TopBar';
+import TopBar, {
+  TOPBAR_SIDE,
+} from '../../../../../../functions/CustomElements/redesign/TopBar';
 import AmountHero from '../../../../../../functions/CustomElements/redesign/AmountHero';
 import Note from '../../../../../../functions/CustomElements/redesign/Note';
 import StepProgress from '../../../../../../functions/CustomElements/redesign/StepProgress';
@@ -404,6 +406,7 @@ export default function ConfirmChatGPTPage({
         exitsBack={direction === -1}
       >
         <TopBar
+          sideWidth={TOPBAR_SIDE.pill}
           onBack={goBack}
           right={
             <BudgetCurrencyButton

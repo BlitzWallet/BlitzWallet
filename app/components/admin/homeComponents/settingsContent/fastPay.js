@@ -22,7 +22,9 @@ import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
-import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import TopBar, {
+  TOPBAR_SIDE,
+} from '../../../../functions/CustomElements/redesign/TopBar';
 import BudgetCurrencyButton from '../../../../functions/CustomElements/redesign/CurrencyButton';
 import useCurrencyDisplay from '../../../../hooks/useCurrencyDisplay';
 import useAmountInputConversion from '../../../../hooks/useAmountInputConversion';
@@ -182,6 +184,7 @@ export default function FastPay() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.content, { width: contentWidth }]}>
         <TopBar
+          sideWidth={TOPBAR_SIDE.pill}
           fade
           title={t('screens.inAccount.settingsContent.fast pay')}
           right={

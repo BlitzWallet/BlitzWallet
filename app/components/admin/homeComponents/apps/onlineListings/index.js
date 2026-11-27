@@ -29,7 +29,7 @@ import ThemeIcon from '../../../../../functions/CustomElements/themeIcon';
 import EmptyState from '../../../../../functions/CustomElements/redesign/EmptyState';
 import openWebBrowser from '../../../../../functions/openWebBrowser';
 import Skeleton from '../../../../../functions/CustomElements/redesign/Skeleton';
-import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
+import TopBar, { TOPBAR_SIDE } from '../../../../../functions/CustomElements/redesign/TopBar';
 import IconButton from '../../../../../functions/CustomElements/redesign/IconButton';
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import SearchField from '../../../../../functions/CustomElements/redesign/SearchField';
@@ -303,6 +303,7 @@ export default function ViewOnlineListings({ removeUserLocal }) {
     >
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          sideWidth={TOPBAR_SIDE.twoIcons}
           fade
           title={t('apps.onlineListings.topBarLabel')}
           onBack={() => keyboardNavigate(() => navigate.popTo('HomeAdmin'))}

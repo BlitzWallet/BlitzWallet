@@ -32,6 +32,8 @@ export default function PairingExpiryClock() {
       <ThemeIcon redesign iconName="Clock" size={14} />
       <ThemeText
         styles={styles.countdownText}
+        // No font scaling: the pill must fit TopBar's fixed TOPBAR_SIDE.pill.
+        allowFontScaling={false}
         content={formatCountdown(timeLeft)}
       />
     </View>

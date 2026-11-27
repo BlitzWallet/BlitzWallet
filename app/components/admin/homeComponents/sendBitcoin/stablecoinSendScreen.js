@@ -9,7 +9,9 @@ import {
   ThemeText,
 } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
-import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import TopBar, {
+  TOPBAR_SIDE,
+} from '../../../../functions/CustomElements/redesign/TopBar';
 import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
 import CurrencyButton from '../../../../functions/CustomElements/redesign/CurrencyButton';
 import PaymentMethod from '../../../../functions/CustomElements/redesign/PaymentMethod';
@@ -757,6 +759,7 @@ export default function StablecoinSendScreen() {
     <GlobalThemeView useStandardWidth={false}>
       <View style={[styles.replacementContainer, { width: contentWidth }]}>
         <TopBar
+          sideWidth={TOPBAR_SIDE.pill}
           fade
           title={`${t('constants.send')}`}
           right={
@@ -768,25 +771,6 @@ export default function StablecoinSendScreen() {
               }
               style={[styles.topBarRight, { opacity: isConfirmMode ? 0 : 1 }]}
             >
-              {countdown != null && (
-                <View
-                  style={[
-                    styles.countdownPill,
-                    { backgroundColor: tokens.surface },
-                  ]}
-                  accessibilityLabel={`${t(
-                    'wallet.stablecoinSend.quoteExpiresIn',
-                  )} ${formatCountdown(countdown)}`}
-                >
-                  <ThemeText
-                    styles={[
-                      styles.countdownText,
-                      !!countdownDanger && { color: countdownDanger },
-                    ]}
-                    content={formatCountdown(countdown)}
-                  />
-                </View>
-              )}
               {sourceMethod !== 'USD' && (
                 <CurrencyButton
                   label={

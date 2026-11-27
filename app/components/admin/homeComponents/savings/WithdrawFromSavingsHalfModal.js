@@ -52,7 +52,9 @@ import {
   SATS_DISPLAY_CURRENCY,
 } from '../../../../functions/displayCurrency';
 import BudgetCurrencyButton from '../../../../functions/CustomElements/redesign/CurrencyButton';
-import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import TopBar, {
+  TOPBAR_SIDE,
+} from '../../../../functions/CustomElements/redesign/TopBar';
 import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
 import ListCard from '../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../functions/CustomElements/redesign/ListRow';
@@ -1054,6 +1056,7 @@ export default function WithdrawFromSavingsHalfModal({
     return (
       <>
         <TopBar
+          sideWidth={TOPBAR_SIDE.pill}
           onBack={closeOrBack}
           right={
             <BudgetCurrencyButton

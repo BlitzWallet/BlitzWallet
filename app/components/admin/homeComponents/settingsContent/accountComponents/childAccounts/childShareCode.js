@@ -18,7 +18,9 @@ import { useChildPairing } from '../../../../../../../context-store/childPairing
 import ChildLinkError from './childLinkError';
 import PairingExpiryClock from './pairingExpiryClock';
 import useHandleBackPressNew from '../../../../../../hooks/useHandleBackPressNew';
-import TopBar from '../../../../../../functions/CustomElements/redesign/TopBar';
+import TopBar, {
+  TOPBAR_SIDE,
+} from '../../../../../../functions/CustomElements/redesign/TopBar';
 import PageHeader from '../../../../../../functions/CustomElements/redesign/PageHeader';
 import ThemeIcon from '../../../../../../functions/CustomElements/themeIcon';
 import { copyToClipboard } from '../../../../../../functions';
@@ -59,6 +61,7 @@ export default function ChildShareCode() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          sideWidth={TOPBAR_SIDE.pill}
           title={t('settings.childAccounts.pairing.codeNavTitle')}
           onBack={handleGoBack}
           right={status === 'preparing' ? null : <PairingExpiryClock />}

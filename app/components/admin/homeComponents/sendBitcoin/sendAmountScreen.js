@@ -15,7 +15,9 @@ import {
 } from '../../../../functions/CustomElements';
 import CustomScrollView from '../../../../functions/CustomElements/scrollView';
 import CustomButton from '../../../../functions/CustomElements/button';
-import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import TopBar, {
+  TOPBAR_SIDE,
+} from '../../../../functions/CustomElements/redesign/TopBar';
 import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
 import CurrencyButton from '../../../../functions/CustomElements/redesign/CurrencyButton';
 import PaymentMethod from '../../../../functions/CustomElements/redesign/PaymentMethod';
@@ -473,6 +475,7 @@ export default function SendAmountScreen(props) {
     >
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          sideWidth={TOPBAR_SIDE.pill}
           title={t('constants.send')}
           right={
             <View

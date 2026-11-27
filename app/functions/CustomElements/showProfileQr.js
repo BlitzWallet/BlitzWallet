@@ -14,7 +14,7 @@ import getDeepLinkUser from '../../components/admin/homeComponents/contacts/inte
 import { useNavigation } from '@react-navigation/native';
 import { getCachedProfileImage } from '../cachedImage';
 import { share } from '../handleShare';
-import TopBar from './redesign/TopBar';
+import TopBar, { TOPBAR_SIDE } from './redesign/TopBar';
 import IconButton from './redesign/IconButton';
 import CustomButton from './button';
 import useQrSize from '../../hooks/useQrSize';
@@ -133,6 +133,7 @@ export default function ShowProfileQr(props) {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          sideWidth={TOPBAR_SIDE.twoIcons}
           title={t('settings.index.showQR')}
           right={
             <>

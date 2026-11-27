@@ -13,7 +13,9 @@ import { useExpandedNavbar } from './hooks/useExpandedNavbar';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import AddContactsPage from './addContactsPage';
 import ContactRingAvatar from './internalComponents/contactsRingAvatar';
-import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import TopBar, {
+  TOPBAR_SIDE,
+} from '../../../../functions/CustomElements/redesign/TopBar';
 import IconButton from '../../../../functions/CustomElements/redesign/IconButton';
 import TopHeader from '../../../../functions/CustomElements/redesign/TopHeader';
 import { FADE_TOP } from '../../../../functions/CustomElements/redesign/TopFade';
@@ -71,6 +73,7 @@ const MemoizedNavBar = memo(
   }) => {
     return (
       <TopBar
+        sideWidth={TOPBAR_SIDE.twoIcons}
         onBack={onBack}
         right={
           <View
@@ -184,7 +187,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, ...CENTER },
   topBar: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 8,
   },
   profileImageContainer: {
     ...CENTER,

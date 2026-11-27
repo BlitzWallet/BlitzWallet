@@ -6,7 +6,9 @@ import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import CustomNumberKeyboard from '../../../../../functions/CustomElements/customNumberKeyboard';
-import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
+import TopBar, {
+  TOPBAR_SIDE,
+} from '../../../../../functions/CustomElements/redesign/TopBar';
 import AmountHero from '../../../../../functions/CustomElements/redesign/AmountHero';
 import BudgetCurrencyButton from '../../../../../functions/CustomElements/redesign/CurrencyButton';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
@@ -119,6 +121,7 @@ export default function PoolAmountKeypad({
   return (
     <>
       <TopBar
+        sideWidth={TOPBAR_SIDE.pill}
         onBack={onBack}
         showBack={!!onBack}
         right={

@@ -9,7 +9,9 @@ import {
   CENTER,
   MAX_WEB_CONTENT_WIDTH,
 } from '../../../../../../constants';
-import TopBar from '../../../../../../functions/CustomElements/redesign/TopBar';
+import TopBar, {
+  TOPBAR_SIDE,
+} from '../../../../../../functions/CustomElements/redesign/TopBar';
 import PageHeader from '../../../../../../functions/CustomElements/redesign/PageHeader';
 import { useGlobalContextProvider } from '../../../../../../../context-store/context';
 import { useKeysContext } from '../../../../../../../context-store/keys';
@@ -280,6 +282,7 @@ export default function ChildSpendingLimit(props) {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          sideWidth={TOPBAR_SIDE.pill}
           title={editChild?.name || name}
           right={
             <BudgetCurrencyButton

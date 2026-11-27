@@ -26,7 +26,7 @@ import useHandleBackPressNew from '../../../../../../hooks/useHandleBackPressNew
 import { copyToClipboard } from '../../../../../../functions';
 import { share } from '../../../../../../functions/handleShare';
 import { useToast } from '../../../../../../../context-store/toastManager';
-import TopBar from '../../../../../../functions/CustomElements/redesign/TopBar';
+import TopBar, { TOPBAR_SIDE } from '../../../../../../functions/CustomElements/redesign/TopBar';
 import Segmented from '../../../../../../functions/CustomElements/redesign/Segmented';
 import PageHeader from '../../../../../../functions/CustomElements/redesign/PageHeader';
 import useQrSize from '../../../../../../hooks/useQrSize';
@@ -116,6 +116,7 @@ export default function ChildLinkCode(props) {
       <GlobalThemeView useStandardWidth={true}>
         <View style={[styles.container, { width: contentWidth }]}>
           <TopBar
+            sideWidth={TOPBAR_SIDE.pill}
             title={t('settings.childAccounts.pairing.title')}
             onBack={handleQRDecline}
             right={<PairingExpiryClock />}
@@ -232,6 +233,7 @@ export default function ChildLinkCode(props) {
       <View style={[styles.container, { width: contentWidth }]}>
         <TopHeader>
           <TopBar
+            sideWidth={TOPBAR_SIDE.pill}
             title={t('settings.childAccounts.pairing.title')}
             right={<PairingExpiryClock />}
           />

@@ -25,7 +25,9 @@ import {
   normalizeDisplayCurrency,
   SATS_DISPLAY_CURRENCY,
 } from '../../../../functions/displayCurrency';
-import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import TopBar, {
+  TOPBAR_SIDE,
+} from '../../../../functions/CustomElements/redesign/TopBar';
 import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
 import GetThemeColors from '../../../../hooks/themeColors';
 import useDisplayUsdRate from '../../../../hooks/useDisplayUsdRate';
@@ -135,6 +137,7 @@ export default function AnalyticsCreateBudgetPage() {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.innerContainer, { width: contentWidth }]}>
         <TopBar
+          sideWidth={TOPBAR_SIDE.pill}
           title={t('analytics.budget.monthlyBudget')}
           right={
             <BudgetCurrencyButton

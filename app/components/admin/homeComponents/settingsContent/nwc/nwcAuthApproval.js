@@ -45,7 +45,9 @@ import ResultAnimation from '../../../../../functions/CustomElements/redesign/Re
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import ListRow from '../../../../../functions/CustomElements/redesign/ListRow';
 import TextButton from '../../../../../functions/CustomElements/redesign/TextButton';
-import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
+import TopBar, {
+  TOPBAR_SIDE,
+} from '../../../../../functions/CustomElements/redesign/TopBar';
 import BudgetCurrencyButton from '../../../../../functions/CustomElements/redesign/CurrencyButton';
 import AmountHero from '../../../../../functions/CustomElements/redesign/AmountHero';
 import AnimatedStep, {
@@ -503,6 +505,7 @@ function LimitStep({ appName, limit, onBack, onDone }) {
   return (
     <>
       <TopBar
+        sideWidth={TOPBAR_SIDE.pill}
         onBack={onBack}
         shouldDismissKeyboard={true}
         right={

@@ -28,7 +28,9 @@ import {
   normalizeDisplayCurrency,
   SATS_DISPLAY_CURRENCY,
 } from '../../../../functions/displayCurrency';
-import TopBar from '../../../../functions/CustomElements/redesign/TopBar';
+import TopBar, {
+  TOPBAR_SIDE,
+} from '../../../../functions/CustomElements/redesign/TopBar';
 import BudgetCurrencyButton from '../../../../functions/CustomElements/redesign/CurrencyButton';
 import AmountHero from '../../../../functions/CustomElements/redesign/AmountHero';
 import PaymentMethod from '../../../../functions/CustomElements/redesign/PaymentMethod';
@@ -122,6 +124,7 @@ export default function CreateGift(props) {
     <GlobalThemeView useStandardWidth={true}>
       <View style={[styles.container, { width: contentWidth }]}>
         <TopBar
+          sideWidth={TOPBAR_SIDE.pill}
           title={t('screens.inAccount.giftPages.createGift.header')}
           right={
             <BudgetCurrencyButton

@@ -32,7 +32,9 @@ import CustomNumberKeyboard from '../../../../../functions/CustomElements/custom
 import CustomButton from '../../../../../functions/CustomElements/button';
 import AccountCard, { getAccountName } from '../../accounts/accountCard';
 import PaymentMethod from '../../../../../functions/CustomElements/redesign/PaymentMethod';
-import TopBar from '../../../../../functions/CustomElements/redesign/TopBar';
+import TopBar, {
+  TOPBAR_SIDE,
+} from '../../../../../functions/CustomElements/redesign/TopBar';
 import ListCard from '../../../../../functions/CustomElements/redesign/ListCard';
 import EmptyState from '../../../../../functions/CustomElements/redesign/EmptyState';
 import StepProgress from '../../../../../functions/CustomElements/redesign/StepProgress';
@@ -739,6 +741,7 @@ export default function AccountTransferHalfModal({
         exitsBack={direction === -1}
       >
         <TopBar
+          sideWidth={TOPBAR_SIDE.pill}
           title={sheetTitle}
           onBack={handleBackPress}
           right={
