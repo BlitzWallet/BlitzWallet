@@ -37,7 +37,6 @@ const WEB_STUBS = {
   'expo-task-manager': EMPTY_NATIVE,
   'react-native-view-shot': EMPTY_NATIVE,
   'react-native-pdf-from-image': EMPTY_NATIVE,
-  'react-native-context-menu-view': EMPTY_NATIVE,
   'rn-qr-generator': EMPTY_NATIVE,
   'react-native-email-link': EMPTY_NATIVE,
   'react-native-country-picker-modal': shim(

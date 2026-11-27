@@ -5924,7 +5924,6 @@ __metadata:
     react-i18next: ^16.0.0
     react-native: 0.81.4
     react-native-clusterer: ^5.0.2
-    react-native-context-menu-view: ^1.19.0
     react-native-country-flag: ^2.0.2
     react-native-country-picker-modal: ^2.0.0
     react-native-device-info: ^14.0.4
@@ -15779,16 +15778,6 @@ __metadata:
     react-native: "*"
     react-native-nitro-modules: ^0.31.5
   checksum: 6f8efbc4c9e7e2e4598a7b2d3c138729f286c1cde3d0967f48837e8c3e194715f5e091423e03b26f8c1e4a1ebbe4cb183813122b8ad1ecf12f132035ce9336df
-  languageName: node
-  linkType: hard
-
-"react-native-context-menu-view@npm:^1.19.0":
-  version: 1.20.0
-  resolution: "react-native-context-menu-view@npm:1.20.0"
-  peerDependencies:
-    react: ^16.8.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
-    react-native: ">=0.60.0-rc.0 <1.0.x"
-  checksum: eb79972cd67ae0db46c3cae9d4fbf39cfd386b15b0a0c8bc870de1151aa4d9c9cd43df57c189f9e2e216883f7c603464332524245a355abe8b280dd7a5a14aa8
   languageName: node
   linkType: hard
 

@@ -3502,8 +3502,6 @@ PODS:
     - React-RCTFBReactNativeSpec
     - ReactCommon/turbomodule/core
     - SocketRocket
-  - react-native-context-menu-view (1.20.0):
-    - React
   - react-native-keyboard-controller (1.21.7):
     - boost
     - DoubleConversion
@@ -5138,7 +5136,6 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
-  - react-native-context-menu-view (from `../node_modules/react-native-context-menu-view`)
   - react-native-keyboard-controller (from `../node_modules/react-native-keyboard-controller`)
   - react-native-maps (from `../node_modules/react-native-maps`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
@@ -5401,8 +5398,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   React-microtasksnativemodule:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
-  react-native-context-menu-view:
-    :path: "../node_modules/react-native-context-menu-view"
   react-native-keyboard-controller:
     :path: "../node_modules/react-native-keyboard-controller"
   react-native-maps:
@@ -5635,7 +5630,6 @@ SPEC CHECKSUMS:
   React-logger: a3cb5b29c32b8e447b5a96919340e89334062b48
   React-Mapbuffer: e4a65db5f4df53369f39558c0cf2f480f6d3d6c7
   React-microtasksnativemodule: 86334c5c06315e0bccb7b6e6f2c905e92f98b615
-  react-native-context-menu-view: 418877dcac6add4abba8fc2ee92c39f05b763f3a
   react-native-keyboard-controller: c610d1f839ad9cd41f4420db14beaa1cf64263f6
   react-native-maps: eaa585c9d9f7e848d835839f18e108a8821ed9aa
   react-native-pager-view: 0e228ec2dfdd87807d125c7bbfb83299edede19c
